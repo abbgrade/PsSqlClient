@@ -12,10 +12,14 @@ jobs:
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
+      
+      - name: Trust PSGallery
+        shell: pwsh
+        run: Set-PSRepository -Name 'PSGallery' -InstallationPolicy Trusted
 
       - name: Install Build Framework
         shell: pwsh
-        run: Install-Module -Force InvokeBuild
+        run: Install-Module InvokeBuild
 
       - name: Build
         shell: pwsh

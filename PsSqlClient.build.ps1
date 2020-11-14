@@ -31,8 +31,9 @@ task requireTestDependencies {
 	if ( -not ( Get-Module -ListAvailable -Name Pester )) {
 		Install-Module Pester -Scope CurrentUser -SkipPublisherCheck
 	} elseif ( ( Get-Module -ListAvailable -Name Pester ).Version.Major -lt 5) {
-		Update-Module Pester -Scope CurrentUser -SkipPublisherCheck
+		Update-Module Pester -Scope CurrentUser
 	}
+
 	if ( -not ( Get-Module -ListAvailable -Name PSDocker )) {
 		Install-Module PSDocker -Scope CurrentUser
 	}

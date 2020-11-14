@@ -27,6 +27,10 @@ task test requireTestDependencies, build, {
 
 # Synopsis: Install the dependencies for tests.
 task requireTestDependencies {
+
+	if ( -not ( Get-Module -ListAvailable -Name Pester )) {
+		Install-Module Pester -Scope CurrentUser -SkipPublisherCheck
+	}
 	if ( -not ( Get-Module -ListAvailable -Name PSDocker )) {
 		Install-Module PSDocker -Scope CurrentUser
 	}

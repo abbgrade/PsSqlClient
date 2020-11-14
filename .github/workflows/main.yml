@@ -31,6 +31,8 @@ jobs:
 
       - name: Test
         shell: pwsh
-        run: |
-          Invoke-Pester -Passthru
-          if ((Test-Path -LiteralPath variable:\LASTEXITCODE)) { exit $LASTEXITCODE }
+        run: Invoke-Pester -Passthru
+
+      - name: Publish Unit Test Results
+        uses: EnricoMi/publish-unit-test-result-action@v1.4
+

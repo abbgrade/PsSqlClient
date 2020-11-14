@@ -20,6 +20,10 @@ jobs:
       - name: Build
         shell: pwsh
         run: Invoke-Build build
+
+      - name: Install Test Dependencies
+        shell: pwsh
+        run: Invoke-Build requireTestDependencies
         
       - name: Test
         shell: pwsh

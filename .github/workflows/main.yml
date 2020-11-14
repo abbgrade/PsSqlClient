@@ -27,6 +27,7 @@ jobs:
         shell: pwsh
         run: Invoke-Build build
   test:
+    needs: build
     runs-on: ubuntu-latest
     steps:
       - name: Test

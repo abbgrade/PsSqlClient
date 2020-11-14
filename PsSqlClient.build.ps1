@@ -33,10 +33,14 @@ task requireTestDependencies {
 	} elseif ( ( Get-Module -ListAvailable -Name Pester ).Version.Major -lt 5) {
 		Update-Module Pester -Scope CurrentUser
 	}
+	Write-Verbose "Pester Version: $( ( Get-Module -ListAvailable -Name Pester ).Version )"
 
 	if ( -not ( Get-Module -ListAvailable -Name PSDocker )) {
 		Install-Module PSDocker -Scope CurrentUser
+	} elseif ( ( Get-Module -ListAvailable -Name Pester ).Version.Major -lt 1) {
+		Update-Module PSDocker -Scope CurrentUser
 	}
+	Write-Verbose "PSDocker Version: $( ( Get-Module -ListAvailable -Name PSDocker ).Version )"
 }
 
 # Synopsis: Install the dependencies without installing the module.

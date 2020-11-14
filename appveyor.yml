@@ -6,7 +6,7 @@ image:
 install:
   - ps: Set-PSRepository -Name 'PSGallery' -InstallationPolicy Trusted
   - ps: Install-Module InvokeBuild -Scope CurrentUser
-  - ps: Invoke-Build requireTestDependencies
+  - ps: Invoke-Build requireTestDependencies -Verbose
 
 before_build:
   - ps: |

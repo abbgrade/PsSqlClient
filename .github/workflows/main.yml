@@ -27,12 +27,9 @@ jobs:
 
       - name: Install Test Dependencies
         shell: pwsh
-        run: Install-Module PSDocker
+        run: Invoke-Build requireTestDependencies -Verbose
 
       - name: Test
         shell: pwsh
         run: Invoke-Pester -Passthru
-
-      - name: Publish Unit Test Results
-        uses: EnricoMi/publish-unit-test-result-action@v1.4
 

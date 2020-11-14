@@ -37,7 +37,7 @@ task requireTestDependencies {
 
 	if ( -not ( Get-Module -ListAvailable -Name PSDocker )) {
 		Install-Module PSDocker -Scope CurrentUser
-	} elseif ( ( Get-Module -ListAvailable -Name Pester ).Version.Major -lt 1) {
+	} elseif ( ( Get-Module -ListAvailable -Name PSDocker ).Version.Major -lt 1) {
 		Update-Module PSDocker -Scope CurrentUser
 	}
 	Write-Verbose "PSDocker Version: $( ( Get-Module -ListAvailable -Name PSDocker ).Version )"

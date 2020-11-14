@@ -24,7 +24,7 @@ jobs:
 
       - name: Install Build Framework
         shell: pwsh
-        run: Install-Module InvokeBuild
+        run: Install-Module -Force InvokeBuild
 
       # Runs a single command using the runners shell
       - name: Build

@@ -32,10 +32,12 @@ jobs:
         shell: pwsh
         run: |
           $ErrorActionPreference = 'Stop'
-          Invoke-Build requireTestDependencies -Verbose
+          # Invoke-Build requireTestDependencies -Verbose
+          Install-Module Pester -Scope CurrentUser -SkipPublisherCheck -Force
+          Install-Module PSDocker -Scope CurrentUser -Force
           if ((Test-Path -LiteralPath variable:\LASTEXITCODE)) { exit $LASTEXITCODE }
 
       - name: Test
         shell: pwsh
-        run: Invoke-Pester -Passthru
+        run: Invoke-Pester -Passthru -Verbose
 

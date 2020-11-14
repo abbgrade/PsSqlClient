@@ -19,10 +19,17 @@ task clean {
 }
 
 # Synopsis: Test project.
-task test build, {
+task test requireTestDependencies, build, {
 	Push-Location test
 	Invoke-Pester
 	Pop-Location
+}
+
+# Synopsis: Install the dependencies for tests.
+task requireTestDependencies {
+	if ( -not ( Get-Module -ListAvailable -Name PSDocker )) {
+		Install-Module PSDocker -Scope CurrentUser
+	}
 }
 
 # Synopsis: Default task.

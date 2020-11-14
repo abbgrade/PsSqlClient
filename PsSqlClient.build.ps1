@@ -29,14 +29,14 @@ task test requireTestDependencies, build, {
 task requireTestDependencies {
 
 	if ( -not ( Get-Module -ListAvailable -Name Pester )) {
-		Install-Module Pester -Scope CurrentUser -SkipPublisherCheck
+		Install-Module Pester -Scope CurrentUser -SkipPublisherCheck -Force
 	} elseif ( -not ( Get-Module -ListAvailable -Name Pester | Where-Object Version.Major -ge 5 )) {
 		Update-Module Pester -Scope CurrentUser -Force
 	}
 	Write-Verbose "Pester Version: $( ( Get-Module -ListAvailable -Name Pester ).Version )"
 
 	if ( -not ( Get-Module -ListAvailable -Name PSDocker )) {
-		Install-Module PSDocker -Scope CurrentUser
+		Install-Module PSDocker -Scope CurrentUser -Force
 	} elseif ( -not ( Get-Module -ListAvailable -Name PSDocker | Where-Object Version.Major -ge 1 )) {
 		Update-Module PSDocker -Scope CurrentUser -Force
 	}

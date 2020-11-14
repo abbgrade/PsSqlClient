@@ -23,7 +23,8 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: Install Build Framework
-        run: choco install invoke-build
+        shell: pwsh
+        run: Install-Module InvokeBuild
 
       # Runs a single command using the runners shell
       - name: Build

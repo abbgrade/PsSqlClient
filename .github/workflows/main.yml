@@ -31,4 +31,6 @@ jobs:
 
       - name: Test
         shell: pwsh
-        run: Invoke-Pester -Passthru
+        run: |
+          Invoke-Pester -Passthru
+          if ((Test-Path -LiteralPath variable:\LASTEXITCODE)) { exit $LASTEXITCODE }

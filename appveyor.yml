@@ -5,6 +5,7 @@ image:
  - Visual Studio 2019
 
 install:
+  - ps: choco upgrade pwsh
   - ps: Set-PSRepository -Name 'PSGallery' -InstallationPolicy Trusted
   - ps: Install-Module InvokeBuild -Force
   - ps: Install-Module Pester -SkipPublisherCheck -Force

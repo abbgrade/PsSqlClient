@@ -39,7 +39,11 @@ jobs:
       - name: Test
         shell: pwsh
         run: |
+          $testResultsFile = ".\TestsResults.xml"
           Push-Location test
-          Invoke-Pester -Passthru -Verbose
+          $result = Invoke-Pester -OutputFormat NUnitXml -OutputFile $testResultsFile -PassThru
           Pop-Location
+          if ($result.FailedCount -gt 0) {
+              throw "$($res.FailedCount) tests failed."
+          }
 

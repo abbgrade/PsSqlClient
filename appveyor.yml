@@ -4,7 +4,8 @@ image:
  - Ubuntu
 
 install:
-  - ps: Install-Module InvokeBuild -Scope CurrentUser -Force
+  - ps: Set-PSRepository -Name 'PSGallery' -InstallationPolicy Trusted
+  - ps: Install-Module InvokeBuild -Scope CurrentUser
   - ps: Invoke-Build requireTestDependencies
 
 before_build:

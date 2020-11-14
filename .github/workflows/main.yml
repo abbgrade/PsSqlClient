@@ -27,7 +27,7 @@ jobs:
 
       - name: Install Test Dependencies
         shell: pwsh
-        run: Install-Module PSDocker
+        run: Install-Module PSDocker -Verbose
 
       - name: Test
         shell: pwsh

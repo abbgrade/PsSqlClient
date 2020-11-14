@@ -12,7 +12,7 @@ jobs:
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
-      
+
       - name: Trust PSGallery
         shell: pwsh
         run: Set-PSRepository -Name 'PSGallery' -InstallationPolicy Trusted
@@ -27,8 +27,8 @@ jobs:
 
       - name: Install Test Dependencies
         shell: pwsh
-        run: Invoke-Build requireTestDependencies
-        
+        run: Install-Module PSDocker
+
       - name: Test
         shell: pwsh
         run: Invoke-Pester -Passthru

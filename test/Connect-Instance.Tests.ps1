@@ -4,23 +4,37 @@ Describe 'Connect-Instance' {
 
     BeforeAll {
         Import-Module -Name $PSScriptRoot/../src/PsSqlClient/bin/Release/netstandard2.0/PsSqlClient.psd1 -Force -ErrorAction 'Stop'
-
-        . ./Helper/New-SqlServer.ps1
-
-        $script:password = 'Passw0rd!'
-
-        $script:server = New-SqlServer -ServerAdminPassword $script:password -DockerContainerName 'PsSqlClient-Sandbox' -AcceptEula -ErrorAction 'Stop'
     }
 
-    AfterAll {
-        Remove-DockerContainer -Name 'PsSqlClient-Sandbox' -Force
-    }
+    Context 'Docker' -Tag Docker {
 
-    Context 'Docker SQL Server' {
+        BeforeAll {
+            . ./Helper/New-SqlServer.ps1
 
-        It 'Returns a connection' {
-            $connection = Connect-Instance -ConnectionString $script:server.ConnectionString
-            $connection | Should -Not -BeNullOrEmpty
+            [string] $script:password = 'Passw0rd!'
+            [securestring] $script:securePassword = ConvertTo-SecureString $script:password -AsPlainText -Force
+            # $script:securePassword.MakeReadOnly()
+
+            $script:server = New-SqlServer -ServerAdminPassword $script:password -DockerContainerName 'PsSqlClient-Sandbox' -AcceptEula -ErrorAction 'Stop'
+        }
+
+        AfterAll {
+            Remove-DockerContainer -Name 'PsSqlClient-Sandbox' -Force
+        }
+
+        Context 'Docker SQL Server' {
+
+            It 'Returns a connection by connection string' {
+                $connection = Connect-Instance -ConnectionString $script:server.ConnectionString
+                $connection | Should -Not -BeNullOrEmpty
+            }
+
+            It 'Returns a connection by properties' {
+
+                $connection = Connect-Instance -DataSource $script:server.Hostname -UserId $script:server.UserId -Password $script:securePassword
+                $connection | Should -Not -BeNullOrEmpty
+            }
+
         }
 
     }
@@ -28,7 +42,12 @@ Describe 'Connect-Instance' {
     Context 'LocalDb' {
 
         It 'Returns a connection' {
-            $connection = Connect-Instance -ConnectionString 'Data Source=(LocalDb)\MSSQLLocalDB;Integrated Security=SSPI'
+            $connection = Connect-Instance -ConnectionString 'Data Source=(LocalDb)\MSSQLLocalDB;Integrated Security=True'
+            $connection | Should -Not -BeNullOrEmpty
+        }
+
+        It 'Returns a connection by properties' {
+            $connection = Connect-Instance -DataSource $script:server.Hostname
             $connection | Should -Not -BeNullOrEmpty
         }
 

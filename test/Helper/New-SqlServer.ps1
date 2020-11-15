@@ -33,7 +33,17 @@ function New-SqlServer {
         -Ports @{
         1433 = 1433
     } -Detach
-    Start-Sleep -Seconds 10 # wait until service is up and running
+
+    $readyMessage = 'SQL Server is now ready for client connections'
+    foreach ( $index in (1..30)) {
+        $sqlServerLog = Invoke-DockerCommand -Name $container.Name -Command 'tail --lines=100 /var/opt/mssql/log/errorlog' -ErrorAction 'SilentlyContinue' -WarningAction 'SilentlyContinue' -StringOutput
+        if ( $sqlServerLog -and $sqlServerLog.Contains($readyMessage) ) {
+            Write-Verbose $readyMessage
+            break
+        }
+        Start-Sleep -Seconds 1
+    }
+    Start-Sleep -Seconds 5
     $container | Add-Member 'Hostname' 'localhost'
     $container | Add-Member 'ConnectionString' "Server='$( $container.Hostname )';Encrypt=False;User Id='sa';Password='$ServerAdminPassword'"
 

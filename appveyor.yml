@@ -40,7 +40,8 @@ test_script:
       Push-Location "$env:APPVEYOR_BUILD_FOLDER\test"
 
       $testResultsFile = ".\TestsResults.xml"
-      $result = Invoke-Pester -OutputFormat NUnitXml -OutputFile $testResultsFile -PassThru -Verbose
+      $VerbosePreference = 'Continue'
+      $result = Invoke-Pester -OutputFormat NUnitXml -OutputFile $testResultsFile -PassThru
       $ErrorActionPreference = 'Stop'
       if ( Test-Path $testResultsFile ) {
         $client = New-Object 'System.Net.WebClient'

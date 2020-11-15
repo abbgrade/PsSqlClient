@@ -41,7 +41,7 @@ jobs:
         shell: pwsh
         run: |
           Import-Module PSDocker
-          if (( Get-DockerVersion ).Server.Engine.OSArch.Startswith('linux') ) {
+          if ( -not ( Get-DockerVersion ).Server.Engine.OSArch.Startswith('linux') ) {
             Write-Verbose 'switch to linux mode' -Verbose
             & $Env:ProgramFiles\Docker\Docker\DockerCli.exe -SwitchDaemon
             Start-Sleep -Seconds 10

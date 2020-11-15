@@ -29,7 +29,7 @@ jobs:
         shell: pwsh
         run: Invoke-Build build
 
-      - name: Test
+      - name: Install Test Dependencies
         shell: pwsh
         run: |
           $ErrorActionPreference = 'Stop'
@@ -46,5 +46,8 @@ jobs:
           Pop-Location
           if ($result.FailedCount -gt 0) {
               throw "$($res.FailedCount) tests failed."
+          }
+          if ($result.PassedCount -eq 0) {
+              trow 'no succeeded tests'
           }
 

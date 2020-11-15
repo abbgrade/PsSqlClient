@@ -39,7 +39,7 @@ jobs:
       - name: Switch Docker to Linux
         shell: pwsh
         run: |
-          Import-Module PSDocker
+          Import-Module psdocker
           if (( Get-DockerVersion ).Server.Engine.OSArch.Startswith('linux') ) {
             & $Env:ProgramFiles\Docker\Docker\DockerCli.exe -SwitchDaemon
           }

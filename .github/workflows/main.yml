@@ -29,18 +29,15 @@ jobs:
         shell: pwsh
         run: Invoke-Build build
 
-      - name: Install Test Dependencies
+      - name: Test
         shell: pwsh
         run: |
           $ErrorActionPreference = 'Stop'
+
           Install-Module Pester -SkipPublisherCheck -Force
           Install-Module PSDocker -Force
-          if ((Test-Path -LiteralPath variable:\LASTEXITCODE)) { exit $LASTEXITCODE }
 
-      - name: Switch Docker to Linux
-        shell: pwsh
-        run: |
-          Import-Module psdocker
+          Import-Module PSDocker
           if (( Get-DockerVersion ).Server.Engine.OSArch.Startswith('linux') ) {
             & $Env:ProgramFiles\Docker\Docker\DockerCli.exe -SwitchDaemon
           }
@@ -48,10 +45,6 @@ jobs:
             throw "Docker server is in $( ( Get-DockerVersion ).Server.Engine.OSArch ) mode but must be linux"
           }
 
-
-      - name: Test
-        shell: pwsh
-        run: |
           $testResultsFile = ".\TestsResults.xml"
           Push-Location test
           $result = Invoke-Pester -OutputFormat NUnitXml -OutputFile $testResultsFile -PassThru
@@ -59,4 +52,6 @@ jobs:
           if ($result.FailedCount -gt 0) {
               throw "$($res.FailedCount) tests failed."
           }
+
+          if ((Test-Path -LiteralPath variable:\LASTEXITCODE)) { exit $LASTEXITCODE }
 

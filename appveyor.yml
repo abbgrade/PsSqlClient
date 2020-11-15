@@ -45,3 +45,6 @@ test_script:
       if ($result.FailedCount -gt 0) {
           exit 1
       }
+      if ($result.PassedCount -eq 0) {
+          exit 1
+      }

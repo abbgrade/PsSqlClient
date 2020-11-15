@@ -41,10 +41,15 @@ test_script:
 
       $testResultsFile = ".\TestsResults.xml"
       $result = Invoke-Pester -OutputFormat NUnitXml -OutputFile $testResultsFile -PassThru -Verbose
-      $client = New-Object 'System.Net.WebClient'
-      $callback = "https://ci.appveyor.com/api/testresults/nunit/$($env:APPVEYOR_JOB_ID)"
-      $path = Resolve-Path $testResultsFile
-      $client.UploadFile( $callback, $path )
+      $ErrorActionPreference = 'Stop'
+      if ( Test-Path $testResultsFile ) {
+        $client = New-Object 'System.Net.WebClient'
+        $callback = "https://ci.appveyor.com/api/testresults/nunit/$($env:APPVEYOR_JOB_ID)"
+        $path = Resolve-Path $testResultsFile
+        $client.UploadFile( $callback, $path )
+      } else {
+        exit 1
+      }
 
       Pop-Location
 

@@ -83,6 +83,17 @@
             }
         },
         {
+            "label": "test localdb",
+            "group": "test",
+            "type": "shell",
+            "command": "Invoke-Build -Task testLocalDb",
+            "problemMatcher": "$msCompile",
+            "presentation": {
+                "echo": false,
+                "showReuseMessage": false
+            }
+        },
+        {
             "label": ".",
             "type": "shell",
             "command": "Invoke-Build -Task .",

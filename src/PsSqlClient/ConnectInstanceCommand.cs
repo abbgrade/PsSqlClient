@@ -19,7 +19,7 @@ namespace PsSqlClient
         public string ConnectionString { get; set; }
 
         [Parameter(
-            ParameterSetName = "Properties",
+            ParameterSetName = "Properties_IntegratedSecurity",
             Position = 0,
             Mandatory = true,
             ValueFromPipeline = true,
@@ -61,8 +61,8 @@ namespace PsSqlClient
                     connection = new SqlConnection(ConnectionString);
                     break;
 
-                case "Properties": {
-                    WriteVerbose("Connect by properties");
+                case "Properties_IntegratedSecurity": {
+                    WriteVerbose("Connect by Integrated Security");
                     var connectionString = $"Data Source='{DataSource}'";
                     connectionString += ";Integrated Security=True";
                     connection = new SqlConnection(connectionString);

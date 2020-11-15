@@ -39,7 +39,7 @@ Describe 'Connect-Instance' {
 
     }
 
-    Context 'LocalDb' {
+    Context 'LocalDb' -Tag LocalDb {
 
         It 'Returns a connection' {
             $connection = Connect-Instance -ConnectionString 'Data Source=(LocalDb)\MSSQLLocalDB;Integrated Security=True'
@@ -47,7 +47,7 @@ Describe 'Connect-Instance' {
         }
 
         It 'Returns a connection by properties' {
-            $connection = Connect-Instance -DataSource $script:server.Hostname
+            $connection = Connect-Instance -DataSource '(LocalDb)\MSSQLLocalDB'
             $connection | Should -Not -BeNullOrEmpty
         }
 

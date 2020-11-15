@@ -25,6 +25,12 @@ task test requireTestDependencies, build, {
 	Pop-Location
 }
 
+task testDocker requireTestDependencies, build, {
+	Push-Location test
+	Invoke-Pester -TagFilter Docker
+	Pop-Location
+}
+
 # Synopsis: Install the dependencies for tests.
 task requireTestDependencies {
 

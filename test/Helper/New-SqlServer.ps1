@@ -74,7 +74,8 @@ function New-SqlServer {
     }
 
     $container | Add-Member 'Hostname' 'localhost'
-    $container | Add-Member 'ConnectionString' "Server='$( $container.Hostname )';Encrypt=False;User Id='sa';Password='$ServerAdminPassword'"
+    $container | Add-Member 'UserId' 'sa'
+    $container | Add-Member 'ConnectionString' "Server='$( $container.Hostname )';Encrypt=False;User Id='$( $container.UserId )';Password='$ServerAdminPassword'"
 
     # return
     $container | Write-Output

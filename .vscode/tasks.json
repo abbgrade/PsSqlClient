@@ -8,6 +8,7 @@
                 "executable": "pwsh.exe",
                 "args": [
                     "-NoProfile",
+                    "-NonInteractive",
                     "-ExecutionPolicy",
                     "Bypass",
                     "-Command"
@@ -40,6 +41,7 @@
     "tasks": [
         {
             "label": "build",
+            "group": "build",
             "type": "shell",
             "command": "Invoke-Build -Task build",
             "problemMatcher": "$msCompile",
@@ -60,8 +62,20 @@
         },
         {
             "label": "test",
+            "group": "test",
             "type": "shell",
             "command": "Invoke-Build -Task test",
+            "problemMatcher": "$msCompile",
+            "presentation": {
+                "echo": false,
+                "showReuseMessage": false
+            }
+        },
+        {
+            "label": "test docker",
+            "group": "test",
+            "type": "shell",
+            "command": "Invoke-Build -Task testDocker",
             "problemMatcher": "$msCompile",
             "presentation": {
                 "echo": false,

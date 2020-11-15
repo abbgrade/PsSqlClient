@@ -33,8 +33,9 @@ function New-SqlServer {
         -Ports @{
         1433 = 1433
     } -Detach
+    Start-Sleep -Seconds 10 # wait until service is up and running
     $container | Add-Member 'Hostname' 'localhost'
-    $container | Add-Member 'ConnectionString' "Server=$( $container.Hostname );Database=master;User Id=sa;Password=$ServerAdminPassword"
+    $container | Add-Member 'ConnectionString' "Server='$( $container.Hostname )';Encrypt=False;User Id='sa';Password='$ServerAdminPassword'"
 
     # return
     $container | Write-Output

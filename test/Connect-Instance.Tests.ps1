@@ -17,7 +17,7 @@ Describe 'Connect-Instance' {
     }
 
     It 'works' {
-        $connection = Connect-Instance -ConnectionString $Script:server.ConnectionString
+        $connection = Connect-Instance -ConnectionString $script:server.ConnectionString
         $connection | Should -Not -BeNullOrEmpty
     }
 }

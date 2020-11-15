@@ -37,20 +37,6 @@ jobs:
           Install-Module PSDocker -Force
           if ((Test-Path -LiteralPath variable:\LASTEXITCODE)) { exit $LASTEXITCODE }
 
-      - name: Switch Docker to Linux
-        shell: pwsh
-        run: |
-          Import-Module PSDocker
-          if ( -not ( Get-DockerVersion ).Server.Engine.OSArch.Startswith('linux') ) {
-            Write-Verbose 'switch to linux mode' -Verbose
-            & $Env:ProgramFiles\Docker\Docker\DockerCli.exe -SwitchDaemon
-            Start-Sleep -Seconds 10
-          }
-          if ( -not ( Get-DockerVersion ).Server.Engine.OSArch.Startswith('linux') ) {
-            throw "Docker server is in $( ( Get-DockerVersion ).Server.Engine.OSArch ) mode but must be linux"
-          }
-
-
       - name: Test
         shell: pwsh
         run: |

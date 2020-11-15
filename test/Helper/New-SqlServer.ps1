@@ -15,35 +15,64 @@ function New-SqlServer {
         [switch] $AcceptEula
     )
 
-    # prepare parameter
     if ( -not $AcceptEula ) {
         throw "Accept the Microsoft EULA with -AcceptEula"
     }
+
     $environment = @{
         'ACCEPT_EULA' = "Y"
     }
 
-    $environment['MSSQL_SA_PASSWORD'] = $ServerAdminPassword
+    switch ( ( Get-DockerVersion ).Server.Engine.OSArch ) {
+        'linux/amd64' {
+            $environment['MSSQL_SA_PASSWORD'] = $ServerAdminPassword
 
-    # create container
-    $container = New-DockerContainer `
-        -Image 'mcr.microsoft.com/mssql/server' `
-        -Name $DockerContainerName `
-        -Environment $environment `
-        -Ports @{
-        1433 = 1433
-    } -Detach
+            # create container
+            $container = New-DockerContainer `
+                -Image 'mcr.microsoft.com/mssql/server' `
+                -Name $DockerContainerName `
+                -Environment $environment `
+                -Ports @{
+                1433 = 1433
+            } -Detach
 
-    $readyMessage = 'SQL Server is now ready for client connections'
-    foreach ( $index in (1..30)) {
-        $sqlServerLog = Invoke-DockerCommand -Name $container.Name -Command 'tail --lines=100 /var/opt/mssql/log/errorlog' -ErrorAction 'SilentlyContinue' -WarningAction 'SilentlyContinue' -StringOutput
-        if ( $sqlServerLog -and $sqlServerLog.Contains($readyMessage) ) {
-            Write-Verbose $readyMessage
-            break
+            $readyMessage = 'SQL Server is now ready for client connections'
+            foreach ( $index in (1..30)) {
+                $sqlServerLog = Invoke-DockerCommand -Name $container.Name -Command 'tail --lines=100 /var/opt/mssql/log/errorlog' -ErrorAction 'SilentlyContinue' -WarningAction 'SilentlyContinue' -StringOutput
+                if ( $sqlServerLog -and $sqlServerLog.Contains($readyMessage) ) {
+                    Write-Verbose $readyMessage
+                    break
+                }
+                Start-Sleep -Seconds 1
+            }
+            Start-Sleep -Seconds 5
         }
-        Start-Sleep -Seconds 1
+        'windows/amd64' {
+            $environment['sa_password'] = $ServerAdminPassword
+
+            # create container
+            $container = New-DockerContainer `
+                -Image 'microsoft/mssql-server-windows-developer' `
+                -Name $DockerContainerName `
+                -Environment $environment `
+                -Ports @{
+                1433 = 1433
+            } -Detach
+
+            foreach ( $index in (1..30)) {
+                $status = Invoke-DockerCommand -Name $container.Name -Command 'powershell -C "Get-Service -Name MSSQLSERVER" | Select -ExpandProperty Status' -StringOutput
+                if ( $status -eq 'Running' ) {
+                    break
+                }
+                Start-Sleep -Seconds 1
+            }
+
+        }
+        default {
+            throw "$_ not implemented"
+        }
     }
-    Start-Sleep -Seconds 5
+
     $container | Add-Member 'Hostname' 'localhost'
     $container | Add-Member 'ConnectionString' "Server='$( $container.Hostname )';Encrypt=False;User Id='sa';Password='$ServerAdminPassword'"
 

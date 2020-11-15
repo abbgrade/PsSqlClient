@@ -16,8 +16,21 @@ Describe 'Connect-Instance' {
         Remove-DockerContainer -Name 'PsSqlClient-Sandbox' -Force
     }
 
-    It 'works' {
-        $connection = Connect-Instance -ConnectionString $script:server.ConnectionString
-        $connection | Should -Not -BeNullOrEmpty
+    Context 'Docker SQL Server' {
+
+        It 'Returns a connection' {
+            $connection = Connect-Instance -ConnectionString $script:server.ConnectionString
+            $connection | Should -Not -BeNullOrEmpty
+        }
+
+    }
+
+    Context 'LocalDb' {
+
+        It 'Returns a connection' {
+            $connection = Connect-Instance -ConnectionString 'Data Source=(LocalDb)\MSSQLLocalDB;Integrated Security=SSPI'
+            $connection | Should -Not -BeNullOrEmpty
+        }
+
     }
 }

@@ -5,14 +5,13 @@ image:
  - Visual Studio 2019
 
 install:
-  - ps: choco upgrade pwsh
-  - ps: Set-PSRepository -Name 'PSGallery' -InstallationPolicy Trusted
-  - ps: Install-Module InvokeBuild -Force
-  - ps: Install-Module Pester -SkipPublisherCheck -Force
-  - ps: Install-Module PSDocker -Force
+  - pwsh: Set-PSRepository -Name 'PSGallery' -InstallationPolicy Trusted
+  - pwsh: Install-Module InvokeBuild -Force
+  - pwsh: Install-Module Pester -SkipPublisherCheck -Force
+  - pwsh: Install-Module PSDocker -Force
 
 before_build:
-  - ps: |
+  - pwsh: |
       # Define replacements for manifest file
       $replacements = @{}
 
@@ -34,10 +33,10 @@ before_build:
       $manifestContent.Trim() | Set-Content -Path $manifestPath
 
 build_script:
-  - ps: Invoke-Build build
+  - pwsh: Invoke-Build build
 
 test_script:
-  - ps: |
+  - pwsh: |
       $testResultsFile = ".\TestsResults.xml"
       Push-Location "$env:APPVEYOR_BUILD_FOLDER\test"
       $result = Invoke-Pester -OutputFormat NUnitXml -OutputFile $testResultsFile -PassThru

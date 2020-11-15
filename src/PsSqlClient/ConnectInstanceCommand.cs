@@ -1,7 +1,9 @@
-﻿using System;
-using System.Security;
-using System.Management.Automation;
+﻿
+using System;
+using System.Data;
 using System.Data.SqlClient;
+using System.Management.Automation;
+using System.Security;
 
 namespace PsSqlClient
 {
@@ -54,27 +56,34 @@ namespace PsSqlClient
         protected override void ProcessRecord()
         {
             SqlConnection connection;
+            SqlConnectionStringBuilder builder = new SqlConnectionStringBuilder();
             switch (ParameterSetName)
             {
                 case "ConnectionString":
                     WriteVerbose("Connect by connection string");
-                    connection = new SqlConnection(ConnectionString);
+                    builder.ConnectionString = ConnectionString;
+                    connection = new SqlConnection(connectionString:builder.ConnectionString);
                     break;
 
                 case "Properties_IntegratedSecurity": {
                     WriteVerbose("Connect by Integrated Security");
-                    var connectionString = $"Data Source='{DataSource}'";
-                    connectionString += ";Integrated Security=True";
-                    connection = new SqlConnection(connectionString);
+                    builder.DataSource = DataSource;
+                    if (DataSource.EndsWith("database.windows.net")) {
+                    } else {
+                        builder.IntegratedSecurity = true;
+                    }
+                    connection = new SqlConnection(connectionString: builder.ConnectionString);
                     break;
                 }
 
                 case "Properties_SQLServerAuthentication": {
                     WriteVerbose("Connect by SQL Server Authentication");
                     Password.MakeReadOnly();
-                    var credential = new SqlCredential(userId:UserId, password: Password);
-                    var connectionString = $"Data Source='{DataSource}'";
-                    connection = new SqlConnection(connectionString, credential: credential);
+                    builder.DataSource = DataSource;
+                    connection = new SqlConnection(
+                        connectionString: builder.ConnectionString,
+                        credential: new SqlCredential(userId:UserId, password: Password)
+                    );
                     break;
                 }
 

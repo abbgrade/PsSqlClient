@@ -21,25 +21,25 @@ task clean {
 # Synopsis: Test project.
 task test requireTestDependencies, build, {
 	Push-Location test
-	Invoke-Pester -EnableExit
+	Invoke-Pester -CI
 	Pop-Location
 }
 
 task testDocker requireTestDependencies, build, {
 	Push-Location test
-	Invoke-Pester -TagFilter Docker -EnableExit
+	Invoke-Pester -TagFilter Docker -CI
 	Pop-Location
 }
 
 task testLocalDb requireTestDependencies, build, {
 	Push-Location test
-	Invoke-Pester -TagFilter LocalDb -EnableExit
+	Invoke-Pester -TagFilter LocalDb -CI
 	Pop-Location
 }
 
 task testAzureSql requireTestDependencies, build, {
 	Push-Location test
-	Invoke-Pester -TagFilter AzureSql -EnableExit
+	Invoke-Pester -TagFilter AzureSql -CI
 	Pop-Location
 }
 

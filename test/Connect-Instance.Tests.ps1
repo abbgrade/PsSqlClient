@@ -30,13 +30,13 @@ Describe 'Connect-Instance' {
 
             It 'Returns a connection by connection string' -Skip:$script:missingPsDocker {
                 $connection = Connect-Instance -ConnectionString $script:server.ConnectionString
-                $connection | Should -Not -BeNullOrEmpty
+                $connection.State | Should -be 'Open'
             }
 
             It 'Returns a connection by properties' -Skip:$script:missingPsDocker {
 
                 $connection = Connect-Instance -DataSource $script:server.Hostname -UserId $script:server.UserId -Password $script:securePassword
-                $connection | Should -Not -BeNullOrEmpty
+                $connection.State | Should -be 'Open'
             }
 
         }
@@ -75,12 +75,12 @@ Describe 'Connect-Instance' {
 
         It 'Returns a connection' -Skip:$script:missingLocalDb {
             $connection = Connect-Instance -ConnectionString "Data Source=$( $script:DataSource );Integrated Security=True"
-            $connection | Should -Not -BeNullOrEmpty
+            $connection.State | Should -be 'Open'
         }
 
         It 'Returns a connection by properties' -Skip:$script:missingLocalDb {
             $connection = Connect-Instance -DataSource $script:DataSource
-            $connection | Should -Not -BeNullOrEmpty
+            $connection.State | Should -be 'Open'
         }
 
     }

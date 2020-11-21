@@ -39,7 +39,7 @@ task testLocalDb requireTestDependencies, build, {
 
 task testAzureSql requireTestDependencies, build, {
 	Push-Location test
-	Invoke-Pester -TagFilter AzureSql
+	Invoke-Pester -TagFilter AzureSql -EnableExit
 	Pop-Location
 }
 

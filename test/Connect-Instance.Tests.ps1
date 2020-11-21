@@ -9,13 +9,17 @@ Describe 'Connect-Instance' {
     Context 'Docker' -Tag Docker {
 
         BeforeAll {
-            . ./Helper/New-SqlServer.ps1
 
-            [string] $script:password = 'Passw0rd!'
-            [securestring] $script:securePassword = ConvertTo-SecureString $script:password -AsPlainText -Force
-            # $script:securePassword.MakeReadOnly()
+            if ( Get-Module -ListAvailable -Name PSDocker ) {
+                . ./Helper/New-SqlServer.ps1
 
-            $script:server = New-SqlServer -ServerAdminPassword $script:password -DockerContainerName 'PsSqlClient-Sandbox' -AcceptEula -ErrorAction 'Stop'
+                [string] $script:password = 'Passw0rd!'
+                [securestring] $script:securePassword = ConvertTo-SecureString $script:password -AsPlainText -Force
+
+                $script:server = New-SqlServer -ServerAdminPassword $script:password -DockerContainerName 'PsSqlClient-Sandbox' -AcceptEula -ErrorAction 'Stop'
+            } else {
+                $script:missingPsDocker = $true
+            }
         }
 
         AfterAll {
@@ -24,12 +28,12 @@ Describe 'Connect-Instance' {
 
         Context 'Docker SQL Server' {
 
-            It 'Returns a connection by connection string' {
+            It 'Returns a connection by connection string' -Skip:$script:missingPsDocker {
                 $connection = Connect-Instance -ConnectionString $script:server.ConnectionString
                 $connection | Should -Not -BeNullOrEmpty
             }
 
-            It 'Returns a connection by properties' {
+            It 'Returns a connection by properties' -Skip:$script:missingPsDocker {
 
                 $connection = Connect-Instance -DataSource $script:server.Hostname -UserId $script:server.UserId -Password $script:securePassword
                 $connection | Should -Not -BeNullOrEmpty
@@ -41,13 +45,41 @@ Describe 'Connect-Instance' {
 
     Context 'LocalDb' -Tag LocalDb {
 
-        It 'Returns a connection' {
-            $connection = Connect-Instance -ConnectionString 'Data Source=(LocalDb)\MSSQLLocalDB;Integrated Security=True'
+        BeforeAll {
+            $script:missingLocalDb = $true
+            foreach( $version in Get-ChildItem -Path 'Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Microsoft SQL Server Local DB\Installed Versions' | Sort-Object Name -Descending ) {
+                if ( $script:missingLocalDb ) {
+                    switch ( $version.PSChildName ) {
+                        '11.0' {
+                            $script:DataSource = '(localdb)\v11.0'
+                            $script:missingLocalDb = $false
+                            break;
+                        }
+                        '13.0' {
+                            $script:DataSource = '(LocalDb)\MSSQLLocalDB'
+                            $script:missingLocalDb = $false
+                            break;
+                        }
+                        '15.0' {
+                            $script:DataSource = '(LocalDb)\MSSQLLocalDB'
+                            $script:missingLocalDb = $false
+                            break;
+                        }
+                        Default {
+                            Write-Warning "LocalDb version $_ is not implemented."
+                        }
+                    }
+                }
+            }
+        }
+
+        It 'Returns a connection' -Skip:$script:missingLocalDb {
+            $connection = Connect-Instance -ConnectionString "Data Source=$( $script:DataSource );Integrated Security=True"
             $connection | Should -Not -BeNullOrEmpty
         }
 
-        It 'Returns a connection by properties' {
-            $connection = Connect-Instance -DataSource '(LocalDb)\MSSQLLocalDB'
+        It 'Returns a connection by properties' -Skip:$script:missingLocalDb {
+            $connection = Connect-Instance -DataSource $script:DataSource
             $connection | Should -Not -BeNullOrEmpty
         }
 

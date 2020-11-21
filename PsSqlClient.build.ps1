@@ -21,19 +21,19 @@ task clean {
 # Synopsis: Test project.
 task test requireTestDependencies, build, {
 	Push-Location test
-	Invoke-Pester
+	Invoke-Pester -EnableExit
 	Pop-Location
 }
 
 task testDocker requireTestDependencies, build, {
 	Push-Location test
-	Invoke-Pester -TagFilter Docker
+	Invoke-Pester -TagFilter Docker -EnableExit
 	Pop-Location
 }
 
 task testLocalDb requireTestDependencies, build, {
 	Push-Location test
-	Invoke-Pester -TagFilter LocalDb
+	Invoke-Pester -TagFilter LocalDb -EnableExit
 	Pop-Location
 }
 
@@ -53,6 +53,19 @@ task requireTestDependencies {
 		Update-Module PSDocker -Scope CurrentUser -Force
 	}
 	Write-Verbose "PSDocker Version: $( ( Get-Module -ListAvailable -Name PSDocker ).Version )"
+}
+
+task importModule build, {
+	Import-Module ./src/PsSqlClient/bin/Release/netstandard2.0/PsSqlClient.psd1
+}
+
+task docs importModule, {
+
+	if ( Test-Path ./docs -PathType Container ) {
+		Update-MarkdownHelp ./docs
+	} else {
+		New-MarkdownHelp -Module PsSqlClient -OutputFolder ./docs
+	}
 }
 
 # Synopsis: Install the dependencies without installing the module.

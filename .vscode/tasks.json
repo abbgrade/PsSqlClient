@@ -94,6 +94,17 @@
             }
         },
         {
+            "label": "test azuresql",
+            "group": "test",
+            "type": "shell",
+            "command": "Invoke-Build -Task testAzureSql",
+            "problemMatcher": "$msCompile",
+            "presentation": {
+                "echo": false,
+                "showReuseMessage": false
+            }
+        },
+        {
             "label": ".",
             "type": "shell",
             "command": "Invoke-Build -Task .",

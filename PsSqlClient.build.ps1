@@ -37,6 +37,12 @@ task testLocalDb requireTestDependencies, build, {
 	Pop-Location
 }
 
+task testAzureSql requireTestDependencies, build, {
+	Push-Location test
+	Invoke-Pester -TagFilter AzureSql
+	Pop-Location
+}
+
 # Synopsis: Install the dependencies for tests.
 task requireTestDependencies {
 

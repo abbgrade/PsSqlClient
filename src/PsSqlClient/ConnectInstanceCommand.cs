@@ -4,6 +4,9 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Management.Automation;
 using System.Security;
+#if AZURE
+using Microsoft.Azure.Services.AppAuthentication;
+#endif
 
 namespace PsSqlClient
 {
@@ -69,10 +72,17 @@ namespace PsSqlClient
                     WriteVerbose("Connect by Integrated Security");
                     builder.DataSource = DataSource;
                     if (DataSource.EndsWith("database.windows.net")) {
+#if AZURE
+                        connection = new SqlConnection(connectionString: builder.ConnectionString);
+                        var token = new AzureServiceTokenProvider().GetAccessTokenAsync("https://database.windows.net").Result;
+                        connection.AccessToken = token;
+#else
+                        throw new System.NotImplementedException("Azure authentication is not implemented");
+#endif
                     } else {
                         builder.IntegratedSecurity = true;
+                        connection = new SqlConnection(connectionString: builder.ConnectionString);
                     }
-                    connection = new SqlConnection(connectionString: builder.ConnectionString);
                     break;
                 }
 

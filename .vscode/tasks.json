@@ -64,7 +64,10 @@
             "label": "test",
             "group": "test",
             "type": "shell",
-            "command": "Invoke-Build -Task test",
+            "command": "Invoke-Pester -Show Summary, Failed",
+            "options": {
+                "cwd": "test"
+            },
             "problemMatcher": "$msCompile",
             "presentation": {
                 "echo": false,
@@ -75,7 +78,10 @@
             "label": "test docker",
             "group": "test",
             "type": "shell",
-            "command": "Invoke-Build -Task testDocker",
+            "command": "Invoke-Pester -Tag Docker -Show Summary, Failed",
+            "options": {
+                "cwd": "test"
+            },
             "problemMatcher": "$msCompile",
             "presentation": {
                 "echo": false,
@@ -86,7 +92,10 @@
             "label": "test localdb",
             "group": "test",
             "type": "shell",
-            "command": "Invoke-Build -Task testLocalDb",
+            "command": "Invoke-Pester -Tag LocalDb -Show Summary, Failed",
+            "options": {
+                "cwd": "test"
+            },
             "problemMatcher": "$msCompile",
             "presentation": {
                 "echo": false,
@@ -97,7 +106,10 @@
             "label": "test azuresql",
             "group": "test",
             "type": "shell",
-            "command": "Invoke-Build -Task testAzureSql",
+            "command": "Invoke-Peter -Tag AzureSql -Show Summary, Failed",
+            "options": {
+                "cwd": "test"
+            },
             "problemMatcher": "$msCompile",
             "presentation": {
                 "echo": false,

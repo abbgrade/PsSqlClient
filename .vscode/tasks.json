@@ -103,6 +103,20 @@
             }
         },
         {
+            "label": "test exclude localdb",
+            "group": "test",
+            "type": "shell",
+            "command": "Invoke-Pester -ExcludeTag LocalDb -Show Summary, Failed",
+            "options": {
+                "cwd": "test"
+            },
+            "problemMatcher": "$msCompile",
+            "presentation": {
+                "echo": false,
+                "showReuseMessage": false
+            }
+        },
+        {
             "label": "test azuresql",
             "group": "test",
             "type": "shell",

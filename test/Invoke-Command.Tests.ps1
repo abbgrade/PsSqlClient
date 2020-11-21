@@ -1,6 +1,6 @@
 #Requires -Modules @{ ModuleName='Pester'; ModuleVersion='5.0.0' }, @{ ModuleName='PSDocker'; ModuleVersion='1.5.0' }
 
-Describe 'Disconnect-Instance' {
+Describe 'Invoke-Command' {
 
     BeforeAll {
         Import-Module -Name $PSScriptRoot/../src/PsSqlClient/bin/Release/netstandard2.0/PsSqlClient.psd1 -Force -ErrorAction 'Stop'
@@ -19,12 +19,16 @@ Describe 'Disconnect-Instance' {
     }
 
     AfterAll {
+        Disconnect-TSqlInstance -Connection $script:connection -ErrorAction 'Continue'
         Remove-DockerContainer -Name 'PsSqlClient-Sandbox' -Force
     }
 
-    It 'disconnects the instance' -Skip:$script:missingPsDocker {
-        Disconnect-TSqlInstance -Connection $script:connection
-        $script:connection.State | Should -Be 'Closed'
+    It 'selects data' {
+        $result = Invoke-TSqlCommand -Connection $script:connection -Text 'SELECT 1 AS a, 2 AS b UNION SELECT 3, 4'
+        $result[0].a | Should -Be '1'
+        $result[0].b | Should -Be '2'
+        $result[1].a | Should -Be '3'
+        $result[1].b | Should -Be '4'
     }
 
 }

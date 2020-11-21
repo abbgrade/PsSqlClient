@@ -29,13 +29,13 @@ Describe 'Connect-Instance' {
         Context 'Docker SQL Server' {
 
             It 'Returns a connection by connection string' -Skip:$script:missingPsDocker {
-                $connection = Connect-Instance -ConnectionString $script:server.ConnectionString
+                $connection = Connect-TSqlInstance -ConnectionString $script:server.ConnectionString
                 $connection.State | Should -be 'Open'
             }
 
             It 'Returns a connection by properties' -Skip:$script:missingPsDocker {
 
-                $connection = Connect-Instance -DataSource $script:server.Hostname -UserId $script:server.UserId -Password $script:securePassword
+                $connection = Connect-TSqlInstance -DataSource $script:server.Hostname -UserId $script:server.UserId -Password $script:securePassword
                 $connection.State | Should -be 'Open'
             }
 
@@ -73,13 +73,19 @@ Describe 'Connect-Instance' {
             }
         }
 
+        AfterEach {
+            if ( $connection ) {
+                $connection | Disconnect-TSqlInstance
+            }
+        }
+
         It 'Returns a connection' -Skip:$script:missingLocalDb {
-            $connection = Connect-Instance -ConnectionString "Data Source=$( $script:DataSource );Integrated Security=True"
+            $connection = Connect-TSqlInstance -ConnectionString "Data Source=$( $script:DataSource );Integrated Security=True"
             $connection.State | Should -be 'Open'
         }
 
         It 'Returns a connection by properties' -Skip:$script:missingLocalDb {
-            $connection = Connect-Instance -DataSource $script:DataSource
+            $connection = Connect-TSqlInstance -DataSource $script:DataSource
             $connection.State | Should -be 'Open'
         }
 

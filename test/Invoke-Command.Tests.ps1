@@ -26,11 +26,12 @@ Describe 'Invoke-Command' {
     }
 
     It 'selects data' {
-        $result = Invoke-TSqlCommand -Connection $script:connection -Text 'SELECT 1 AS a, 2 AS b UNION SELECT 3, 4'
+        $result = Invoke-TSqlCommand -Connection $script:connection -Text 'SELECT CONVERT(INT, 1) AS a, 2 AS b UNION SELECT 3, NULL'
         $result[0].a | Should -Be '1'
+        $result[0].a | Should -BeOfType [int]
         $result[0].b | Should -Be '2'
         $result[1].a | Should -Be '3'
-        $result[1].b | Should -Be '4'
+        $result[1].b | Should -Be $null
     }
 
     It 'selects data set' {

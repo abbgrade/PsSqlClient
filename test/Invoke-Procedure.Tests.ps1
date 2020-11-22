@@ -1,6 +1,6 @@
 #Requires -Modules @{ ModuleName='Pester'; ModuleVersion='5.0.0' }, @{ ModuleName='PSDocker'; ModuleVersion='1.5.0' }
 
-Describe 'Get-Value' {
+Describe 'Invoke-Procedure' {
 
     BeforeAll {
         Import-Module -Name $PSScriptRoot/../src/PsSqlClient/bin/Release/netstandard2.0/PsSqlClient.psd1 -Force -ErrorAction 'Stop'
@@ -25,15 +25,9 @@ Describe 'Get-Value' {
         Remove-DockerContainer -Name 'PsSqlClient-Sandbox' -Force
     }
 
-    It 'gets an integer value' {
-        $result = Get-TSqlValue 'SELECT CONVERT(INT, 1)'
-        $result | Should -Be '1'
-        $result | Should -BeOfType [int]
+    It 'works with parameters' {
+        $result = Invoke-TSqlProcedure 'sp_tables' @{ table_qualifier = 'master'}
+        $result | Should -Not -BeNullOrEmpty
     }
 
-    It 'trows a string value' {
-        $result = Get-TSqlValue 'SELECT ''test'''
-        $result | Should -Be 'test'
-        $result | Should -BeOfType [string]
-    }
 }

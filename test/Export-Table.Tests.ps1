@@ -13,14 +13,14 @@ Describe 'Export-Table' {
 
             $script:server = New-SqlServer -ServerAdminPassword $script:password -DockerContainerName 'PsSqlClient-Sandbox' -AcceptEula -ErrorAction 'Stop'
             $script:connection = Connect-TSqlInstance -ConnectionString $script:server.ConnectionString -RetryCount 3 -ErrorAction 'SilentlyContinue'
-            Invoke-TSqlCommand -Text 'CREATE TABLE #test (Id INT IDENTITY, Name NVARCHAR(MAX) NOT NULL)'
+            Invoke-TSqlCommand 'CREATE TABLE #test (Id INT IDENTITY, Name NVARCHAR(MAX) NOT NULL)'
         } else {
             $script:missingPsDocker = $true
         }
     }
 
     BeforeEach {
-        Invoke-TSqlCommand -Text 'TRUNCATE TABLE #test'
+        Invoke-TSqlCommand 'TRUNCATE TABLE #test'
     }
 
     AfterAll {
@@ -37,7 +37,7 @@ Describe 'Export-Table' {
             [PSCustomObject] @{ Id=3; Name='The Number of the Beast'}
         ) | Export-TSqlTable -Table '#test' -Connection $script:connection
 
-        Get-TSqlValue -Text 'SELECT COUNT(*) FROM #test' | Should -Be 3
+        Get-TSqlValue 'SELECT COUNT(*) FROM #test' | Should -Be 3
     }
 
     It 'throws on null value' {
@@ -61,7 +61,7 @@ Describe 'Export-Table' {
             [PSCustomObject] @{ Id=666; Name='The Number of the Beast'}
         ) | Export-TSqlTable -Table '#test' -KeepIdentity
 
-        $rows = Invoke-TSqlCommand -Text 'SELECT * FROM #test'
+        $rows = Invoke-TSqlCommand 'SELECT * FROM #test'
         $rows | Where-Object Id -eq 666 | Select-Object -ExpandProperty Name | Should -Be 'The Number of the Beast'
     }
 

@@ -8,9 +8,9 @@ using System.Management.Automation;
 namespace PsSqlClient
 {
 
-    [Cmdlet(VerbsLifecycle.Invoke, "Command", DefaultParameterSetName = nameof(CommandType.Text))]
+    [Cmdlet(VerbsLifecycle.Invoke, "Procedure", DefaultParameterSetName = nameof(CommandType.StoredProcedure))]
     [OutputType(typeof(PSObject))]
-    public class InvokeCommandCommand : SqlCommandBaseCommand
+    public class InvokeProcedureCommand : SqlCommandBaseCommand
     {
         protected override void ProcessSqlCommand(SqlCommand command)
         {

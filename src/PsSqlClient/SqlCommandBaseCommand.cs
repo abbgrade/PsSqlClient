@@ -12,11 +12,20 @@ namespace PsSqlClient
     {
 
         [Parameter(
+            ParameterSetName = nameof(CommandType.Text),
             Position = 0,
             Mandatory = true,
             ValueFromPipelineByPropertyName = true)]
         [ValidateNotNullOrEmpty()]
         public string Text { get; set; }
+
+        [Parameter(
+            ParameterSetName = nameof(CommandType.StoredProcedure),
+            Position = 0,
+            Mandatory = true,
+            ValueFromPipelineByPropertyName = true)]
+        [ValidateNotNullOrEmpty()]
+        public string Name { get; set; }
 
         [Parameter(
             Position = 1,
@@ -54,7 +63,24 @@ namespace PsSqlClient
 
         protected override void ProcessRecord()
         {
-            var command = new SqlCommand(cmdText: Text, connection: Connection);
+            var command = new SqlCommand() {
+                Connection = Connection
+            };
+
+            switch (ParameterSetName)
+            {
+                case "Text":
+                    command.CommandType = CommandType.Text;
+                    command.CommandText = Text;
+                    break;
+                case "StoredProcedure":
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.CommandText = Name;
+                    break;
+                default:
+                    throw new NotImplementedException($"ParameterSetName {ParameterSetName} is not implemented");
+            }
+
             if (Timeout.HasValue)
             {
                 command.CommandTimeout = Timeout.Value;
@@ -64,7 +90,7 @@ namespace PsSqlClient
                 foreach (DictionaryEntry item in Parameter)
                 {
                     command.Parameters.Add(
-                        new SqlParameter(parameterName: $"@{item.Key}", value: item.Value)
+                        new SqlParameter(parameterName: item.Key.ToString(), value: item.Value)
                     );
                 }
             }

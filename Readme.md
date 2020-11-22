@@ -34,9 +34,7 @@ Connect-TSqlInstance -DataSource '(LocalDb)\MSSQLLocalDB'
 Connect-TSqlInstance -DataSource '(LocalDb)\MSSQLLocalDB'
 
 # get a result from the database and filter the first five by name
-Invoke-TSqlCommand 'EXECUTE sp_tables @table_qualifier = @database' @{
-    'database' = 'master'
-} |
+Invoke-TSqlProcedure 'sp_tables' @{ 'table_qualifier' = 'master' } |
     Sort-Object TABLE_NAME |
     Select-Object -First 5
 ```
@@ -61,7 +59,7 @@ Invoke-TSqlCommand 'EXECUTE sp_tables @table_qualifier = @database' @{
 | &#11185; with AD credentials           | Use integrated security                                | &#9745; |
 | &#11185; to Azure SQL                  | Connect to Azure SQL (token-based)                     | &#9744; |
 | &#11185; to Azure SQL                  | Connect to Azure SQL (AAD)                             | &#9744; |
-| &#11185; global connection             | Save and reuse the connection                          | &#9744; |
+| &#11185; global connection             | Save and reuse the connection                          | &#9745; |
 | Disconnect-Instance                    | Close connection                                       | &#9745; |
 | Invoke-Command                         | Execute stored procedure or select data                | &#9745; |
 | &#11185; Procedure instead of SQL text | Execute procedure by procedure name                    | &#9745; |

@@ -31,4 +31,9 @@ Describe 'Invoke-Command' {
         $result[1].b | Should -Be '4'
     }
 
+    It 'returns prints' {
+        Invoke-TSqlCommand -Connection $script:connection -Text 'PRINT ''test''' -InformationVariable output
+        $output | Should -Be 'test'
+    }
+
 }

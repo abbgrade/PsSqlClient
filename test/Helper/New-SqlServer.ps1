@@ -45,7 +45,6 @@ function New-SqlServer {
                 }
                 Start-Sleep -Seconds 1
             }
-            Start-Sleep -Seconds 5
         }
         'windows/amd64' {
             $environment['sa_password'] = $ServerAdminPassword
@@ -57,10 +56,10 @@ function New-SqlServer {
                 -Environment $environment `
                 -Ports @{
                 1433 = 1433
-            } -Detach
+            } -Detach -ErrorAction 'Stop'
 
             foreach ( $index in (1..30)) {
-                $status = Invoke-DockerCommand -Name $container.Name -Command 'powershell -C "Get-Service -Name MSSQLSERVER" | Select -ExpandProperty Status' -StringOutput
+                $status = Invoke-DockerCommand -Name $container.Name -Command 'powershell -C "Get-Service -Name MSSQLSERVER" | Select -ExpandProperty Status' -StringOutput -ErrorAction 'SilentlyContinue'
                 if ( $status -eq 'Running' ) {
                     break
                 }

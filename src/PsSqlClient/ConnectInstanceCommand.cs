@@ -4,6 +4,7 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Management.Automation;
 using System.Security;
+using System.Threading;
 #if AZURE
 using Microsoft.Azure.Services.AppAuthentication;
 #endif
@@ -56,6 +57,12 @@ namespace PsSqlClient
         [ValidateNotNullOrEmpty()]
         public SecureString Password { get; set; }
 
+        [Parameter(ValueFromPipelineByPropertyName = true)]
+        public int RetryCount { get; set; } = 0;
+
+        [Parameter(ValueFromPipelineByPropertyName = true)]
+        public int RetryInterval { get; set; } = 10;
+
         protected override void ProcessRecord()
         {
             SqlConnection connection;
@@ -100,8 +107,30 @@ namespace PsSqlClient
                 default:
                     throw new NotImplementedException($"ParameterSetName {ParameterSetName} is not implemented");
             }
-            connection.Open();
-            WriteVerbose($"Connection to {connection.DataSource} is {connection.State}");
+
+            int retryIndex = 0;
+            do {
+                retryIndex += 1;
+                try {
+                    connection.Open();
+                    WriteVerbose($"Connection to {connection.DataSource} is {connection.State}");
+                    break;
+                }
+                catch (SqlException ex) {
+                    WriteError(new ErrorRecord(
+                        exception: ex,
+                        errorId:ex.Number.ToString(),
+                        errorCategory:ErrorCategory.OpenError,
+                        targetObject:null
+                    ));
+                    if (retryIndex < RetryCount) {
+                        WriteVerbose($"Wait {RetryInterval}s for connection attemp {retryIndex}.");
+                        Thread.Sleep(new TimeSpan(hours:0, minutes:0, seconds:RetryInterval));
+                    } else {
+                        throw ex;
+                    }
+                }
+            } while (retryIndex < RetryCount);
             WriteObject(connection);
         }
 

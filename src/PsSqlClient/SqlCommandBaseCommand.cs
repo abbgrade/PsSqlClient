@@ -25,7 +25,19 @@ namespace PsSqlClient
             Mandatory = true,
             ValueFromPipelineByPropertyName = true)]
         [ValidateNotNullOrEmpty()]
-        public string Name { get; set; }
+        public string Procedure { get; set; }
+
+        [Parameter(
+            ParameterSetName = nameof(CommandType.StoredProcedure),
+            ValueFromPipelineByPropertyName = true)]
+        [ValidateNotNullOrEmpty()]
+        public string Schema { get; set; }
+
+        [Parameter(
+            ParameterSetName = nameof(CommandType.StoredProcedure),
+            ValueFromPipelineByPropertyName = true)]
+        [ValidateNotNullOrEmpty()]
+        public string Database { get; set; }
 
         [Parameter(
             Position = 1,
@@ -75,7 +87,17 @@ namespace PsSqlClient
                     break;
                 case "StoredProcedure":
                     command.CommandType = CommandType.StoredProcedure;
-                    command.CommandText = Name;
+                    if ( Database != null) {
+                        command.CommandText = $"[{Database}].";
+                    }
+                    if ( Schema != null) {
+                        command.CommandText += $"[{Schema}].";
+                    }
+                    if ( command.CommandText != null) {
+                        command.CommandText += $"[{Procedure}]";
+                    } else {
+                        command.CommandText = Procedure;
+                    }
                     break;
                 default:
                     throw new NotImplementedException($"ParameterSetName {ParameterSetName} is not implemented");

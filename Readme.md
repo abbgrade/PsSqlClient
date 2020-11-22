@@ -10,12 +10,12 @@ The PowerShell SQL Client module aims to replace to the SQL Server utilities [SQ
 |--| -- | -- |
 | Connect-Instance | Create a new database connection. | &#9744;
 | &#11185; by Connection String | Use a custom connection string. | &#9745; |
-| &#11185; by Properties | Use specific properties for host, database, user, etc. | &#9744; |
-| &#11185; with AD credentials | Use integrated security | &#9744; |
+| &#11185; by Properties | Use specific properties for host, database, user, etc. | &#9745; |
+| &#11185; with AD credentials | Use integrated security | &#9745; |
 | &#11185; to Azure SQL | Connect to Azure SQL (token-based) | &#9744;
+| &#11185; to Azure SQL | Connect to Azure SQL (AAD) | &#9744;
 | Disconnect-Instance | Close connection | &#9745;
-| Invoke-Query | Execute stored procedure | &#9744;
-| Select-Row | Select data | &#9744;
+| Invoke-Command | Execute stored procedure or select data| &#9745;
 | Add-Row | Insert data | &#9744;
 
 ## Development

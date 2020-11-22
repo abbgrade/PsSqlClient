@@ -47,6 +47,13 @@ Describe 'Invoke-Command' {
         $result[0].b | Should -Be 2
     }
 
+    It 'works with ddl' {
+        Invoke-TSqlCommand -Connection $script:connection -Text 'CREATE TABLE #test (Id INT NULL)' -InformationAction 'Continue'
+        Invoke-TSqlCommand -Connection $script:connection -Text 'INSERT INTO #test (Id) VALUES (@Id)' -Parameter @{ Id = 5 } -InformationAction 'Continue'
+        $result = Invoke-TSqlCommand -Connection $script:connection -Text 'SELECT * FROM #test' -InformationAction 'Continue'
+        $result[0].Id | Should -Be 5
+    }
+
     It 'returns prints' {
         Invoke-TSqlCommand -Connection $script:connection -Text 'PRINT ''test''' -InformationVariable output
         $output | Should -Be 'test'

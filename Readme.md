@@ -1,6 +1,6 @@
 # PsSqlClient
 
-The PowerShell SQL Client module aims to replace to the SQL Server utilities [SQLCMD](https://docs.microsoft.com/de-de/sql/tools/sqlcmd-utility) and [BCP](https://docs.microsoft.com/en-us/sql/tools/BCP-utility) with native PowerShell commands.
+The PowerShell SQL Client module replaces the SQL Server utilities [SQLCMD](https://docs.microsoft.com/de-de/sql/tools/sqlcmd-utility) and [BCP](https://docs.microsoft.com/en-us/sql/tools/BCP-utility) with native PowerShell commands.
 
 ## Usage
 
@@ -8,38 +8,35 @@ The PowerShell SQL Client module aims to replace to the SQL Server utilities [SQ
 
 ```powershell
 # connect to a SQL Server using your current Windows login
-$connection = Connect-TSqlInstance -DataSource '(LocalDb)\MSSQLLocalDB'
+Connect-TSqlInstance -DataSource '(LocalDb)\MSSQLLocalDB'
 
 # create a temporary table with the columns of your CSV file
-Invoke-TSqlCommand `
-    -Text 'CREATE TABLE #Test (Id INT NULL, Name NVARCHAR(MAX))' `
-    -Connection $connection
+Invoke-TSqlCommand 'CREATE TABLE #Test (Id INT NULL, Name NVARCHAR(MAX))'
 
 # copy the data from CSV to the SQL table
-Import-Csv -Path 'test.csv' | Export-TSqlTable -Table '#Test' -Connection $connection
+Import-Csv 'test.csv' | Export-TSqlTable '#Test'
 ```
 
 ### Get a single value
 
 ```powershell
 # connect to a SQL Server using your current Windows login
-$connection = Connect-TSqlInstance -DataSource '(LocalDb)\MSSQLLocalDB'
+Connect-TSqlInstance -DataSource '(LocalDb)\MSSQLLocalDB'
 
 # get a scalar value from the database
-[string] $databaseName = Get-TSqlValue 'SELECT DB_NAME()' -Connection $connection
+[string] $databaseName = Get-TSqlValue 'SELECT DB_NAME()'
 ```
 
 ### Parameterize a query and process results in a pipeline
 
 ```powershell
 # connect to a SQL Server using your current Windows login
-$connection = Connect-TSqlInstance -DataSource '(LocalDb)\MSSQLLocalDB'
+Connect-TSqlInstance -DataSource '(LocalDb)\MSSQLLocalDB'
 
 # get a result from the database and filter the first five by name
-Invoke-TSqlCommand `
-    -Connection $script:connection `
-    -Text 'EXECUTE sp_tables @table_qualifier = @database' `
-    -Parameter @{ '@database' = 'master' } |
+Invoke-TSqlCommand 'EXECUTE sp_tables @table_qualifier = @database' @{
+    'database' = 'master'
+} |
     Sort-Object TABLE_NAME |
     Select-Object -First 5
 ```

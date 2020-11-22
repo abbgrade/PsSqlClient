@@ -26,19 +26,15 @@ Describe 'Connect-Instance' {
             Remove-DockerContainer -Name 'PsSqlClient-Sandbox' -Force
         }
 
-        Context 'Docker SQL Server' {
+        It 'Returns a connection by connection string' -Skip:$script:missingPsDocker {
+            $connection = Connect-TSqlInstance -ConnectionString $script:server.ConnectionString -RetryCount 3
+            $connection.State | Should -be 'Open'
+        }
 
-            It 'Returns a connection by connection string' -Skip:$script:missingPsDocker {
-                $connection = Connect-TSqlInstance -ConnectionString $script:server.ConnectionString -RetryCount 3
-                $connection.State | Should -be 'Open'
-            }
+        It 'Returns a connection by properties' -Skip:$script:missingPsDocker {
 
-            It 'Returns a connection by properties' -Skip:$script:missingPsDocker {
-
-                $connection = Connect-TSqlInstance -DataSource $script:server.Hostname -UserId $script:server.UserId -Password $script:securePassword -RetryCount 3
-                $connection.State | Should -be 'Open'
-            }
-
+            $connection = Connect-TSqlInstance -DataSource $script:server.Hostname -UserId $script:server.UserId -Password $script:securePassword -RetryCount 3
+            $connection.State | Should -be 'Open'
         }
 
     }

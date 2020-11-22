@@ -20,21 +20,18 @@ namespace PsSqlClient
 
         [Parameter(
             Position = 1,
-            Mandatory = true,
-            ValueFromPipeline = true,
-            ValueFromPipelineByPropertyName = true)]
-        [ValidateNotNullOrEmpty()]
-        public SqlConnection Connection { get; set; }
-
-        [Parameter(
-            Position = 2,
             Mandatory = false,
             ValueFromPipelineByPropertyName = true)]
         [ValidateNotNullOrEmpty()]
         public Hashtable Parameter { get; set; }
 
         [Parameter(
-            Position = 3,
+            ValueFromPipeline = true,
+            ValueFromPipelineByPropertyName = true)]
+        [ValidateNotNullOrEmpty()]
+        public SqlConnection Connection { get; set; } = ConnectInstanceCommand.SessionConnection;
+
+        [Parameter(
             Mandatory = false,
             ValueFromPipelineByPropertyName = true)]
         [ValidateNotNullOrEmpty()]
@@ -67,7 +64,7 @@ namespace PsSqlClient
                 foreach (DictionaryEntry item in Parameter)
                 {
                     command.Parameters.Add(
-                        new SqlParameter(parameterName: item.Key.ToString(),value: item.Value)
+                        new SqlParameter(parameterName: $"@{item.Key}", value: item.Value)
                     );
                 }
             }

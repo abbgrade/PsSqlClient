@@ -23,9 +23,9 @@ namespace PsSqlClient
         [ValidateNotNullOrEmpty()]
         public string Table { get; set; }
 
-        [Parameter(Position = 2, Mandatory = true)]
+        [Parameter(Position = 2)]
         [ValidateNotNullOrEmpty()]
-        public SqlConnection Connection { get; set; }
+        public SqlConnection Connection { get; set; } = ConnectInstanceCommand.SessionConnection;
 
         [Parameter(ValueFromPipelineByPropertyName = true)]
         public int? BatchSize { get; set; }

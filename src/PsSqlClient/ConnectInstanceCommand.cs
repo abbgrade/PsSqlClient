@@ -15,6 +15,8 @@ namespace PsSqlClient
     [OutputType(typeof(SqlConnection))]
     public class ConnectInstanceCommand : PSCmdlet
     {
+        internal static SqlConnection SessionConnection { get; set; }
+
         [Parameter(
             ParameterSetName = "ConnectionString",
             Position = 0,
@@ -131,6 +133,8 @@ namespace PsSqlClient
                     }
                 }
             } while (retryIndex < RetryCount);
+
+            SessionConnection = connection;
             WriteObject(connection);
         }
 

@@ -20,19 +20,19 @@ Describe 'Get-Value' {
 
     AfterAll {
         if ( $script:connection ) {
-            Disconnect-TSqlInstance -Connection $script:connection -ErrorAction 'Continue'
+            Disconnect-TSqlInstance -ErrorAction 'Continue'
         }
         Remove-DockerContainer -Name 'PsSqlClient-Sandbox' -Force
     }
 
     It 'gets an integer value' {
-        $result = Get-TSqlValue -Connection $script:connection -Text 'SELECT CONVERT(INT, 1)'
+        $result = Get-TSqlValue -Text 'SELECT CONVERT(INT, 1)'
         $result | Should -Be '1'
         $result | Should -BeOfType [int]
     }
 
     It 'trows a string value' {
-        $result = Get-TSqlValue -Connection $script:connection -Text 'SELECT ''test'''
+        $result = Get-TSqlValue -Text 'SELECT ''test'''
         $result | Should -Be 'test'
         $result | Should -BeOfType [string]
     }

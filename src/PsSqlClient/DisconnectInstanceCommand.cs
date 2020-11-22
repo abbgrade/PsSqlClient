@@ -12,16 +12,18 @@ namespace PsSqlClient
     {
         [Parameter(
             Position = 0,
-            Mandatory = true,
             ValueFromPipeline = true,
             ValueFromPipelineByPropertyName = true)]
         [ValidateNotNullOrEmpty()]
-        public SqlConnection Connection { get; set; }
+        public SqlConnection Connection { get; set; } = ConnectInstanceCommand.SessionConnection;
 
         protected override void ProcessRecord()
         {
             Connection.Close();
             WriteVerbose($"Connection to {Connection.DataSource} is {Connection.State}");
+            if (ConnectInstanceCommand.SessionConnection == Connection) {
+                ConnectInstanceCommand.SessionConnection = null;
+            }
         }
 
     }

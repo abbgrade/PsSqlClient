@@ -16,7 +16,8 @@ The PowerShell SQL Client module aims to replace to the SQL Server utilities [SQ
 | &#11185; to Azure SQL | Connect to Azure SQL (AAD) | &#9744;
 | Disconnect-Instance | Close connection | &#9745;
 | Invoke-Command | Execute stored procedure or select data| &#9745;
-| Add-Row | Insert data | &#9744;
+| Export-Table | Insert data | &#9745;
+| &#11185; show progress | show how many rows already inserted | &#9744;
 
 ## Development
 

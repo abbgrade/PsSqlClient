@@ -56,25 +56,28 @@ namespace PsSqlClient
             }
 
             {
-                var dataTable = new DataTable();
+                var dataSet = new DataSet();
                 using (var dataAdapter = new SqlDataAdapter(command))
                 {
-                    dataAdapter.Fill(dataTable);
+                    dataAdapter.Fill(dataSet);
                 }
 
-                foreach (DataRow row in dataTable.Rows)
+                foreach (DataTable dataTable in dataSet.Tables)
                 {
-                    var output = new PSObject();
-                    foreach (DataColumn column in dataTable.Columns)
+                    foreach (DataRow row in dataTable.Rows)
                     {
-                        output.Members.Add(
-                            new PSNoteProperty(
-                                name:column.ColumnName,
-                                value:row[column]
-                            )
-                        );
+                        var output = new PSObject();
+                        foreach (DataColumn column in dataTable.Columns)
+                        {
+                            output.Members.Add(
+                                new PSNoteProperty(
+                                    name:column.ColumnName,
+                                    value:row[column]
+                                )
+                            );
+                        }
+                        WriteObject(output);
                     }
-                    WriteObject(row);
                 }
             }
         }

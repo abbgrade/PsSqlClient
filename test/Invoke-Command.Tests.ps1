@@ -65,7 +65,7 @@ Describe 'Invoke-Command' {
         } | Should -Throw
     }
 
-    It 'Timeouts' {
+    It 'throws on timeout' {
         {
             Invoke-TSqlCommand -Connection $script:connection -Text 'WAITFOR DELAY ''00:01''' -Timeout 1
         } | Should -Throw

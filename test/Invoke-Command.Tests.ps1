@@ -12,7 +12,7 @@ Describe 'Invoke-Command' {
             [securestring] $script:securePassword = ConvertTo-SecureString $script:password -AsPlainText -Force
 
             $script:server = New-SqlServer -ServerAdminPassword $script:password -DockerContainerName 'PsSqlClient-Sandbox' -AcceptEula -ErrorAction 'Stop'
-            $script:connection = Connect-TSqlInstance -ConnectionString $script:server.ConnectionString -RetryCount 3
+            $script:connection = Connect-TSqlInstance -ConnectionString $script:server.ConnectionString -RetryCount 3 -ErrorAction 'SilentlyContinue'
         } else {
             $script:missingPsDocker = $true
         }

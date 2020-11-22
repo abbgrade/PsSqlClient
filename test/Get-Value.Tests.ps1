@@ -1,6 +1,6 @@
 #Requires -Modules @{ ModuleName='Pester'; ModuleVersion='5.0.0' }, @{ ModuleName='PSDocker'; ModuleVersion='1.5.0' }
 
-Describe 'Disconnect-Instance' {
+Describe 'Get-Value' {
 
     BeforeAll {
         Import-Module -Name $PSScriptRoot/../src/PsSqlClient/bin/Release/netstandard2.0/PsSqlClient.psd1 -Force -ErrorAction 'Stop'
@@ -19,12 +19,21 @@ Describe 'Disconnect-Instance' {
     }
 
     AfterAll {
+        if ( $script:connection ) {
+            Disconnect-TSqlInstance -Connection $script:connection -ErrorAction 'Continue'
+        }
         Remove-DockerContainer -Name 'PsSqlClient-Sandbox' -Force
     }
 
-    It 'disconnects the instance' -Skip:$script:missingPsDocker {
-        Disconnect-TSqlInstance -Connection $script:connection
-        $script:connection.State | Should -Be 'Closed'
+    It 'gets an integer value' {
+        $result = Get-TSqlValue -Connection $script:connection -Text 'SELECT CONVERT(INT, 1)'
+        $result | Should -Be '1'
+        $result | Should -BeOfType [int]
     }
 
+    It 'trows a string value' {
+        $result = Get-TSqlValue -Connection $script:connection -Text 'SELECT ''test'''
+        $result | Should -Be 'test'
+        $result | Should -BeOfType [string]
+    }
 }

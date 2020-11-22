@@ -54,22 +54,22 @@ Invoke-TSqlCommand `
 - Test automation is based on [Pester](https://pester.dev)
 - Commands are named based on [Approved Verbs for PowerShell Commands](https://docs.microsoft.com/de-de/powershell/scripting/developer/cmdlet/approved-verbs-for-windows-powershell-commands)
 
-
 ### Commands
 
-| Command | Description | Status |
-|--| -- | -- |
-| Connect-Instance | Create a new database connection. | &#9744;
-| &#11185; by Connection String | Use a custom connection string. | &#9745; |
-| &#11185; by Properties | Use specific properties for host, database, user, etc. | &#9745; |
-| &#11185; with AD credentials | Use integrated security | &#9745; |
-| &#11185; to Azure SQL | Connect to Azure SQL (token-based) | &#9744;
-| &#11185; to Azure SQL | Connect to Azure SQL (AAD) | &#9744;
-| &#11185; global connection | Save and reuse the connection | &#9744;
-| Disconnect-Instance | Close connection | &#9745;
-| Invoke-Command | Execute stored procedure or select data| &#9745;
-| Export-Table | Insert data | &#9745;
-| &#11185; show progress | show how many rows already inserted | &#9744;
+| Command                                | Description                                            | Status  |
+| -------------------------------------- | ------------------------------------------------------ | ------- |
+| Connect-Instance                       | Create a new database connection.                      | &#9744; |
+| &#11185; by Connection String          | Use a custom connection string.                        | &#9745; |
+| &#11185; by Properties                 | Use specific properties for host, database, user, etc. | &#9745; |
+| &#11185; with AD credentials           | Use integrated security                                | &#9745; |
+| &#11185; to Azure SQL                  | Connect to Azure SQL (token-based)                     | &#9744; |
+| &#11185; to Azure SQL                  | Connect to Azure SQL (AAD)                             | &#9744; |
+| &#11185; global connection             | Save and reuse the connection                          | &#9744; |
+| Disconnect-Instance                    | Close connection                                       | &#9745; |
+| Invoke-Command                         | Execute stored procedure or select data                | &#9745; |
+| &#11185; Procedure instead of SQL text | Execute procedure by procedure name                    | &#9745; |
+| Export-Table                           | Insert data                                            | &#9745; |
+| &#11185; show progress                 | show how many rows already inserted                    | &#9744; |
 
 
 ### Build

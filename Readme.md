@@ -2,15 +2,21 @@
 
 The PowerShell SQL Client module aims to replace to the SQL Server utilities [SQLCMD](https://docs.microsoft.com/de-de/sql/tools/sqlcmd-utility) and [BCP](https://docs.microsoft.com/en-us/sql/tools/BCP-utility) with native PowerShell commands.
 
+![CI](https://github.com/abbgrade/PsSqlClient/workflows/CI/badge.svg)
+
 ## Commands
 
-- [x] Connect-Instance | Create a new database connection.
-  - [x] by Connection String
-  - [ ] by Properties
-  - [ ] with AD credentials
-  - [ ] to Azure SQL
-- [ ] Disconnect-Instance
-- [ ] Add-Row
+| Command | Description | Status |
+|--| -- | -- |
+| Connect-Instance | Create a new database connection. | &#9744;
+| &#11185; by Connection String | Use a custom connection string. | &#9745; |
+| &#11185; by Properties | Use specific properties for host, database, user, etc. | &#9744; |
+| &#11185; with AD credentials | Use integrated security | &#9744; |
+| &#11185; to Azure SQL | Connect to Azure SQL (token-based) | &#9744;
+| Disconnect-Instance | Close connection | &#9745;
+| Invoke-Query | Execute stored procedure | &#9744;
+| Select-Row | Select data | &#9744;
+| Add-Row | Insert data | &#9744;
 
 ## Development
 
@@ -29,3 +35,5 @@ You can build the module using the VS Code build task or with the command `Invok
 ### Testing
 
 The tests scripts are based on Pester. If it is not installed, install it with the command `Install-Module -Name Pester -Force -SkipPublisherCheck`. Some tests require a SQL Server. The test creates a SQL Server in a Docker container. If needed, [install Docker](https://www.docker.com/get-started). The container are created using PSDocker, which can be installed using `Install-Module PSDocker -Scope CurrentUser`.
+For local testing use the VSCode test tasks or execute the test scripts directly or with `Invoke-Pester`.
+The InvokeBuild test tasks are for CI and do not generate console output.

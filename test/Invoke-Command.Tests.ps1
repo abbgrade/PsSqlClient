@@ -5,24 +5,18 @@ Describe 'Invoke-Command' {
     BeforeAll {
         Import-Module -Name $PSScriptRoot/../src/PsSqlClient/bin/Release/netstandard2.0/PsSqlClient.psd1 -Force -ErrorAction 'Stop'
 
-        if ( Get-Module -ListAvailable -Name PSDocker ) {
-            . ./Helper/New-SqlServer.ps1
-
-            [string] $script:password = 'Passw0rd!'
-            [securestring] $script:securePassword = ConvertTo-SecureString $script:password -AsPlainText -Force
-
-            $script:server = New-SqlServer -ServerAdminPassword $script:password -DockerContainerName 'PsSqlClient-Sandbox' -AcceptEula -ErrorAction 'Stop'
-            $script:connection = Connect-TSqlInstance -ConnectionString $script:server.ConnectionString -RetryCount 3 -ErrorAction 'SilentlyContinue'
-        } else {
-            $script:missingPsDocker = $true
-        }
+        . ./Helper/New-SqlServer.ps1
+        $script:server = New-SqlServer -ErrorAction 'Stop'
+        $script:connection = Connect-TSqlInstance -ConnectionString $script:server.ConnectionString -RetryCount 3 -ErrorAction 'SilentlyContinue'
     }
 
     AfterAll {
         if ( $script:connection ) {
             Disconnect-TSqlInstance -ErrorAction 'Continue'
         }
-        Remove-DockerContainer -Name 'PsSqlClient-Sandbox' -Force
+
+        . ./Helper/Remove-SqlServer.ps1
+        Remove-SqlServer
     }
 
     It 'selects data' {

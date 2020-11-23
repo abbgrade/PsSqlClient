@@ -1,4 +1,4 @@
-#Requires -Modules @{ ModuleName='Pester'; ModuleVersion='5.0.0' }, @{ ModuleName='PSDocker'; ModuleVersion='1.5.0' }
+#Requires -Modules @{ ModuleName='Pester'; ModuleVersion='5.0.0' }
 
 Describe 'Connect-Instance' {
 
@@ -11,19 +11,20 @@ Describe 'Connect-Instance' {
         BeforeAll {
 
             if ( Get-Module -ListAvailable -Name PSDocker ) {
-                . ./Helper/New-SqlServer.ps1
+                . ./Helper/New-DockerSqlServer.ps1
 
                 [string] $script:password = 'Passw0rd!'
                 [securestring] $script:securePassword = ConvertTo-SecureString $script:password -AsPlainText -Force
 
-                $script:server = New-SqlServer -ServerAdminPassword $script:password -DockerContainerName 'PsSqlClient-Sandbox' -AcceptEula -ErrorAction 'Stop'
+                $script:server = New-DockerSqlServer -ServerAdminPassword $script:password -DockerContainerName 'PsSqlClient-Sandbox' -AcceptEula -ErrorAction 'Stop'
             } else {
                 $script:missingPsDocker = $true
             }
         }
 
         AfterAll {
-            Remove-DockerContainer -Name 'PsSqlClient-Sandbox' -Force
+            . ./Helper/Remove-DockerSqlServer.ps1
+            Remove-DockerSqlServer -DockerContainerName 'PsSqlClient-Sandbox'
         }
 
         It 'Returns a connection by connection string' -Skip:$script:missingPsDocker {

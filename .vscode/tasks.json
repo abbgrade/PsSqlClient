@@ -120,7 +120,7 @@
             "label": "test azuresql",
             "group": "test",
             "type": "shell",
-            "command": "Invoke-Peter -Configuration @{ Filter = @{ Tag  = 'AzureSql' }}",
+            "command": "Invoke-Pester -Configuration @{ Filter = @{ Tag  = 'AzureSql' }}",
             "options": {
                 "cwd": "test"
             },

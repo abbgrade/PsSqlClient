@@ -34,7 +34,7 @@ task testDocker requireTestDependencies, build, {
 	Pop-Location
 }
 
-task testLocalDb build, { #requireTestDependencies
+task testLocalDb requireTestDependencies, build, {
 	Push-Location test
 	$config = [PesterConfiguration]::Default
 	$config.Filter.Tag = 'LocalDb'
@@ -54,25 +54,29 @@ task testAzureSql requireTestDependencies, build, {
 
 # Synopsis: Install the dependencies for tests.
 task requirePester {
-	if ( -not ( Get-Module -ListAvailable -Name Pester )) {
+	$installedPester = Get-Module -ListAvailable -Name Pester
+	if ( -not ( $installedPester )) {
 		Write-Verbose 'Pester is not installed'
 		Install-Module Pester -Scope CurrentUser -SkipPublisherCheck -Force
-	} elseif ( -not ( Get-Module -ListAvailable -Name Pester | Where-Object Version.Major -ge 5 )) {
+	} elseif ( ( $installedPester | Measure-Object Version -Max ).Maximum.Major -lt 5 ) {
 		Write-Verbose 'Pester is not updated'
+		( $installedPester | Measure-Object Version -Max ).Maximum | Write-Verbose
 		Update-Module Pester -Scope CurrentUser -Force
 	}
-	Write-Verbose "Pester Version: $( ( Get-Module -ListAvailable -Name Pester ).Version )"
+	Write-Verbose "Pester Version: $( ( $installedPester ).Version )"
 }
 
 task requirePsDocker {
-	if ( -not ( Get-Module -ListAvailable -Name PSDocker )) {
+	$installedPsDocker = Get-Module -ListAvailable -Name PSDocker
+	if ( -not ( $installedPsDocker )) {
 		Write-Verbose 'PSDocker is not installed'
 		Install-Module PSDocker -Scope CurrentUser -Force
-	} elseif ( -not ( Get-Module -ListAvailable -Name PSDocker | Where-Object Version.Major -ge 1 )) {
+	} elseif ( ( $installedPsDocker | Measure-Object Version -Max ).Maximum.Major -lt 1) {
 		Write-Verbose 'PSDocker is not updated'
+		( $installedPsDocker | Measure-Object Version -Max ).Maximum | Write-Verbose
 		Update-Module PSDocker -Scope CurrentUser -Force
 	}
-	Write-Verbose "PSDocker Version: $( ( Get-Module -ListAvailable -Name PSDocker ).Version )"
+	Write-Verbose "PSDocker Version: $( ( $installedPsDocker ).Version )"
 }
 
 task requireTestDependencies requirePester, requirePsDocker

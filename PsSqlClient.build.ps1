@@ -27,39 +27,55 @@ task test requireTestDependencies, build, {
 
 task testDocker requireTestDependencies, build, {
 	Push-Location test
-	Invoke-Pester -TagFilter Docker -CI
+	$config = [PesterConfiguration]::Default
+	$config.Filter.Tag = 'Docker'
+	$config.CodeCoverage.Enabled = $true
+	Invoke-Pester -Configuration $config
 	Pop-Location
 }
 
-task testLocalDb requireTestDependencies, build, {
+task testLocalDb build, { #requireTestDependencies
 	Push-Location test
-	Invoke-Pester -TagFilter LocalDb -CI
+	$config = [PesterConfiguration]::Default
+	$config.Filter.Tag = 'LocalDb'
+	$config.CodeCoverage.Enabled = $true
+	Invoke-Pester -Configuration $config
 	Pop-Location
 }
 
 task testAzureSql requireTestDependencies, build, {
 	Push-Location test
-	Invoke-Pester -TagFilter AzureSql -CI
+	$config = [PesterConfiguration]::Default
+	$config.Filter.Tag = 'AzureSql'
+	$config.CodeCoverage.Enabled = $true
+	Invoke-Pester -Configuration $config
 	Pop-Location
 }
 
 # Synopsis: Install the dependencies for tests.
-task requireTestDependencies {
-
+task requirePester {
 	if ( -not ( Get-Module -ListAvailable -Name Pester )) {
+		Write-Verbose 'Pester is not installed'
 		Install-Module Pester -Scope CurrentUser -SkipPublisherCheck -Force
 	} elseif ( -not ( Get-Module -ListAvailable -Name Pester | Where-Object Version.Major -ge 5 )) {
+		Write-Verbose 'Pester is not updated'
 		Update-Module Pester -Scope CurrentUser -Force
 	}
 	Write-Verbose "Pester Version: $( ( Get-Module -ListAvailable -Name Pester ).Version )"
+}
 
+task requirePsDocker {
 	if ( -not ( Get-Module -ListAvailable -Name PSDocker )) {
+		Write-Verbose 'PSDocker is not installed'
 		Install-Module PSDocker -Scope CurrentUser -Force
 	} elseif ( -not ( Get-Module -ListAvailable -Name PSDocker | Where-Object Version.Major -ge 1 )) {
+		Write-Verbose 'PSDocker is not updated'
 		Update-Module PSDocker -Scope CurrentUser -Force
 	}
 	Write-Verbose "PSDocker Version: $( ( Get-Module -ListAvailable -Name PSDocker ).Version )"
 }
+
+task requireTestDependencies requirePester, requirePsDocker
 
 task importModule build, {
 	Import-Module ./src/PsSqlClient/bin/Release/netstandard2.0/PsSqlClient.psd1

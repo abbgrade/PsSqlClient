@@ -1,13 +1,10 @@
 ﻿
 using System;
-using System.Data;
 using System.Data.SqlClient;
 using System.Management.Automation;
 using System.Security;
 using System.Threading;
-#if AZURE
 using Microsoft.Azure.Services.AppAuthentication;
-#endif
 
 namespace PsSqlClient
 {
@@ -22,7 +19,8 @@ namespace PsSqlClient
             Position = 0,
             Mandatory = true,
             ValueFromPipeline = true,
-            ValueFromPipelineByPropertyName = true)]
+            ValueFromPipelineByPropertyName = true
+        )]
         [ValidateNotNullOrEmpty()]
         public string ConnectionString { get; set; }
 
@@ -30,16 +28,40 @@ namespace PsSqlClient
             ParameterSetName = "Properties_IntegratedSecurity",
             Position = 0,
             Mandatory = true,
-            ValueFromPipeline = true,
-            ValueFromPipelineByPropertyName = true)]
+            ValueFromPipelineByPropertyName = true
+        )]
         [Parameter(
             ParameterSetName = "Properties_SQLServerAuthentication",
             Position = 0,
             Mandatory = true,
-            ValueFromPipeline = true,
-            ValueFromPipelineByPropertyName = true)]
+            ValueFromPipelineByPropertyName = true
+        )]
         [ValidateNotNullOrEmpty()]
+        [Alias("Server", "ServerName")]
         public string DataSource { get; set; }
+
+        [Parameter(
+            ParameterSetName = "Properties_IntegratedSecurity",
+            Position = 1,
+            Mandatory = false,
+            ValueFromPipelineByPropertyName = true
+        )]
+        [Parameter(
+            ParameterSetName = "Properties_SQLServerAuthentication",
+            Position = 1,
+            Mandatory = false,
+            ValueFromPipelineByPropertyName = true
+        )]
+        [ValidateNotNullOrEmpty()]
+        [Alias("Database", "DatabaseName")]
+        public string InitialCatalog { get; set; }
+
+        [Parameter(
+            ParameterSetName = "Properties_IntegratedSecurity",
+            ValueFromPipelineByPropertyName = true
+        )]
+        [ValidateNotNullOrEmpty()]
+        public string AccessToken { get; set; }
 
         [Parameter(
             ParameterSetName = "Properties_SQLServerAuthentication",
@@ -77,34 +99,33 @@ namespace PsSqlClient
                     connection = new SqlConnection(connectionString:builder.ConnectionString);
                     break;
 
-                case "Properties_IntegratedSecurity": {
+                case "Properties_IntegratedSecurity":
                     WriteVerbose("Connect by Integrated Security");
                     builder.DataSource = DataSource;
+                    if (InitialCatalog != null)
+                        builder.InitialCatalog = InitialCatalog;
                     if (DataSource.EndsWith("database.windows.net")) {
-#if AZURE
                         connection = new SqlConnection(connectionString: builder.ConnectionString);
-                        var token = new AzureServiceTokenProvider().GetAccessTokenAsync("https://database.windows.net").Result;
-                        connection.AccessToken = token;
-#else
-                        throw new System.NotImplementedException("Azure authentication is not implemented");
-#endif
+                        if ( AccessToken == null )
+                            AccessToken = new AzureServiceTokenProvider().GetAccessTokenAsync("https://database.windows.net").Result;
+                        connection.AccessToken = AccessToken;
                     } else {
                         builder.IntegratedSecurity = true;
                         connection = new SqlConnection(connectionString: builder.ConnectionString);
                     }
                     break;
-                }
-
-                case "Properties_SQLServerAuthentication": {
+                
+                case "Properties_SQLServerAuthentication":
                     WriteVerbose("Connect by SQL Server Authentication");
                     Password.MakeReadOnly();
                     builder.DataSource = DataSource;
+                    if (InitialCatalog != null)
+                        builder.InitialCatalog = InitialCatalog;
                     connection = new SqlConnection(
                         connectionString: builder.ConnectionString,
                         credential: new SqlCredential(userId:UserId, password: Password)
                     );
                     break;
-                }
 
                 default:
                     throw new NotImplementedException($"ParameterSetName {ParameterSetName} is not implemented");

@@ -5,7 +5,7 @@
 
 param(
 	[ValidateSet('Debug', 'Release')]
-	[string]$Configuration = 'Release'
+	[string] $Configuration = 'Release'
 )
 
 # Synopsis: Build project.
@@ -54,7 +54,7 @@ task testAzureSql requireTestDependencies, build, {
 
 # Synopsis: Install the dependencies for tests.
 task requirePester {
-	$installedPester = Get-Module -ListAvailable -Name Pester
+	$installedPester = Get-Module -ListAvailable -Name Pester | Sort-Object Version -Descending | Select-Object -First 1
 	if ( -not ( $installedPester )) {
 		Write-Verbose 'Pester is not installed'
 		Install-Module Pester -Scope CurrentUser -SkipPublisherCheck -Force

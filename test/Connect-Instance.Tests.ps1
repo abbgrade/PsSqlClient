@@ -10,30 +10,41 @@ Describe 'Connect-Instance' {
 
         BeforeAll {
 
+            $script:missingDocker = $false
             if ( Get-Module -ListAvailable -Name PSDocker ) {
+
+                $local:dockerVersion = Get-DockerVersion -ErrorAction 'SilentlyContinue'
+                if ( $local:dockerVersion.Server ) {
+                } else {
+                    $script:missingDocker = $true
+                }
+            } else {
+                $script:missingDocker = $true
+            }
+
+            if ( -not $script:missingDocker ) {
                 . ./Helper/New-DockerSqlServer.ps1
 
                 [string] $script:password = 'Passw0rd!'
                 [securestring] $script:securePassword = ConvertTo-SecureString $script:password -AsPlainText -Force
 
                 $script:server = New-DockerSqlServer -ServerAdminPassword $script:password -DockerContainerName 'PsSqlClient-Sandbox' -AcceptEula -ErrorAction 'Stop'
-            } else {
-                $script:missingPsDocker = $true
             }
         }
 
         AfterAll {
-            . ./Helper/Remove-DockerSqlServer.ps1
-            Remove-DockerSqlServer -DockerContainerName 'PsSqlClient-Sandbox'
+            if ( -not $script:missingDocker ) {
+                . ./Helper/Remove-DockerSqlServer.ps1
+                Remove-DockerSqlServer -DockerContainerName 'PsSqlClient-Sandbox'
+            }
         }
 
-        It 'Returns a connection by connection string' -Skip:$script:missingPsDocker {
-            $connection = Connect-TSqlInstance -ConnectionString $script:server.ConnectionString -RetryCount 3
+        It 'Returns a connection by connection string' -Skip:$script:missingDocker {
+            $connection = Connect-TSqlInstance -ConnectionString $script:server.ConnectionString -RetryCount 3 -ErrorAction Stop
             $connection.State | Should -be 'Open'
         }
 
-        It 'Returns a connection by properties' -Skip:$script:missingPsDocker {
-
+        It 'Returns a connection by properties' -Skip:$script:missingDocker {
             $connection = Connect-TSqlInstance -DataSource $script:server.Hostname -UserId $script:server.UserId -Password $script:securePassword -RetryCount 3
             $connection.State | Should -be 'Open'
         }

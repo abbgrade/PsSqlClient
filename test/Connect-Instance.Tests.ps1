@@ -104,7 +104,9 @@ Describe 'Connect-Instance' {
         BeforeAll {
             #Requires -Module Az.Sql, Az.Resources
 
-            Connect-AzAccount
+            if ( -not ( Get-AzContext ) ) {
+                Connect-AzAccount
+            }
 
             $script:resourceGroup = Get-AzResourceGroup -Name 'PsSqlClientTests'
             if ( -not $script:resourceGroup ) {
@@ -114,7 +116,7 @@ Describe 'Connect-Instance' {
                 -ServerName ( New-Guid ) `
                 -ResourceGroupName $script:resourceGroup.ResourceGroupName `
                 -Location $script:resourceGroup.Location `
-                -EnableActiveDirectoryOnlyAuthentication -ExternalAdminName ( ( Get-Azcontext ).Account )
+                -EnableActiveDirectoryOnlyAuthentication -ExternalAdminName ( ( Get-AzContext ).Account )
 
             $myIp = ( Invoke-WebRequest ifconfig.me/ip ).Content.Trim()
 
@@ -140,8 +142,14 @@ Describe 'Connect-Instance' {
             }
         }
 
-        It 'works' {
+        It 'Returns a connection by properties' {
             $connection = Connect-TSqlInstance -DataSource $script:server.FullyQualifiedDomainName
+            $connection.State | Should -be 'Open'
+        }
+
+        It 'Returns a connection by token' {
+            $token = Get-AzAccessToken -ResourceUrl 'https://database.windows.net'
+            $connection = Connect-TSqlInstance -DataSource $script:server.FullyQualifiedDomainName -AccessToken $token
             $connection.State | Should -be 'Open'
         }
 

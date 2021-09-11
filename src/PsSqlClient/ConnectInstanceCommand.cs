@@ -39,6 +39,13 @@ namespace PsSqlClient
         public string DataSource { get; set; }
 
         [Parameter(
+            ParameterSetName = "Properties_IntegratedSecurity",
+            ValueFromPipelineByPropertyName = true
+        )]
+        [ValidateNotNullOrEmpty()]
+        public string AccessToken { get; set; }
+
+        [Parameter(
             ParameterSetName = "Properties_SQLServerAuthentication",
             Position = 1,
             Mandatory = true,
@@ -79,8 +86,9 @@ namespace PsSqlClient
                     builder.DataSource = DataSource;
                     if (DataSource.EndsWith("database.windows.net")) {
                         connection = new SqlConnection(connectionString: builder.ConnectionString);
-                        var token = new AzureServiceTokenProvider().GetAccessTokenAsync("https://database.windows.net").Result;
-                        connection.AccessToken = token;
+                        if ( AccessToken == null )
+                            AccessToken = new AzureServiceTokenProvider().GetAccessTokenAsync("https://database.windows.net").Result;
+                        connection.AccessToken = AccessToken;
                     } else {
                         builder.IntegratedSecurity = true;
                         connection = new SqlConnection(connectionString: builder.ConnectionString);

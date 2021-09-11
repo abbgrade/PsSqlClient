@@ -3,7 +3,7 @@
 Describe 'Connect-Instance' {
 
     BeforeAll {
-        Import-Module -Name $PSScriptRoot/../src/PsSqlClient/bin/Release/netstandard2.0/PsSqlClient.psd1 -Force -ErrorAction 'Stop'
+        Import-Module -Name $PSScriptRoot/../src/PsSqlClient/bin/Release/netstandard2.0/publish/PsSqlClient.psd1 -Force -ErrorAction 'Stop'
     }
 
     Context 'Docker' -Tag Docker {
@@ -94,6 +94,54 @@ Describe 'Connect-Instance' {
 
         It 'Returns a connection by properties' -Skip:$script:missingLocalDb {
             $connection = Connect-TSqlInstance -DataSource $script:DataSource
+            $connection.State | Should -be 'Open'
+        }
+
+    }
+
+    Context 'AzureSql' -Tag AzureSql {
+
+        BeforeAll {
+            #Requires -Module Az.Sql, Az.Resources
+
+            Connect-AzAccount
+
+            $script:resourceGroup = Get-AzResourceGroup -Name 'PsSqlClientTests'
+            if ( -not $script:resourceGroup ) {
+                $script:resourceGroup = New-AzResourceGroup -Name 'PsSqlClientTests' -Location 'Central US' -ErrorAction Stop
+            }
+            $script:server = New-AzSqlServer -ErrorAction Stop `
+                -ServerName ( New-Guid ) `
+                -ResourceGroupName $script:resourceGroup.ResourceGroupName `
+                -Location $script:resourceGroup.Location `
+                -EnableActiveDirectoryOnlyAuthentication -ExternalAdminName ( ( Get-Azcontext ).Account )
+
+            $myIp = ( Invoke-WebRequest ifconfig.me/ip ).Content.Trim()
+
+            New-AzSqlServerFirewallRule `
+                -ResourceGroupName $script:resourceGroup.ResourceGroupName `
+                -ServerName $script:server.ServerName `
+                -FirewallRuleName "myIP" `
+                -StartIpAddress $myIp -EndIpAddress $myIp
+
+            $script:database = New-AzSqlDatabase -ErrorAction Stop `
+                -DatabaseName ( New-Guid ) `
+                -ServerName $script:server.ServerName `
+                -ResourceGroupName $script:resourceGroup.ResourceGroupName
+        }
+
+        AfterAll {
+            if ( $script:database ) {
+                $script:database | Remove-AzSqlDatabase
+            }
+
+            if ( $script:server ) {
+                $script:server | Remove-AzSqlServer
+            }
+        }
+
+        It 'works' {
+            $connection = Connect-TSqlInstance -DataSource $script:server.FullyQualifiedDomainName
             $connection.State | Should -be 'Open'
         }
 

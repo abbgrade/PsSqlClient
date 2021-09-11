@@ -10,7 +10,7 @@ param(
 
 # Synopsis: Build project.
 task build {
-	exec { dotnet build ./src/PsSqlClient -c $Configuration }
+	exec { dotnet publish ./src/PsSqlClient -c $Configuration }
 }
 
 # Synopsis: Remove files.

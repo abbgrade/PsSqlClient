@@ -2,3 +2,4 @@ bin
 obj
 coverage.xml
 testResults.xml
+*/*/.vs

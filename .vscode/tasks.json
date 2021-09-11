@@ -43,7 +43,8 @@
             "label": "build",
             "group": "build",
             "type": "shell",
-            "command": "Invoke-Build -Task build",
+            "command": "Invoke-Build",
+            "args": ["build"],
             "problemMatcher": "$msCompile",
             "presentation": {
                 "echo": false,
@@ -53,7 +54,8 @@
         {
             "label": "clean",
             "type": "shell",
-            "command": "Invoke-Build -Task clean",
+            "command": "Invoke-Build",
+            "args": ["clean"],
             "problemMatcher": "$msCompile",
             "presentation": {
                 "echo": false,
@@ -124,6 +126,17 @@
             "options": {
                 "cwd": "test"
             },
+            "problemMatcher": "$msCompile",
+            "presentation": {
+                "echo": false,
+                "showReuseMessage": false
+            }
+        },
+        {
+            "label": "install",
+            "type": "shell",
+            "command": "Invoke-Build",
+            "args": ["install"],
             "problemMatcher": "$msCompile",
             "presentation": {
                 "echo": false,

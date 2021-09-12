@@ -103,10 +103,15 @@ Describe 'Connect-Instance' {
         BeforeDiscovery {
             $script:azureDisconnected = $true
 
-            #Requires -Module Az.Sql, Az.Resources
+            $local:azAccount = Get-Module -ListAvailable -Name Az.Account
+            if ( $local:azAccount ) {
+                Import-Module $local:azAccount
+                Import-Module Az.Sql
+                Import-Module Az.Resources
 
-            if ( Get-AzContext ) {
-                $script:azureDisconnected = $false
+                if ( Get-AzContext ) {
+                    $script:azureDisconnected = $false
+                }
             }
         }
 

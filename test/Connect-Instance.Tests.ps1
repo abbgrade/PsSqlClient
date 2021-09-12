@@ -8,17 +8,15 @@ Describe 'Connect-Instance' {
 
     Context 'Docker' -Tag Docker {
 
-        BeforeAll {
-            $script:missingDocker = $false
-            if ( Get-Module -ListAvailable -Name PSDocker ) {
-
+        BeforeDiscovery {
+            $script:missingDocker = $true
+            $local:psDocker = Get-Module -ListAvailable -Name PSDocker
+            if ( $local:psDocker ) {
+                Import-Module $local:psDocker
                 $local:dockerVersion = Get-DockerVersion -ErrorAction 'SilentlyContinue'
                 if ( $local:dockerVersion.Server ) {
-                } else {
-                    $script:missingDocker = $true
+                    $script:missingDocker = $false
                 }
-            } else {
-                $script:missingDocker = $true
             }
         }
 

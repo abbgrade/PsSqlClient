@@ -1,21 +1,19 @@
 
+[System.IO.FileInfo] $global:Manifest = "$PSScriptRoot/../src/PsSqlClient/bin/$Configuration/netstandard2.0/publish/PsSqlClient.psd1"
+
 # Synopsis: Build project.
-task build {
+task Build {
 	exec { dotnet publish ./src/PsSqlClient -c $Configuration }
 }
 
-# Synopsis: Remove files.
-task clean {
+# Synopsis: Remove temporary files.
+task Clean {
 	remove src/PsSqlClient/bin, src/PsSqlClient/obj
 }
 
-[System.IO.FileInfo] $global:Manifest = "$PSScriptRoot/../src/PsSqlClient/bin/$Configuration/netstandard2.0/publish/PsSqlClient.psd1"
-
-task importModule build, {
+# Synopsis: Generate documentation.
+task Docs -Jobs Build, {
 	Import-Module $global:Manifest
-}
-
-task docs importModule, {
 
 	if ( Test-Path ./docs -PathType Container ) {
 		Update-MarkdownHelp ./docs
@@ -24,22 +22,18 @@ task docs importModule, {
 	}
 }
 
-# Synopsis: Install the dependencies without installing the module.
-task installDependencies {
-	Find-Package -ProviderName NuGet -Name System.Data.SqlClient | Install-Package
-}
-
-task checkDependencies {
-	# Install-Module -Name Gac -Scope CurrentUser
-	Get-GacAssembly -Name System.Data.SqlClient
-}
-
-task install {
+# Synopsis: Install the module.
+task Install -Jobs Build, {
     $info = Import-PowerShellDataFile $global:Manifest.FullName
     $version = ([System.Version] $info.ModuleVersion)
     $name = $global:Manifest.BaseName
     $defaultModulePath = $env:PsModulePath -split ';' | Select-Object -First 1
-    $installPath = Join-Path $defaultModulePath $name $version
-    New-Item -Type Directory $installPath -Force
+    $installPath = Join-Path $defaultModulePath $name $version.ToString()
+    New-Item -Type Directory $installPath -Force | Out-Null
     Get-ChildItem $global:Manifest.Directory | Copy-Item -Destination $installPath -Recurse -Force
+}
+
+# Synopsis: Publish the module to PSGallery.
+task Publish -Jobs Install, {
+	Publish-Module -Name PsSqlClient -NuGetApiKey $NuGetApiKey
 }

@@ -165,10 +165,6 @@
             "presentation": {
                 "echo": false,
                 "showReuseMessage": false
-            },
-            "group": {
-                "kind": "build",
-                "isDefault": true
             }
         },
         {

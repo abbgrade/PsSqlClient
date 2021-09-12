@@ -8,21 +8,21 @@ Describe 'Connect-Instance' {
 
     Context 'Docker' -Tag Docker {
 
-        BeforeAll {
-
-            $script:missingDocker = $false
-            if ( Get-Module -ListAvailable -Name PSDocker ) {
-
+        BeforeDiscovery {
+            $script:missingDocker = $true
+            $local:psDocker = Get-Module -ListAvailable -Name PSDocker
+            if ( $local:psDocker ) {
+                Import-Module $local:psDocker
                 $local:dockerVersion = Get-DockerVersion -ErrorAction 'SilentlyContinue'
                 if ( $local:dockerVersion.Server ) {
-                } else {
-                    $script:missingDocker = $true
+                    $script:missingDocker = $false
                 }
-            } else {
-                $script:missingDocker = $true
             }
+        }
 
-            if ( -not $script:missingDocker ) {
+        Context 'DockerServer' -Skip:$script:missingDocker {
+
+            BeforeAll {
                 . ./Helper/New-DockerSqlServer.ps1
 
                 [string] $script:password = 'Passw0rd!'
@@ -30,25 +30,24 @@ Describe 'Connect-Instance' {
 
                 $script:server = New-DockerSqlServer -ServerAdminPassword $script:password -DockerContainerName 'PsSqlClient-Sandbox' -AcceptEula -ErrorAction 'Stop'
             }
-        }
 
-        AfterAll {
-            if ( -not $script:missingDocker ) {
-                . ./Helper/Remove-DockerSqlServer.ps1
-                Remove-DockerSqlServer -DockerContainerName 'PsSqlClient-Sandbox'
+            AfterAll {
+                if ( -not $script:missingDocker ) {
+                    . ./Helper/Remove-DockerSqlServer.ps1
+                    Remove-DockerSqlServer -DockerContainerName 'PsSqlClient-Sandbox'
+                }
+            }
+
+            It 'Returns a connection by connection string' -Skip:$script:missingDocker {
+                $connection = Connect-TSqlInstance -ConnectionString $script:server.ConnectionString -RetryCount 3 -ErrorAction Stop
+                $connection.State | Should -be 'Open'
+            }
+
+            It 'Returns a connection by properties' -Skip:$script:missingDocker {
+                $connection = Connect-TSqlInstance -DataSource $script:server.Hostname -UserId $script:server.UserId -Password $script:securePassword -RetryCount 3
+                $connection.State | Should -be 'Open'
             }
         }
-
-        It 'Returns a connection by connection string' -Skip:$script:missingDocker {
-            $connection = Connect-TSqlInstance -ConnectionString $script:server.ConnectionString -RetryCount 3 -ErrorAction Stop
-            $connection.State | Should -be 'Open'
-        }
-
-        It 'Returns a connection by properties' -Skip:$script:missingDocker {
-            $connection = Connect-TSqlInstance -DataSource $script:server.Hostname -UserId $script:server.UserId -Password $script:securePassword -RetryCount 3
-            $connection.State | Should -be 'Open'
-        }
-
     }
 
     Context 'LocalDb' -Tag LocalDb {
@@ -101,57 +100,64 @@ Describe 'Connect-Instance' {
 
     Context 'AzureSql' -Tag AzureSql {
 
-        BeforeAll {
+        BeforeDiscovery {
+            $script:azureDisconnected = $true
+
             #Requires -Module Az.Sql, Az.Resources
 
-            if ( -not ( Get-AzContext ) ) {
-                Connect-AzAccount
-            }
-
-            $script:resourceGroup = Get-AzResourceGroup -Name 'PsSqlClientTests'
-            if ( -not $script:resourceGroup ) {
-                $script:resourceGroup = New-AzResourceGroup -Name 'PsSqlClientTests' -Location 'Central US' -ErrorAction Stop
-            }
-            $script:server = New-AzSqlServer -ErrorAction Stop `
-                -ServerName ( New-Guid ) `
-                -ResourceGroupName $script:resourceGroup.ResourceGroupName `
-                -Location $script:resourceGroup.Location `
-                -EnableActiveDirectoryOnlyAuthentication -ExternalAdminName ( ( Get-AzContext ).Account )
-
-            $myIp = ( Invoke-WebRequest ifconfig.me/ip ).Content.Trim()
-
-            New-AzSqlServerFirewallRule `
-                -ResourceGroupName $script:resourceGroup.ResourceGroupName `
-                -ServerName $script:server.ServerName `
-                -FirewallRuleName "myIP" `
-                -StartIpAddress $myIp -EndIpAddress $myIp
-
-            $script:database = New-AzSqlDatabase -ErrorAction Stop `
-                -DatabaseName ( New-Guid ) `
-                -ServerName $script:server.ServerName `
-                -ResourceGroupName $script:resourceGroup.ResourceGroupName
-        }
-
-        AfterAll {
-            if ( $script:database ) {
-                $script:database | Remove-AzSqlDatabase
-            }
-
-            if ( $script:server ) {
-                $script:server | Remove-AzSqlServer
+            if ( Get-AzContext ) {
+                $script:azureDisconnected = $false
             }
         }
 
-        It 'Returns a connection by properties' {
-            $connection = Connect-TSqlInstance -DataSource $script:server.FullyQualifiedDomainName
-            $connection.State | Should -be 'Open'
-        }
+        Context 'Azure' -Skip:$script:azureDisconnected {
 
-        It 'Returns a connection by token' {
-            $token = Get-AzAccessToken -ResourceUrl 'https://database.windows.net'
-            $connection = Connect-TSqlInstance -DataSource $script:server.FullyQualifiedDomainName -AccessToken $token
-            $connection.State | Should -be 'Open'
-        }
+            BeforeAll {
+                $script:resourceGroup = Get-AzResourceGroup -Name 'PsSqlClientTests'
+                if ( -not $script:resourceGroup ) {
+                    $script:resourceGroup = New-AzResourceGroup -Name 'PsSqlClientTests' -Location 'Central US' -ErrorAction Stop
+                }
+                $script:server = New-AzSqlServer -ErrorAction Stop `
+                    -ServerName ( New-Guid ) `
+                    -ResourceGroupName $script:resourceGroup.ResourceGroupName `
+                    -Location $script:resourceGroup.Location `
+                    -EnableActiveDirectoryOnlyAuthentication -ExternalAdminName ( ( Get-AzContext ).Account )
 
+                $myIp = ( Invoke-WebRequest ifconfig.me/ip ).Content.Trim()
+
+                New-AzSqlServerFirewallRule `
+                    -ResourceGroupName $script:resourceGroup.ResourceGroupName `
+                    -ServerName $script:server.ServerName `
+                    -FirewallRuleName 'myIP' `
+                    -StartIpAddress $myIp -EndIpAddress $myIp
+
+                $script:database = New-AzSqlDatabase -ErrorAction Stop `
+                    -DatabaseName ( New-Guid ) `
+                    -ServerName $script:server.ServerName `
+                    -ResourceGroupName $script:resourceGroup.ResourceGroupName `
+                    -Edition GeneralPurpose -Vcore 1 -ComputeGeneration Gen5 -ComputeModel Serverless
+            }
+
+            AfterAll {
+                if ( $script:database ) {
+                    $script:database | Remove-AzSqlDatabase
+                }
+
+                if ( $script:server ) {
+                    $script:server | Remove-AzSqlServer
+                }
+            }
+
+            It 'Returns a connection by properties' {
+                $connection = Connect-TSqlInstance -DataSource $script:server.FullyQualifiedDomainName
+                $connection.State | Should -be 'Open'
+            }
+
+            It 'Returns a connection by token' {
+                $token = Get-AzAccessToken -ResourceUrl 'https://database.windows.net'
+                $connection = Connect-TSqlInstance -DataSource $script:server.FullyQualifiedDomainName -AccessToken $token
+                $connection.State | Should -be 'Open'
+            }
+        }
     }
 }

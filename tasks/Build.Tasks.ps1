@@ -1,3 +1,4 @@
+requires Configuration
 
 [System.IO.FileInfo] $global:Manifest = "$PSScriptRoot/../src/PsSqlClient/bin/$Configuration/netstandard2.0/publish/PsSqlClient.psd1"
 

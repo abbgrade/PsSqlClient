@@ -9,7 +9,6 @@ Describe 'Connect-Instance' {
     Context 'Docker' -Tag Docker {
 
         BeforeAll {
-
             $script:missingDocker = $false
             if ( Get-Module -ListAvailable -Name PSDocker ) {
 
@@ -21,8 +20,11 @@ Describe 'Connect-Instance' {
             } else {
                 $script:missingDocker = $true
             }
+        }
 
-            if ( -not $script:missingDocker ) {
+        Context 'PsDocker' -Skip:$script:missingDocker {
+
+            BeforeAll {
                 . ./Helper/New-DockerSqlServer.ps1
 
                 [string] $script:password = 'Passw0rd!'
@@ -30,25 +32,24 @@ Describe 'Connect-Instance' {
 
                 $script:server = New-DockerSqlServer -ServerAdminPassword $script:password -DockerContainerName 'PsSqlClient-Sandbox' -AcceptEula -ErrorAction 'Stop'
             }
-        }
 
-        AfterAll {
-            if ( -not $script:missingDocker ) {
-                . ./Helper/Remove-DockerSqlServer.ps1
-                Remove-DockerSqlServer -DockerContainerName 'PsSqlClient-Sandbox'
+            AfterAll {
+                if ( -not $script:missingDocker ) {
+                    . ./Helper/Remove-DockerSqlServer.ps1
+                    Remove-DockerSqlServer -DockerContainerName 'PsSqlClient-Sandbox'
+                }
+            }
+
+            It 'Returns a connection by connection string' -Skip:$script:missingDocker {
+                $connection = Connect-TSqlInstance -ConnectionString $script:server.ConnectionString -RetryCount 3 -ErrorAction Stop
+                $connection.State | Should -be 'Open'
+            }
+
+            It 'Returns a connection by properties' -Skip:$script:missingDocker {
+                $connection = Connect-TSqlInstance -DataSource $script:server.Hostname -UserId $script:server.UserId -Password $script:securePassword -RetryCount 3
+                $connection.State | Should -be 'Open'
             }
         }
-
-        It 'Returns a connection by connection string' -Skip:$script:missingDocker {
-            $connection = Connect-TSqlInstance -ConnectionString $script:server.ConnectionString -RetryCount 3 -ErrorAction Stop
-            $connection.State | Should -be 'Open'
-        }
-
-        It 'Returns a connection by properties' -Skip:$script:missingDocker {
-            $connection = Connect-TSqlInstance -DataSource $script:server.Hostname -UserId $script:server.UserId -Password $script:securePassword -RetryCount 3
-            $connection.State | Should -be 'Open'
-        }
-
     }
 
     Context 'LocalDb' -Tag LocalDb {

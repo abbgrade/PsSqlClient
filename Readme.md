@@ -2,6 +2,23 @@
 
 The PowerShell SQL Client module replaces the SQL Server utilities [SQLCMD](https://docs.microsoft.com/de-de/sql/tools/sqlcmd-utility) and [BCP](https://docs.microsoft.com/en-us/sql/tools/BCP-utility) with native PowerShell commands.
 
+## Installation
+
+This module can be installed from [PsGallery](https://www.powershellgallery.com/packages/PsSqlClient).
+
+```powershell
+Install-Module -Name PsSqlClient -Scope CurrentUser
+```
+
+Alternatively it can be build and installed from source.
+1. Install the development dependencies
+2. Download or clone it from GitHub and r
+3. Run the installation task:
+
+```powershell
+Invoke-Build Install
+```
+
 ## Usage
 
 ### Copy from CSV to SQL database
@@ -76,5 +93,6 @@ You can build the module using the VS Code build task or with the command `Invok
 ### Testing
 
 The tests scripts are based on Pester. If it is not installed, install it with the command `Install-Module -Name Pester -Force -SkipPublisherCheck`. Some tests require a SQL Server. The test creates a SQL Server in a Docker container. If needed, [install Docker](https://www.docker.com/get-started). The container are created using PSDocker, which can be installed using `Install-Module PSDocker -Scope CurrentUser`.
+
 For local testing use the VSCode test tasks or execute the test scripts directly or with `Invoke-Pester`.
 The InvokeBuild test tasks are for CI and do not generate console output.

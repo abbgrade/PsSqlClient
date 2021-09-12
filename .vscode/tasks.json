@@ -105,10 +105,24 @@
             }
         },
         {
-            "label": "test exclude localdb",
+            "label": "test exclude localdb, azuresql",
             "group": "test",
             "type": "shell",
-            "command": "Invoke-Pester -Configuration @{ Filter = @{ ExcludeTag = 'LocalDb' }}",
+            "command": "Invoke-Pester -Configuration @{ Filter = @{ ExcludeTag = 'LocalDb', 'AzureSql' }}",
+            "options": {
+                "cwd": "test"
+            },
+            "problemMatcher": "$msCompile",
+            "presentation": {
+                "echo": false,
+                "showReuseMessage": false
+            }
+        },
+        {
+            "label": "test exclude docker, azuresql",
+            "group": "test",
+            "type": "shell",
+            "command": "Invoke-Pester -Configuration @{ Filter = @{ ExcludeTag = 'Docker', 'AzureSql' }}",
             "options": {
                 "cwd": "test"
             },

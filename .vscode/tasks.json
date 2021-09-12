@@ -88,7 +88,8 @@
             "presentation": {
                 "echo": false,
                 "showReuseMessage": false
-            }
+            },
+            "dependsOn": "build"
         },
         {
             "label": "test localdb",
@@ -102,7 +103,8 @@
             "presentation": {
                 "echo": false,
                 "showReuseMessage": false
-            }
+            },
+            "dependsOn": "build"
         },
         {
             "label": "test exclude localdb, azuresql",
@@ -116,7 +118,8 @@
             "presentation": {
                 "echo": false,
                 "showReuseMessage": false
-            }
+            },
+            "dependsOn": "build"
         },
         {
             "label": "test exclude docker, azuresql",
@@ -130,7 +133,8 @@
             "presentation": {
                 "echo": false,
                 "showReuseMessage": false
-            }
+            },
+            "dependsOn": "build"
         },
         {
             "label": "test azuresql",
@@ -144,7 +148,8 @@
             "presentation": {
                 "echo": false,
                 "showReuseMessage": false
-            }
+            },
+            "dependsOn": "build"
         },
         {
             "label": "install",

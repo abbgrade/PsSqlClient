@@ -60,7 +60,7 @@ Invoke-TSqlProcedure 'sp_tables' @{ 'table_qualifier' = 'master' } |
 
 ![CI](https://github.com/abbgrade/PsSqlClient/workflows/CI/badge.svg)
 
-- This is a [Portable Module](https://docs.microsoft.com/de-de/powershell/scripting/dev-cross-plat/writing-portable-modules?view=powershell-7)
+- This is a [Portable Module](https://docs.microsoft.com/de-de/powershell/scripting/dev-cross-plat/writing-portable-modules?view=powershell-7) based on [PowerShell Standard](https://github.com/powershell/powershellstandard) and [.NET Standard](https://docs.microsoft.com/en-us/dotnet/standard/net-standard).
 - [VSCode](https://code.visualstudio.com) is recommended as IDE. [VSCode Tasks](https://code.visualstudio.com/docs/editor/tasks) are configured.
 - Build automation is based on [InvokeBuild](https://github.com/nightroman/Invoke-Build)
 - Test automation is based on [Pester](https://pester.dev)

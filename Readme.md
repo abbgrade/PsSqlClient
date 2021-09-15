@@ -56,6 +56,13 @@ Invoke-TSqlProcedure 'sp_tables' @{ 'table_qualifier' = 'master' } |
     Select-Object -First 5
 ```
 
+## Changelog
+
+### 0.2.0
+
+- Changed from Debug to Release build
+- Downgrade from .NETStandard 2.0 to .NETCore 2.1
+
 ## Development
 
 ![CI](https://github.com/abbgrade/PsSqlClient/workflows/CI/badge.svg)

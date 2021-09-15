@@ -74,7 +74,8 @@
             "presentation": {
                 "echo": false,
                 "showReuseMessage": false
-            }
+            },
+            "dependsOn": "build"
         },
         {
             "label": "test docker",

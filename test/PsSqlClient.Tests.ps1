@@ -3,7 +3,7 @@
 Describe 'PsSqlClient' {
 
     BeforeAll {
-        Import-Module -Name ../src/PsSqlClient/bin/Release/netstandard2.0/PsSqlClient.psd1 -Force
+        Import-Module -Name ../src/PsSqlClient/bin/Debug/netcoreapp2.1/PsSqlClient.psd1 -Force
     }
 
     It 'Loads the module' {

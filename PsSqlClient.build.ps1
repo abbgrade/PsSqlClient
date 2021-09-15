@@ -5,7 +5,7 @@
 
 param(
 	[ValidateSet('Debug', 'Release')]
-	[string] $Configuration = 'Release',
+	[string] $Configuration = 'Debug',
 
 	[string] $NuGetApiKey = $env:nuget_apikey
 )

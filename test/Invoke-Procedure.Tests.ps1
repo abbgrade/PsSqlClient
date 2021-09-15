@@ -3,7 +3,7 @@
 Describe 'Invoke-Procedure' {
 
     BeforeAll {
-        Import-Module -Name $PSScriptRoot/../src/PsSqlClient/bin/Release/netstandard2.0/PsSqlClient.psd1 -Force -ErrorAction 'Stop'
+        Import-Module -Name $PSScriptRoot/../src/PsSqlClient/bin/Debug/netcoreapp2.1/PsSqlClient.psd1 -Force -ErrorAction 'Stop'
 
         . ./Helper/New-SqlServer.ps1
         $script:server = New-SqlServer -ErrorAction 'Stop'

@@ -1,6 +1,6 @@
 requires Configuration
 
-[System.IO.FileInfo] $global:Manifest = "$PSScriptRoot/../src/PsSqlClient/bin/$Configuration/netstandard2.0/publish/PsSqlClient.psd1"
+[System.IO.FileInfo] $global:Manifest = "$PSScriptRoot/../src/PsSqlClient/bin/$Configuration/netcoreapp2.1/publish/PsSqlClient.psd1"
 
 # Synopsis: Build project.
 task Build {

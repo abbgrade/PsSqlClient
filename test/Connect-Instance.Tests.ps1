@@ -3,7 +3,7 @@
 Describe 'Connect-Instance' {
 
     BeforeAll {
-        Import-Module -Name $PSScriptRoot/../src/PsSqlClient/bin/Release/netstandard2.0/publish/PsSqlClient.psd1 -Force -ErrorAction 'Stop'
+        Import-Module -Name $PSScriptRoot/../src/PsSqlClient/bin/Debug/netcoreapp2.1/publish/PsSqlClient.psd1 -Force -ErrorAction 'Stop'
     }
 
     Context 'Docker' -Tag Docker {

@@ -36,5 +36,8 @@ task Install -Jobs Build, {
 
 # Synopsis: Publish the module to PSGallery.
 task Publish -Jobs Install, {
+
+	assert ( $Configuration -eq 'Release' )
+
 	Publish-Module -Name PsSqlClient -NuGetApiKey $NuGetApiKey
 }

@@ -3,6 +3,7 @@ using System;
 using System.Collections;
 using System.Data;
 using System.Data.SqlClient;
+using System.IO;
 using System.Management.Automation;
 
 namespace PsSqlClient
@@ -17,7 +18,16 @@ namespace PsSqlClient
             Mandatory = true,
             ValueFromPipelineByPropertyName = true)]
         [ValidateNotNullOrEmpty()]
+        [Alias("Command", "Query")]
         public string Text { get; set; }
+
+        [Parameter(
+            ParameterSetName = "TextFile",
+            Position = 0,
+            Mandatory = true,
+            ValueFromPipelineByPropertyName = true)]
+        [ValidateNotNullOrEmpty()]
+        public FileInfo InputFile { get; set; }
 
         [Parameter(
             ParameterSetName = nameof(CommandType.StoredProcedure),
@@ -81,11 +91,15 @@ namespace PsSqlClient
 
             switch (ParameterSetName)
             {
-                case "Text":
+                case nameof(CommandType.Text):
                     command.CommandType = CommandType.Text;
                     command.CommandText = Text;
                     break;
-                case "StoredProcedure":
+                case "TextFile":
+                    command.CommandType = CommandType.Text;
+                    command.CommandText = File.ReadAllText(InputFile.FullName);
+                    break;
+                case nameof(CommandType.StoredProcedure):
                     command.CommandType = CommandType.StoredProcedure;
                     if ( Database != null) {
                         command.CommandText = $"[{Database}].";

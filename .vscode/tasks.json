@@ -156,7 +156,7 @@
             "label": "install",
             "type": "shell",
             "command": "Invoke-Build",
-            "args": ["install"],
+            "args": ["install", "-Configuration", "Release"],
             "problemMatcher": "$msCompile",
             "presentation": {
                 "echo": false,

@@ -37,7 +37,7 @@ namespace PsSqlClient
             ValueFromPipelineByPropertyName = true
         )]
         [ValidateNotNullOrEmpty()]
-        [Alias("Server", "ServerName")]
+        [Alias("Server", "ServerName", "ServerInstance")]
         public string DataSource { get; set; }
 
         [Parameter(
@@ -114,7 +114,7 @@ namespace PsSqlClient
                         connection = new SqlConnection(connectionString: builder.ConnectionString);
                     }
                     break;
-                
+
                 case "Properties_SQLServerAuthentication":
                     WriteVerbose("Connect by SQL Server Authentication");
                     Password.MakeReadOnly();

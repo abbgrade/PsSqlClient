@@ -11,6 +11,7 @@ Install-Module -Name PsSqlClient -Scope CurrentUser
 ```
 
 Alternatively it can be build and installed from source.
+
 1. Install the development dependencies
 2. Download or clone it from GitHub and r
 3. Run the installation task:
@@ -87,6 +88,7 @@ Invoke-TSqlProcedure 'sp_tables' @{ 'table_qualifier' = 'master' } |
 | Disconnect-Instance                    | Close connection                                       | &#9745; |
 | Invoke-Command                         | Execute stored procedure or select data                | &#9745; |
 | &#11185; Procedure instead of SQL text | Execute procedure by procedure name                    | &#9745; |
+| &#11185; SQL text from file            | Execute sql command from file                          | &#9745; |
 | Export-Table                           | Insert data                                            | &#9745; |
 | &#11185; show progress                 | show how many rows already inserted                    | &#9744; |
 

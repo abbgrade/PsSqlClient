@@ -85,6 +85,12 @@ namespace PsSqlClient
 
         protected override void ProcessRecord()
         {
+            if (Connection == null)
+                throw new ArgumentNullException(
+                    paramName: nameof(Connection),
+                    message: "Specify Connection parameter or run Connect-TSqlInstance command."
+                );
+
             var command = new SqlCommand() {
                 Connection = Connection
             };
@@ -95,10 +101,12 @@ namespace PsSqlClient
                     command.CommandType = CommandType.Text;
                     command.CommandText = Text;
                     break;
+
                 case "TextFile":
                     command.CommandType = CommandType.Text;
                     command.CommandText = File.ReadAllText(InputFile.FullName);
                     break;
+
                 case nameof(CommandType.StoredProcedure):
                     command.CommandType = CommandType.StoredProcedure;
                     if ( Database != null) {
@@ -113,6 +121,7 @@ namespace PsSqlClient
                         command.CommandText = Procedure;
                     }
                     break;
+
                 default:
                     throw new NotImplementedException($"ParameterSetName {ParameterSetName} is not implemented");
             }

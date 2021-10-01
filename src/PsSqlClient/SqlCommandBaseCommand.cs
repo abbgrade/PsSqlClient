@@ -8,7 +8,6 @@ using System.Management.Automation;
 
 namespace PsSqlClient
 {
-
     public abstract class SqlCommandBaseCommand : PSCmdlet
     {
 
@@ -73,14 +72,6 @@ namespace PsSqlClient
             WriteInformation(messageData: e, tags: null);
         }
 
-        protected override void BeginProcessing() {
-            Connection.InfoMessage += SqlInfoMessageEventHandler;
-        }
-
-        protected override void EndProcessing() {
-            Connection.InfoMessage -= SqlInfoMessageEventHandler;
-        }
-
         protected abstract void ProcessSqlCommand(SqlCommand command);
 
         protected override void ProcessRecord()
@@ -90,6 +81,10 @@ namespace PsSqlClient
                     paramName: nameof(Connection),
                     message: "Specify Connection parameter or run Connect-TSqlInstance command."
                 );
+            else
+                WriteVerbose($"Execute on [{Connection.DataSource}].[{Connection.Database}]");
+
+            Connection.InfoMessage += SqlInfoMessageEventHandler;
 
             var command = new SqlCommand() {
                 Connection = Connection
@@ -141,7 +136,8 @@ namespace PsSqlClient
             }
 
             ProcessSqlCommand(command);
-        }
 
+            Connection.InfoMessage -= SqlInfoMessageEventHandler;
+        }
     }
 }

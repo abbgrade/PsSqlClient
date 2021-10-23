@@ -31,7 +31,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           path: src/PsSqlClient/bin/Debug/netcoreapp2.1/publish
-          name: build-${{ matrix.os }}
+          name: ${{ matrix.os }}-build
   test:
     needs: build
     strategy:
@@ -43,7 +43,11 @@ jobs:
       - name: Download Build
         uses: actions/download-artifact@v2
         with:
-          name: build-${{ matrix.os }}
+          name: ${{ matrix.os }}-build
+
+      - name: Show workspace
+        shell: pwsh
+        run: Get-ChildItem -Recurse
 
       - name: Install Test Dependencies
         shell: pwsh

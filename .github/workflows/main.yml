@@ -30,7 +30,7 @@ jobs:
       - name: Upload Build
         uses: actions/upload-artifact@v2
         with:
-          path: src\PsSqlClient\bin\Debug\netcoreapp2.1\publish
+          path: $GITHUB_WORKSPACE\src\PsSqlClient\bin\Debug\netcoreapp2.1\publish
   test:
     strategy:
       matrix:

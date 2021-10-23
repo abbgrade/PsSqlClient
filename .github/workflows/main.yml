@@ -51,7 +51,6 @@ jobs:
         shell: pwsh
         run: |
           Set-PSRepository PSGallery -InstallationPolicy Trusted
-          # Install-Module Pester -SkipPublisherCheck -Force
           Install-Module PSDocker -ErrorAction Stop
 
       - name: Run tests
@@ -65,7 +64,15 @@ jobs:
           }
           Invoke-Pester -Configuration $config
 
-      - name: Show workspace
-        shell: pwsh
-        run: Get-ChildItem -Recurse
+      - name: Upload test results
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ matrix.os }}-test-results
+          path: testResults.xml
+
+      - name: Upload test coverage
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ matrix.os }}-test-coverage
+          path: coverage.xml
 

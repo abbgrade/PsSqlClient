@@ -5,6 +5,7 @@ using System.Management.Automation;
 using System.Security;
 using System.Threading;
 using Microsoft.Azure.Services.AppAuthentication;
+using Microsoft.Extensions.Logging;
 
 namespace PsSqlClient
 {
@@ -12,6 +13,7 @@ namespace PsSqlClient
     [OutputType(typeof(SqlConnection))]
     public class ConnectInstanceCommand : PSCmdlet
     {
+        private readonly ILogger _logger = new PowerShellLoggingProvider.PowerShellLogger(this);
         internal static SqlConnection SessionConnection { get; set; }
 
         [Parameter(
@@ -86,6 +88,11 @@ namespace PsSqlClient
 
         [Parameter(ValueFromPipelineByPropertyName = true)]
         public int RetryInterval { get; set; } = 10;
+
+        protected override void BeginProcessing()
+        {
+            base.BeginProcessing();
+        }
 
         protected override void ProcessRecord()
         {

@@ -12,7 +12,8 @@ jobs:
       fail-fast: false
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout Source
+        uses: actions/checkout@v2
 
       - name: Trust PSGallery
         shell: pwsh
@@ -39,7 +40,8 @@ jobs:
       fail-fast: false
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout Source
+        uses: actions/checkout@v2
 
       - name: Download Build
         uses: actions/download-artifact@v2
@@ -62,10 +64,11 @@ jobs:
       - name: Test
         shell: pwsh
         run: |
-          $config = [PesterConfiguration]::Default
-          $config.Run.Path = 'test'
-          $config.Run.Exit
-          $config.TestResult.Enabled = $true
-          $config.CodeCoverage.Enabled = $true
+          $config = New-PesterConfiguration @{
+            'Run.Path' = 'test'
+            'Run.Exit' = $true
+            'TestResult.Enabled' = $true
+            'CodeCoverage.Enabled' = $true
+          }
           Invoke-Pester -Configuration $config
 

@@ -12,7 +12,6 @@ jobs:
       fail-fast: false
     runs-on: ${{ matrix.os }}
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
 
       - name: Trust PSGallery
@@ -40,9 +39,12 @@ jobs:
       fail-fast: false
     runs-on: ${{ matrix.os }}
     steps:
+      - uses: actions/checkout@v2
+
       - name: Download Build
         uses: actions/download-artifact@v2
         with:
+          path: src/PsSqlClient/bin/Debug/netcoreapp2.1/publish
           name: ${{ matrix.os }}-build
 
       - name: Show workspace

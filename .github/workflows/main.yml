@@ -31,13 +31,20 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           path: src/PsSqlClient/bin/Debug/netcoreapp2.1/publish
+          name: build-${{ matrix.os }}
   test:
+    needs: build
     strategy:
       matrix:
         os: [windows-latest, ubuntu-latest]
       fail-fast: true
     runs-on: ${{ matrix.os }}
     steps:
+      - name: Download Build
+        uses: actions/download-artifact@v2
+        with:
+          name: build-${{ matrix.os }}
+
       - name: Install Test Dependencies
         shell: pwsh
         run: |

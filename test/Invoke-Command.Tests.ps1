@@ -3,10 +3,10 @@
 Describe 'Invoke-Command' {
 
     BeforeAll {
-        Import-Module -Name $PSScriptRoot/../src/PsSqlClient/bin/Debug/netcoreapp2.1/PsSqlClient.psd1 -Force -ErrorAction 'Stop'
+        Import-Module $PSScriptRoot/../src/PsSqlClient/bin/Debug/netcoreapp2.1/publish/PsSqlClient.psd1 -Force -ErrorAction Stop
 
-        . ./Helper/New-SqlServer.ps1
-        $script:server = New-SqlServer -ErrorAction 'Stop'
+        . $PsScriptRoot/Helper/New-SqlServer.ps1
+        $script:server = New-SqlServer -ErrorAction Stop
         $script:connection = Connect-TSqlInstance -ConnectionString $script:server.ConnectionString -RetryCount 3 -ErrorAction 'SilentlyContinue'
     }
 
@@ -15,7 +15,7 @@ Describe 'Invoke-Command' {
             Disconnect-TSqlInstance -ErrorAction 'Continue'
         }
 
-        . ./Helper/Remove-SqlServer.ps1
+        . $PsScriptRoot/Helper/Remove-SqlServer.ps1
         Remove-SqlServer
     }
 

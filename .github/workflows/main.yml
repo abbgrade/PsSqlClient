@@ -1,10 +1,10 @@
-name: CI
+name: main
 
 on:
   push:
-    branches: [ main ]
+    branches: [ develop ]
   pull_request:
-    branches: [ main ]
+    branches: [ develop ]
 
 jobs:
   build:
@@ -28,7 +28,13 @@ jobs:
       - name: Build
         shell: pwsh
         run: Invoke-Build build
-
+  test:
+    strategy:
+      matrix:
+        os: [windows-latest, ubuntu-latest]
+      fail-fast: true
+    runs-on: ${{ matrix.os }}
+    steps:
       - name: Install Test Dependencies
         shell: pwsh
         run: |

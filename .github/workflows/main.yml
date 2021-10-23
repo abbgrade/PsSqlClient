@@ -1,10 +1,8 @@
-name: CI
-
 on:
   push:
-    branches: [ main ]
+    branches: [ develop, bugfix/*, feature/* ]
   pull_request:
-    branches: [ main ]
+    branches: [ develop ]
 
 jobs:
   build:
@@ -14,40 +12,67 @@ jobs:
       fail-fast: false
     runs-on: ${{ matrix.os }}
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v2
+      - name: Checkout source
+        uses: actions/checkout@v2
 
-      - name: Trust PSGallery
+      - name: Install build dependencies
         shell: pwsh
-        run: Set-PSRepository -Name 'PSGallery' -InstallationPolicy Trusted
+        run: |
+          Set-PSRepository PSGallery -InstallationPolicy Trusted
+          Install-Module InvokeBuild -ErrorAction Stop
 
-      - name: Install Build Framework
-        shell: pwsh
-        run: Install-Module InvokeBuild
-
-      - name: Build
+      - name: Create build
         shell: pwsh
         run: Invoke-Build build
 
-      - name: Install Test Dependencies
-        shell: pwsh
-        run: |
-          $ErrorActionPreference = 'Stop'
-          Install-Module Pester -SkipPublisherCheck -Force
-          Install-Module PSDocker -Force
-          if ((Test-Path -LiteralPath variable:\LASTEXITCODE)) { exit $LASTEXITCODE }
+      - name: Upload build
+        uses: actions/upload-artifact@v2
+        with:
+          path: src/PsSqlClient/bin/Debug/netcoreapp2.1/publish
+          name: ${{ matrix.os }}-build
+  test:
+    needs: build
+    strategy:
+      matrix:
+        os: [windows-latest, ubuntu-latest]
+      fail-fast: false
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v2
 
-      - name: Test
+      - name: Download build
+        uses: actions/download-artifact@v2
+        with:
+          path: src/PsSqlClient/bin/Debug/netcoreapp2.1/publish
+          name: ${{ matrix.os }}-build
+
+      - name: Install test dependencies
         shell: pwsh
         run: |
-          $testResultsFile = ".\TestsResults.xml"
-          Push-Location test
-          $result = Invoke-Pester -OutputFormat NUnitXml -OutputFile $testResultsFile -PassThru
-          Pop-Location
-          if ($result.FailedCount -gt 0) {
-              throw "$($res.FailedCount) tests failed."
+          Set-PSRepository PSGallery -InstallationPolicy Trusted
+          Install-Module PSDocker -ErrorAction Stop
+
+      - name: Run tests
+        shell: pwsh
+        run: |
+          $config = New-PesterConfiguration @{
+            'Run.Path' = 'test'
+            'Run.Exit' = $true
+            'TestResult.Enabled' = $true
+            'CodeCoverage.Enabled' = $true
           }
-          if ($result.PassedCount -eq 0) {
-              trow 'no succeeded tests'
-          }
+          Invoke-Pester -Configuration $config
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ matrix.os }}-test-results
+          path: testResults.xml
+
+      - name: Upload test coverage
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ matrix.os }}-test-coverage
+          path: coverage.xml
 

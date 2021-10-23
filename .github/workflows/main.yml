@@ -12,22 +12,22 @@ jobs:
       fail-fast: false
     runs-on: ${{ matrix.os }}
     steps:
-      - name: Checkout Source
+      - name: Checkout source
         uses: actions/checkout@v2
 
       - name: Trust PSGallery
         shell: pwsh
         run: Set-PSRepository -Name 'PSGallery' -InstallationPolicy Trusted
 
-      - name: Install Build Framework
+      - name: Install build framework
         shell: pwsh
         run: Install-Module InvokeBuild
 
-      - name: Build
+      - name: Create build
         shell: pwsh
         run: Invoke-Build build
 
-      - name: Upload Build
+      - name: Upload build
         uses: actions/upload-artifact@v2
         with:
           path: src/PsSqlClient/bin/Debug/netcoreapp2.1/publish
@@ -40,28 +40,24 @@ jobs:
       fail-fast: false
     runs-on: ${{ matrix.os }}
     steps:
-      - name: Checkout Source
+      - name: Checkout source
         uses: actions/checkout@v2
 
-      - name: Download Build
+      - name: Download build
         uses: actions/download-artifact@v2
         with:
           path: src/PsSqlClient/bin/Debug/netcoreapp2.1/publish
           name: ${{ matrix.os }}-build
 
-      - name: Show workspace
-        shell: pwsh
-        run: Get-ChildItem -Recurse
-
-      - name: Install Test Dependencies
+      - name: Install test dependencies
         shell: pwsh
         run: |
           $ErrorActionPreference = 'Stop'
-          Install-Module Pester -SkipPublisherCheck -Force
-          Install-Module PSDocker -Force
+          Install-Module Pester -SkipPublisherCheck -Scope CurrentUser
+          Install-Module PSDocker -Scope CurrentUser
           if ((Test-Path -LiteralPath variable:\LASTEXITCODE)) { exit $LASTEXITCODE }
 
-      - name: Test
+      - name: Run tests
         shell: pwsh
         run: |
           $config = New-PesterConfiguration @{
@@ -71,4 +67,8 @@ jobs:
             'CodeCoverage.Enabled' = $true
           }
           Invoke-Pester -Configuration $config
+
+      - name: Show workspace
+        shell: pwsh
+        run: Get-ChildItem -Recurse
 

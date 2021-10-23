@@ -3,10 +3,10 @@
 Describe 'Disconnect-Instance' {
 
     BeforeAll {
-        Import-Module -Name $PSScriptRoot/../src/PsSqlClient/bin/Debug/netcoreapp2.1/PsSqlClient.psd1 -Force -ErrorAction 'Stop'
+        Import-Module $PSScriptRoot/../src/PsSqlClient/bin/Debug/netcoreapp2.1/publish/PsSqlClient.psd1 -Force -ErrorAction Stop
 
         . $PsScriptRoot/Helper/New-SqlServer.ps1
-        $script:server = New-SqlServer -ErrorAction 'Stop'
+        $script:server = New-SqlServer -ErrorAction Stop
     }
 
     AfterAll {

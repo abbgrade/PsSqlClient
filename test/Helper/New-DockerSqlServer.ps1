@@ -56,7 +56,7 @@ function New-DockerSqlServer {
                 -Environment $environment `
                 -Ports @{
                 1433 = 1433
-            } -Detach -ErrorAction 'Stop'
+            } -Detach -ErrorAction Stop
 
             foreach ( $index in (1..30)) {
                 $status = Invoke-DockerCommand -Name $container.Name -Command 'powershell -C "Get-Service -Name MSSQLSERVER" | Select -ExpandProperty Status' -StringOutput -ErrorAction 'SilentlyContinue'

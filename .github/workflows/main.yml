@@ -17,11 +17,13 @@ jobs:
 
       - name: Trust PSGallery
         shell: pwsh
-        run: Set-PSRepository -Name 'PSGallery' -InstallationPolicy Trusted
+        run:
 
-      - name: Install build framework
+      - name: Install build dependencies
         shell: pwsh
-        run: Install-Module InvokeBuild
+        run: |
+          Set-PSRepository PSGallery -InstallationPolicy Trusted
+          Install-Module InvokeBuild -ErrorAction Stop
 
       - name: Create build
         shell: pwsh
@@ -52,10 +54,9 @@ jobs:
       - name: Install test dependencies
         shell: pwsh
         run: |
-          $ErrorActionPreference = 'Stop'
-          Install-Module Pester -SkipPublisherCheck -Scope CurrentUser -Force
-          Install-Module PSDocker -Scope CurrentUser -Force
-          if ((Test-Path -LiteralPath variable:\LASTEXITCODE)) { exit $LASTEXITCODE }
+          Set-PSRepository PSGallery -InstallationPolicy Trusted
+          # Install-Module Pester -SkipPublisherCheck -Force
+          Install-Module PSDocker -ErrorAction Stop
 
       - name: Run tests
         shell: pwsh

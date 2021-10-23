@@ -62,14 +62,10 @@ jobs:
       - name: Test
         shell: pwsh
         run: |
-          $testResultsFile = ".\TestsResults.xml"
-          Push-Location test
-          $result = Invoke-Pester -OutputFormat NUnitXml -OutputFile $testResultsFile -PassThru
-          Pop-Location
-          if ($result.FailedCount -gt 0) {
-              throw "$($res.FailedCount) tests failed."
-          }
-          if ($result.PassedCount -eq 0) {
-              trow 'no succeeded tests'
-          }
+          $config = [PesterConfiguration]::Default
+          $config.Run.Path = 'test'
+          $config.Run.Exit
+          $config.TestResult.Enabled = $true
+          $config.CodeCoverage.Enabled = $true
+          Invoke-Pester -Configuration $config
 

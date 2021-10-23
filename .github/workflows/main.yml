@@ -53,8 +53,8 @@ jobs:
         shell: pwsh
         run: |
           $ErrorActionPreference = 'Stop'
-          Install-Module Pester -SkipPublisherCheck -Scope CurrentUser
-          Install-Module PSDocker -Scope CurrentUser
+          Install-Module Pester -SkipPublisherCheck -Scope CurrentUser -Force
+          Install-Module PSDocker -Scope CurrentUser -Force
           if ((Test-Path -LiteralPath variable:\LASTEXITCODE)) { exit $LASTEXITCODE }
 
       - name: Run tests

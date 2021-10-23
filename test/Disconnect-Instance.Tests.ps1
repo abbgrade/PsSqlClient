@@ -5,12 +5,12 @@ Describe 'Disconnect-Instance' {
     BeforeAll {
         Import-Module -Name $PSScriptRoot/../src/PsSqlClient/bin/Debug/netcoreapp2.1/PsSqlClient.psd1 -Force -ErrorAction 'Stop'
 
-        . ./Helper/New-SqlServer.ps1
+        . $PsScriptRoot/Helper/New-SqlServer.ps1
         $script:server = New-SqlServer -ErrorAction 'Stop'
     }
 
     AfterAll {
-        . ./Helper/Remove-SqlServer.ps1
+        . $PsScriptRoot/Helper/Remove-SqlServer.ps1
         Remove-SqlServer
     }
 

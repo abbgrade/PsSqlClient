@@ -2,7 +2,7 @@ name: main
 
 on:
   push:
-    branches: [ develop ]
+    branches: [ develop, bugfix/*, feature/* ]
   pull_request:
     branches: [ develop ]
 

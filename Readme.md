@@ -82,6 +82,11 @@ Invoke-TSqlProcedure 'sp_tables' @{ 'table_qualifier' = 'master' } |
 - Changed from Debug to Release build
 - Downgrade from .NETStandard 2.0 to .NETCore 2.1
 
+### 0.4.0
+
+- Added parameter validation
+- Added connection checks
+
 ## Development
 
 ![CI](https://github.com/abbgrade/PsSqlClient/workflows/CI/badge.svg)

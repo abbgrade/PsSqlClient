@@ -57,24 +57,7 @@ Invoke-TSqlProcedure 'sp_tables' @{ 'table_qualifier' = 'master' } |
     Select-Object -First 5
 ```
 
-## Changelog
-
-### 0.2.0
-
-- Changed from Debug to Release build
-- Downgrade from .NETStandard 2.0 to .NETCore 2.1
-
-## Development
-
-![CI](https://github.com/abbgrade/PsSqlClient/workflows/CI/badge.svg)
-
-- This is a [Portable Module](https://docs.microsoft.com/de-de/powershell/scripting/dev-cross-plat/writing-portable-modules?view=powershell-7) based on [PowerShell Standard](https://github.com/powershell/powershellstandard) and [.NET Standard](https://docs.microsoft.com/en-us/dotnet/standard/net-standard).
-- [VSCode](https://code.visualstudio.com) is recommended as IDE. [VSCode Tasks](https://code.visualstudio.com/docs/editor/tasks) are configured.
-- Build automation is based on [InvokeBuild](https://github.com/nightroman/Invoke-Build)
-- Test automation is based on [Pester](https://pester.dev)
-- Commands are named based on [Approved Verbs for PowerShell Commands](https://docs.microsoft.com/de-de/powershell/scripting/developer/cmdlet/approved-verbs-for-windows-powershell-commands)
-
-### Commands
+## Commands
 
 | Command                                | Description                                            | Status  |
 | -------------------------------------- | ------------------------------------------------------ | ------- |
@@ -92,6 +75,27 @@ Invoke-TSqlProcedure 'sp_tables' @{ 'table_qualifier' = 'master' } |
 | Export-Table                           | Insert data                                            | &#9745; |
 | &#11185; show progress                 | show how many rows already inserted                    | &#9744; |
 
+## Changelog
+
+### 0.2.0
+
+- Changed from Debug to Release build
+- Downgrade from .NETStandard 2.0 to .NETCore 2.1
+
+### 0.4.0
+
+- Added parameter validation
+- Added connection checks
+
+## Development
+
+![CI](https://github.com/abbgrade/PsSqlClient/workflows/CI/badge.svg)
+
+- This is a [Portable Module](https://docs.microsoft.com/de-de/powershell/scripting/dev-cross-plat/writing-portable-modules?view=powershell-7) based on [PowerShell Standard](https://github.com/powershell/powershellstandard) and [.NET Standard](https://docs.microsoft.com/en-us/dotnet/standard/net-standard).
+- [VSCode](https://code.visualstudio.com) is recommended as IDE. [VSCode Tasks](https://code.visualstudio.com/docs/editor/tasks) are configured.
+- Build automation is based on [InvokeBuild](https://github.com/nightroman/Invoke-Build)
+- Test automation is based on [Pester](https://pester.dev)
+- Commands are named based on [Approved Verbs for PowerShell Commands](https://docs.microsoft.com/de-de/powershell/scripting/developer/cmdlet/approved-verbs-for-windows-powershell-commands)
 
 ### Build
 

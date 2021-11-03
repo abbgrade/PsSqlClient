@@ -3,7 +3,7 @@
 Describe 'Connect-Instance' {
 
     BeforeAll {
-        Import-Module -Name $PSScriptRoot/../src/PsSqlClient/bin/Debug/netcoreapp2.1/publish/PsSqlClient.psd1 -Force -ErrorAction 'Stop'
+        Import-Module $PSScriptRoot/../src/PsSqlClient/bin/Debug/netcoreapp2.1/publish/PsSqlClient.psd1 -Force -ErrorAction Stop
     }
 
     Context 'Docker' -Tag Docker {
@@ -23,17 +23,17 @@ Describe 'Connect-Instance' {
         Context 'DockerServer' -Skip:$script:missingDocker {
 
             BeforeAll {
-                . ./Helper/New-DockerSqlServer.ps1
+                . $PsScriptRoot/Helper/New-DockerSqlServer.ps1
 
                 [string] $script:password = 'Passw0rd!'
                 [securestring] $script:securePassword = ConvertTo-SecureString $script:password -AsPlainText -Force
 
-                $script:server = New-DockerSqlServer -ServerAdminPassword $script:password -DockerContainerName 'PsSqlClient-Sandbox' -AcceptEula -ErrorAction 'Stop'
+                $script:server = New-DockerSqlServer -ServerAdminPassword $script:password -DockerContainerName 'PsSqlClient-Sandbox' -AcceptEula -ErrorAction Stop
             }
 
             AfterAll {
                 if ( -not $script:missingDocker ) {
-                    . ./Helper/Remove-DockerSqlServer.ps1
+                    . $PsScriptRoot/Helper/Remove-DockerSqlServer.ps1
                     Remove-DockerSqlServer -DockerContainerName 'PsSqlClient-Sandbox'
                 }
             }

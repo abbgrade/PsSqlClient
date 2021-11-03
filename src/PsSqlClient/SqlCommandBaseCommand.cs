@@ -8,7 +8,6 @@ using System.Management.Automation;
 
 namespace PsSqlClient
 {
-
     public abstract class SqlCommandBaseCommand : PSCmdlet
     {
 
@@ -73,18 +72,20 @@ namespace PsSqlClient
             WriteInformation(messageData: e, tags: null);
         }
 
-        protected override void BeginProcessing() {
-            Connection.InfoMessage += SqlInfoMessageEventHandler;
-        }
-
-        protected override void EndProcessing() {
-            Connection.InfoMessage -= SqlInfoMessageEventHandler;
-        }
-
         protected abstract void ProcessSqlCommand(SqlCommand command);
 
         protected override void ProcessRecord()
         {
+            if (Connection == null)
+                throw new ArgumentNullException(
+                    paramName: nameof(Connection),
+                    message: "Specify Connection parameter or run Connect-TSqlInstance command."
+                );
+            else
+                WriteVerbose($"Execute on [{Connection.DataSource}].[{Connection.Database}]");
+
+            Connection.InfoMessage += SqlInfoMessageEventHandler;
+
             var command = new SqlCommand() {
                 Connection = Connection
             };
@@ -95,10 +96,12 @@ namespace PsSqlClient
                     command.CommandType = CommandType.Text;
                     command.CommandText = Text;
                     break;
+
                 case "TextFile":
                     command.CommandType = CommandType.Text;
                     command.CommandText = File.ReadAllText(InputFile.FullName);
                     break;
+
                 case nameof(CommandType.StoredProcedure):
                     command.CommandType = CommandType.StoredProcedure;
                     if ( Database != null) {
@@ -113,6 +116,7 @@ namespace PsSqlClient
                         command.CommandText = Procedure;
                     }
                     break;
+
                 default:
                     throw new NotImplementedException($"ParameterSetName {ParameterSetName} is not implemented");
             }
@@ -132,7 +136,8 @@ namespace PsSqlClient
             }
 
             ProcessSqlCommand(command);
-        }
 
+            Connection.InfoMessage -= SqlInfoMessageEventHandler;
+        }
     }
 }

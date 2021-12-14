@@ -1,4 +1,4 @@
-#Requires -Modules @{ ModuleName='Pester'; ModuleVersion='5.0.0' }, @{ ModuleName='PSDocker'; ModuleVersion='1.5.0' }
+#Requires -Modules @{ ModuleName='Pester'; ModuleVersion='5.0.0' }
 
 Describe 'Invoke-Command' {
 
@@ -7,12 +7,12 @@ Describe 'Invoke-Command' {
 
         . $PsScriptRoot/Helper/New-SqlServer.ps1
         $script:server = New-SqlServer -ErrorAction Stop
-        $script:connection = Connect-TSqlInstance -ConnectionString $script:server.ConnectionString -RetryCount 3 -ErrorAction 'SilentlyContinue'
+        $script:connection = Connect-TSqlInstance -ConnectionString $script:server.ConnectionString -RetryCount 3 -ErrorAction Continue
     }
 
     AfterAll {
         if ( $script:connection ) {
-            Disconnect-TSqlInstance -ErrorAction 'Continue'
+            Disconnect-TSqlInstance -ErrorAction Continue
         }
 
         . $PsScriptRoot/Helper/Remove-SqlServer.ps1
@@ -43,9 +43,9 @@ Describe 'Invoke-Command' {
     }
 
     It 'works with ddl' {
-        Invoke-TSqlCommand 'CREATE TABLE #test (Id INT NULL)' -InformationAction 'Continue'
-        Invoke-TSqlCommand 'INSERT INTO #test (Id) VALUES (@Id)' -Parameter @{ Id = 5 } -InformationAction 'Continue'
-        $result = Invoke-TSqlCommand 'SELECT * FROM #test' -InformationAction 'Continue'
+        Invoke-TSqlCommand 'CREATE TABLE #test (Id INT NULL)' -InformationAction Continue
+        Invoke-TSqlCommand 'INSERT INTO #test (Id) VALUES (@Id)' -Parameter @{ Id = 5 } -InformationAction Continue
+        $result = Invoke-TSqlCommand 'SELECT * FROM #test' -InformationAction Continue
         $result[0].Id | Should -Be 5
     }
 

@@ -1,5 +1,3 @@
-using System;
-using System.Collections;
 using System.Data;
 using System.Data.SqlClient;
 using System.Management.Automation;
@@ -8,7 +6,7 @@ namespace PsSqlClient
 {
 
     [Cmdlet(VerbsData.Export, "Table")]
-    public class ExportTableCommand : PSCmdlet
+    public class ExportTableCommand : ClientCommand
     {
 
         [Parameter(
@@ -22,10 +20,6 @@ namespace PsSqlClient
         [Parameter(Position = 1, Mandatory = true)]
         [ValidateNotNullOrEmpty()]
         public string Table { get; set; }
-
-        [Parameter(Position = 2)]
-        [ValidateNotNullOrEmpty()]
-        public SqlConnection Connection { get; set; } = ConnectInstanceCommand.SessionConnection;
 
         [Parameter(ValueFromPipelineByPropertyName = true)]
         public int? BatchSize { get; set; }
@@ -56,6 +50,8 @@ namespace PsSqlClient
 
         protected override void BeginProcessing()
         {
+            base.BeginProcessing();
+
             var options = SqlBulkCopyOptions.Default;
 
             if (CheckConstraints.IsPresent) {
@@ -105,12 +101,16 @@ namespace PsSqlClient
 
         protected override void EndProcessing()
         {
+            base.EndProcessing();
+
             bulkCopy.WriteToServer(tempTable);
             bulkCopy.Close();
         }
 
         protected override void ProcessRecord()
         {
+            base.ProcessRecord();
+
             if ( tempTable.Columns.Count == 0 ) {
                 foreach (var property in InputObject.Properties) {
                     tempTable.Columns.Add(property.Name);
@@ -122,6 +122,5 @@ namespace PsSqlClient
             }
             tempTable.Rows.Add(row);
         }
-
     }
 }

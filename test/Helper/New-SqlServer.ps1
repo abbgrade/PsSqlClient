@@ -7,6 +7,7 @@ function New-SqlServer {
     Invoke-Command {
         & sqllocaldb info
     } -ErrorVariable localDbError -ErrorAction 'SilentlyContinue'
+
     if ( -not $localDbError ) {
         $localBbInfo = & sqllocaldb info
 
@@ -16,8 +17,10 @@ function New-SqlServer {
         $server.ConnectionString = "Data Source=$( $server.DataSource );Integrated Security=True"
 
         [PSCustomObject] $server
-    } else {
-        . ./New-DockerSqlServer.ps1
+    }
+    else
+    {
+        . $PSScriptRoot/New-DockerSqlServer.ps1
 
         [string] $script:password = 'Passw0rd!'
         [securestring] $script:securePassword = ConvertTo-SecureString $script:password -AsPlainText -Force

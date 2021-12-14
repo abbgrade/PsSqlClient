@@ -1,36 +1,61 @@
 #Requires -Modules @{ ModuleName='Pester'; ModuleVersion='5.0.0' }
 
+BeforeDiscovery {
+    Import-Module $PSScriptRoot/../src/PsSqlClient/bin/Debug/netcoreapp2.1/publish/PsSqlClient.psd1 -Force -ErrorAction Stop
+}
+
 Describe 'Disconnect-Instance' {
 
     BeforeAll {
-        Import-Module $PSScriptRoot/../src/PsSqlClient/bin/Debug/netcoreapp2.1/publish/PsSqlClient.psd1 -Force -ErrorAction Stop
-
         . $PsScriptRoot/Helper/New-SqlServer.ps1
-        $script:server = New-SqlServer -ErrorAction Stop
+        . $PsScriptRoot/Helper/Remove-SqlServer.ps1
+
+        $Script:Server = New-SqlServer -ErrorAction Stop
     }
 
     AfterAll {
-        . $PsScriptRoot/Helper/Remove-SqlServer.ps1
         Remove-SqlServer
     }
 
     BeforeEach {
-        $script:connection = Connect-TSqlInstance -ConnectionString $script:server.ConnectionString -RetryCount 3 -ErrorAction 'SilentlyContinue'
+        $Script:Connection = Connect-TSqlInstance -ConnectionString $Script:Server.ConnectionString -RetryCount 3 -ErrorAction SilentlyContinue
     }
 
-    It 'disconnects the instance' -Skip:$script:missingPsDocker {
-        Disconnect-TSqlInstance -Connection $script:connection
-        $script:connection.State | Should -Be 'Closed'
+    It 'Disconnects the instance' {
+        Disconnect-TSqlInstance -Connection $Script:Connection
+        $Script:Connection.State | Should -Be 'Closed'
     }
 
-    It 'disconnects the instance in the session' -Skip:$script:missingPsDocker {
+    It 'Disconnects the instance in the session' {
         Disconnect-TSqlInstance
-        $script:connection.State | Should -Be 'Closed'
+        $Script:Connection.State | Should -Be 'Closed'
     }
 
-    It 'disconnects the instance in the session' -Skip:$script:missingPsDocker {
+    It 'Disconnects the instance in the session' {
         Disconnect-TSqlInstance
         { Disconnect-TSqlInstance } | Should -Throw
+    }
+
+    Context 'New Database' {
+        BeforeEach {
+            [string] $Script:DatabaseName = New-Guid
+            Invoke-TSqlCommand "CREATE DATABASE [$Script:DatabaseName];" -Connection $Script:Connection
+            $Script:OpenConnection = Connect-TSqlInstance -DataSource $Script:Connection.DataSource -InitialCatalog $Script:DatabaseName -ErrorAction Stop
+        }
+
+        It 'Is connected from server side' {
+            {
+                Invoke-TSqlCommand "DROP DATABASE [$Script:DatabaseName];" -Connection $Script:Connection
+            } | Should -Throw "Cannot drop database ""$Script:DatabaseName"" because it is currently in use."
+        }
+
+        AfterEach {
+            Invoke-TSqlCommand 'USE [master];' -Connection $Script:OpenConnection
+            Disconnect-TSqlInstance -Connection $Script:OpenConnection
+
+            # Invoke-TSqlCommand "ALTER DATABASE [$Script:DatabaseName] SET OFFLINE WITH ROLLBACK IMMEDIATE;" -Connection $Script:Connection
+            Invoke-TSqlCommand "DROP DATABASE [$Script:DatabaseName];" -Connection $Script:Connection
+        }
     }
 
 }

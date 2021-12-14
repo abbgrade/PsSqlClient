@@ -9,18 +9,17 @@ Describe 'Connect-Instance' {
     Context 'Docker' -Tag Docker {
 
         BeforeDiscovery {
-            $script:missingDocker = $true
-            $local:psDocker = Get-Module -ListAvailable -Name PSDocker
+            $Script:DockerIsUnavailable = $true
+            $local:psDocker = Import-Module PSDocker -PassThru -ErrorAction SilentlyContinue
             if ( $local:psDocker ) {
-                Import-Module $local:psDocker
-                $local:dockerVersion = Get-DockerVersion -ErrorAction 'SilentlyContinue'
+                $local:dockerVersion = Get-DockerVersion -ErrorAction SilentlyContinue
                 if ( $local:dockerVersion.Server ) {
-                    $script:missingDocker = $false
+                    $Script:DockerIsUnavailable = $false
                 }
             }
         }
 
-        Context 'DockerServer' -Skip:$script:missingDocker {
+        Context 'DockerServer' -Skip:$Script:DockerIsUnavailable {
 
             BeforeAll {
                 . $PsScriptRoot/Helper/New-DockerSqlServer.ps1
@@ -32,18 +31,18 @@ Describe 'Connect-Instance' {
             }
 
             AfterAll {
-                if ( -not $script:missingDocker ) {
+                if ( -not $Script:DockerIsUnavailable ) {
                     . $PsScriptRoot/Helper/Remove-DockerSqlServer.ps1
                     Remove-DockerSqlServer -DockerContainerName 'PsSqlClient-Sandbox'
                 }
             }
 
-            It 'Returns a connection by connection string' -Skip:$script:missingDocker {
+            It 'Returns a connection by connection string' -Skip:$Script:DockerIsUnavailable {
                 $connection = Connect-TSqlInstance -ConnectionString $script:server.ConnectionString -RetryCount 3 -ErrorAction Stop
                 $connection.State | Should -be 'Open'
             }
 
-            It 'Returns a connection by properties' -Skip:$script:missingDocker {
+            It 'Returns a connection by properties' -Skip:$Script:DockerIsUnavailable {
                 $connection = Connect-TSqlInstance -DataSource $script:server.Hostname -UserId $script:server.UserId -Password $script:securePassword -RetryCount 3
                 $connection.State | Should -be 'Open'
             }
@@ -53,23 +52,23 @@ Describe 'Connect-Instance' {
     Context 'LocalDb' -Tag LocalDb {
 
         BeforeAll {
-            $script:missingLocalDb = $true
+            $Script:LocalDbIsUnavailable = $true
             foreach( $version in Get-ChildItem -Path 'Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Microsoft SQL Server Local DB\Installed Versions' | Sort-Object Name -Descending ) {
-                if ( $script:missingLocalDb ) {
+                if ( $Script:LocalDbIsUnavailable ) {
                     switch ( $version.PSChildName ) {
                         '11.0' {
                             $script:DataSource = '(localdb)\v11.0'
-                            $script:missingLocalDb = $false
+                            $Script:LocalDbIsUnavailable = $false
                             break;
                         }
                         '13.0' {
                             $script:DataSource = '(LocalDb)\MSSQLLocalDB'
-                            $script:missingLocalDb = $false
+                            $Script:LocalDbIsUnavailable = $false
                             break;
                         }
                         '15.0' {
                             $script:DataSource = '(LocalDb)\MSSQLLocalDB'
-                            $script:missingLocalDb = $false
+                            $Script:LocalDbIsUnavailable = $false
                             break;
                         }
                         Default {
@@ -82,16 +81,16 @@ Describe 'Connect-Instance' {
 
         AfterEach {
             if ( $connection ) {
-                $connection | Disconnect-TSqlInstance
+                Disconnect-TSqlInstance -Connection $connection
             }
         }
 
-        It 'Returns a connection' -Skip:$script:missingLocalDb {
+        It 'Returns a connection' -Skip:$Script:LocalDbIsUnavailable {
             $connection = Connect-TSqlInstance -ConnectionString "Data Source=$( $script:DataSource );Integrated Security=True"
             $connection.State | Should -be 'Open'
         }
 
-        It 'Returns a connection by properties' -Skip:$script:missingLocalDb {
+        It 'Returns a connection by properties' -Skip:$Script:LocalDbIsUnavailable {
             $connection = Connect-TSqlInstance -DataSource $script:DataSource
             $connection.State | Should -be 'Open'
         }
@@ -101,7 +100,7 @@ Describe 'Connect-Instance' {
     Context 'AzureSql' -Tag AzureSql {
 
         BeforeDiscovery {
-            $script:azureDisconnected = $true
+            $Script:AzureIsDisconnected = $true
 
             $local:azAccount = Get-Module -ListAvailable -Name Az.Account
             if ( $local:azAccount ) {
@@ -110,12 +109,12 @@ Describe 'Connect-Instance' {
                 Import-Module Az.Resources
 
                 if ( Get-AzContext ) {
-                    $script:azureDisconnected = $false
+                    $Script:AzureIsDisconnected = $false
                 }
             }
         }
 
-        Context 'Azure' -Skip:$script:azureDisconnected {
+        Context 'Azure' -Skip:$Script:AzureIsDisconnected {
 
             BeforeAll {
                 $script:resourceGroup = Get-AzResourceGroup -Name 'PsSqlClientTests'

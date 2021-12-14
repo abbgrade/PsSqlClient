@@ -8,8 +8,9 @@ using System.Management.Automation;
 
 namespace PsSqlClient
 {
-    public abstract class SqlCommandBaseCommand : PSCmdlet
+    public abstract class SqlCommandBaseCommand : ClientCommand
     {
+        #region Parameters
 
         [Parameter(
             ParameterSetName = nameof(CommandType.Text),
@@ -56,35 +57,19 @@ namespace PsSqlClient
         public Hashtable Parameter { get; set; }
 
         [Parameter(
-            ValueFromPipeline = true,
-            ValueFromPipelineByPropertyName = true)]
-        [ValidateNotNullOrEmpty()]
-        public SqlConnection Connection { get; set; } = ConnectInstanceCommand.SessionConnection;
-
-        [Parameter(
             Mandatory = false,
             ValueFromPipelineByPropertyName = true)]
         [ValidateNotNullOrEmpty()]
         public int? Timeout { get; set; }
 
-        private void SqlInfoMessageEventHandler(object sender, SqlInfoMessageEventArgs e)
-        {
-            WriteInformation(messageData: e, tags: null);
-        }
+        #endregion
 
         protected abstract void ProcessSqlCommand(SqlCommand command);
 
         protected override void ProcessRecord()
         {
-            if (Connection == null)
-                throw new ArgumentNullException(
-                    paramName: nameof(Connection),
-                    message: "Specify Connection parameter or run Connect-TSqlInstance command."
-                );
-            else
-                WriteVerbose($"Execute on [{Connection.DataSource}].[{Connection.Database}]");
-
-            Connection.InfoMessage += SqlInfoMessageEventHandler;
+            base.ProcessRecord();
+            WriteVerbose($"Execute on [{Connection.DataSource}].[{Connection.Database}]");
 
             var command = new SqlCommand() {
                 Connection = Connection
@@ -136,8 +121,6 @@ namespace PsSqlClient
             }
 
             ProcessSqlCommand(command);
-
-            Connection.InfoMessage -= SqlInfoMessageEventHandler;
         }
     }
 }

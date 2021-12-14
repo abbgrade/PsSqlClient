@@ -14,6 +14,8 @@ namespace PsSqlClient
     {
         internal static SqlConnection SessionConnection { get; set; }
 
+        #region Parameters
+
         [Parameter(
             ParameterSetName = "ConnectionString",
             Position = 0,
@@ -87,8 +89,12 @@ namespace PsSqlClient
         [Parameter(ValueFromPipelineByPropertyName = true)]
         public int RetryInterval { get; set; } = 10;
 
+        #endregion
+
         protected override void ProcessRecord()
         {
+            base.ProcessRecord();
+
             SqlConnection connection;
             SqlConnectionStringBuilder builder = new SqlConnectionStringBuilder();
             switch (ParameterSetName)
@@ -136,7 +142,7 @@ namespace PsSqlClient
                 retryIndex += 1;
                 try {
                     connection.Open();
-                    WriteVerbose($"Connection to {connection.DataSource} is {connection.State}");
+                    WriteVerbose($"Connection to [{connection.DataSource}].[{connection.Database}] is {connection.State}");
                     break;
                 }
                 catch (SqlException ex) {
@@ -158,6 +164,5 @@ namespace PsSqlClient
             SessionConnection = connection;
             WriteObject(connection);
         }
-
     }
 }

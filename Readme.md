@@ -87,6 +87,10 @@ Invoke-TSqlProcedure 'sp_tables' @{ 'table_qualifier' = 'master' } |
 - Added parameter validation
 - Added connection checks
 
+### 0.5.0
+
+- Added output to all commands
+
 ## Development
 
 ![CI](https://github.com/abbgrade/PsSqlClient/workflows/CI/badge.svg)

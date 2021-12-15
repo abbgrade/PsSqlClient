@@ -109,7 +109,7 @@ You can build the module using the VS Code build task or with the command `Invok
 
 ### Testing
 
-The tests scripts are based on Pester. If it is not installed, install it with the command `Install-Module -Name Pester -Force -SkipPublisherCheck`. Some tests require a SQL Server. The test creates a SQL Server in a Docker container. If needed, [install Docker](https://www.docker.com/get-started). The container are created using PSDocker, which can be installed using `Install-Module PSDocker -Scope CurrentUser`.
+The tests scripts are based on Pester. If it is not installed, install it with the command `Install-Module Pester -Force -SkipPublisherCheck`. Some tests require a SQL Server. Therefore the module PsSqlTestServer is used, that can be installed by `Install-Module PsSqlTestServer -Scope CurrentUser`. The test creates a SQL Server in a Docker container. If needed, [install Docker](https://www.docker.com/get-started). The container are created using PSDocker, which can be installed using `Install-Module PSDocker -Scope CurrentUser`.
 
 For local testing use the VSCode test tasks or execute the test scripts directly or with `Invoke-Pester`.
 The InvokeBuild test tasks are for CI and do not generate console output.

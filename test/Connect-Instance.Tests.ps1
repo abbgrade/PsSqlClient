@@ -4,6 +4,7 @@ Describe 'Connect-Instance' {
 
     BeforeAll {
         Import-Module $PSScriptRoot/../src/PsSqlClient/bin/Debug/netcoreapp2.1/publish/PsSqlClient.psd1 -Force -ErrorAction Stop
+        Import-Module PsSqlTestServer -ErrorAction Stop
     }
 
     Context 'Docker' -Tag Docker {
@@ -22,8 +23,6 @@ Describe 'Connect-Instance' {
         Context 'DockerServer' -Skip:$Script:DockerIsUnavailable {
 
             BeforeAll {
-                . $PsScriptRoot/Helper/New-DockerSqlServer.ps1
-
                 [string] $script:password = 'Passw0rd!'
                 [securestring] $script:securePassword = ConvertTo-SecureString $script:password -AsPlainText -Force
 
@@ -32,7 +31,6 @@ Describe 'Connect-Instance' {
 
             AfterAll {
                 if ( -not $Script:DockerIsUnavailable ) {
-                    . $PsScriptRoot/Helper/Remove-DockerSqlServer.ps1
                     Remove-DockerSqlServer -DockerContainerName 'PsSqlClient-Sandbox'
                 }
             }

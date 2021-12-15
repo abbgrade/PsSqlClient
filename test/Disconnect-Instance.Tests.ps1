@@ -1,14 +1,10 @@
-#Requires -Modules @{ ModuleName='Pester'; ModuleVersion='5.0.0' }
-
-BeforeDiscovery {
-    Import-Module $PSScriptRoot/../src/PsSqlClient/bin/Debug/netcoreapp2.1/publish/PsSqlClient.psd1 -Force -ErrorAction Stop
-}
+#Requires -Modules @{ ModuleName='Pester'; ModuleVersion='5.0.0' }, PsSqlTestServer
 
 Describe 'Disconnect-Instance' {
 
     BeforeAll {
-        . $PsScriptRoot/Helper/New-SqlServer.ps1
-        . $PsScriptRoot/Helper/Remove-SqlServer.ps1
+        Import-Module $PSScriptRoot/../src/PsSqlClient/bin/Debug/netcoreapp2.1/publish/PsSqlClient.psd1 -Force -ErrorAction Stop
+        Import-Module PsSqlTestServer -ErrorAction Stop
 
         $Script:Server = New-SqlServer -ErrorAction Stop
     }

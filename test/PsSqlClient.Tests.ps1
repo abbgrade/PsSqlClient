@@ -4,6 +4,7 @@ Describe 'PsSqlClient' {
 
     BeforeAll {
         Import-Module -Name $PSScriptRoot/../src/PsSqlClient/bin/Debug/netcoreapp2.1/publish/PsSqlClient.psd1 -Force
+        Import-Module PsSqlTestServer -ErrorAction Stop
     }
 
     It 'Loads the module' {

@@ -4,7 +4,7 @@ Describe 'Connect-Instance' {
 
     BeforeAll {
         Import-Module $PSScriptRoot/../src/PsSqlClient/bin/Debug/netcoreapp2.1/publish/PsSqlClient.psd1 -Force -ErrorAction Stop
-        Import-Module PsSqlTestServer -ErrorAction Stop
+        Import-Module PsSqlTestServer -MinimumVersion 0.2.0 -ErrorAction Stop
     }
 
     Context 'Docker' -Tag Docker {
@@ -49,51 +49,23 @@ Describe 'Connect-Instance' {
     Context 'LocalDb' -Tag LocalDb {
 
         BeforeAll {
-            $Script:LocalDbIsUnavailable = $true
-            foreach( $version in Get-ChildItem -Path 'Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Microsoft SQL Server Local DB\Installed Versions' | Sort-Object Name -Descending ) {
-                if ( $Script:LocalDbIsUnavailable ) {
-                    switch ( $version.PSChildName ) {
-                        '11.0' {
-                            $Script:DataSource = '(localdb)\v11.0'
-                            $Script:LocalDbIsUnavailable = $false
-                            break;
-                        }
-                        '13.0' {
-                            $Script:DataSource = '(LocalDb)\MSSQLLocalDB'
-                            $Script:LocalDbIsUnavailable = $false
-                            break;
-                        }
-                        '15.0' {
-                            $Script:DataSource = '(LocalDb)\MSSQLLocalDB'
-                            $Script:LocalDbIsUnavailable = $false
-                            break;
-                        }
-                        Default {
-                            Write-Warning "LocalDb version $_ is not implemented."
-                        }
-                    }
-                }
-
-                if ( $Script:LocalDbIsUnavailable ) {
-                    Write-Warning "Skip LocalDb-based tests."
-                }
-            }
+            $Script:LocalDb = Get-LocalDb
         }
 
         AfterEach {
-            if ( $connection ) {
-                Disconnect-TSqlInstance -Connection $connection
+            if ( $Script:Connection ) {
+                Disconnect-TSqlInstance -Connection $Script:Connection
             }
         }
 
-        It 'Returns a connection' -Skip:$Script:LocalDbIsUnavailable {
-            $connection = Connect-TSqlInstance -ConnectionString "Data Source=$( $Script:DataSource );Integrated Security=True"
-            $connection.State | Should -be 'Open'
+        It 'Returns a connection' {
+            $Script:Connection = Connect-TSqlInstance -ConnectionString "Data Source=$( $Script:LocalDb.DataSource );Integrated Security=True"
+            $Script:Connection.State | Should -be 'Open'
         }
 
-        It 'Returns a connection by properties' -Skip:$Script:LocalDbIsUnavailable {
-            $connection = Connect-TSqlInstance -DataSource $Script:DataSource
-            $connection.State | Should -be 'Open'
+        It 'Returns a connection by properties' {
+            $Script:Connection = Connect-TSqlInstance -DataSource $Script:LocalDb.DataSource
+            $Script:Connection.State | Should -be 'Open'
         }
 
     }

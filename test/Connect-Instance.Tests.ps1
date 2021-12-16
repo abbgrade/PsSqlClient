@@ -4,45 +4,37 @@ Describe 'Connect-Instance' {
 
     BeforeAll {
         Import-Module $PSScriptRoot/../src/PsSqlClient/bin/Debug/netcoreapp2.1/publish/PsSqlClient.psd1 -Force -ErrorAction Stop
-        Import-Module PsSqlTestServer -MinimumVersion 0.2.0 -ErrorAction Stop
     }
 
-    Context 'Docker' -Tag Docker {
+    BeforeDiscovery {
+        Import-Module PsSqlTestServer -MinimumVersion 0.2.0 -ErrorAction Stop
+        $Script:DockerIsUnavailable = -Not ( Test-DockerSqlServer )
 
-        BeforeDiscovery {
-            $Script:DockerIsUnavailable = $true
-            if ( Import-Module PSDocker -PassThru -ErrorAction SilentlyContinue ) {
-                if ( ( Get-DockerVersion -ErrorAction SilentlyContinue ).Server ) {
-                    $Script:DockerIsUnavailable = $false
-                }
-            }
+        if ( $Script:DockerIsUnavailable ) {
+            Write-Warning "Skip Docker-based tests."
+        }
+    }
 
-            if ( $Script:DockerIsUnavailable ) {
-                Write-Warning "Skip Docker-based tests."
+    Context 'Docker' -Tag Docker -Skip:$Script:DockerIsUnavailable {
+
+        BeforeAll {
+            $Script:Server = New-DockerSqlServer -AcceptEula -ErrorAction Stop
+        }
+
+        AfterAll {
+            if ( $Script:Server ) {
+                $Script:Server | Remove-DockerSqlServer
             }
         }
 
-        Context 'DockerServer' -Skip:$Script:DockerIsUnavailable {
+        It 'Returns a connection by connection string' -Skip:$Script:DockerIsUnavailable {
+            $connection = Connect-TSqlInstance -ConnectionString $Script:Server.ConnectionString -RetryCount 3 -ErrorAction Stop
+            $connection.State | Should -be 'Open'
+        }
 
-            BeforeAll {
-                $Script:Server = New-DockerSqlServer -AcceptEula -ErrorAction Stop
-            }
-
-            AfterAll {
-                if ( $Script:Server ) {
-                    $Script:Server | Remove-DockerSqlServer
-                }
-            }
-
-            It 'Returns a connection by connection string' -Skip:$Script:DockerIsUnavailable {
-                $connection = Connect-TSqlInstance -ConnectionString $Script:Server.ConnectionString -RetryCount 3 -ErrorAction Stop
-                $connection.State | Should -be 'Open'
-            }
-
-            It 'Returns a connection by properties' -Skip:$Script:DockerIsUnavailable {
-                $connection = Connect-TSqlInstance -DataSource $Script:Server.Hostname -UserId $Script:Server.UserId -Password $Script:Server.SecurePassword -RetryCount 3
-                $connection.State | Should -be 'Open'
-            }
+        It 'Returns a connection by properties' -Skip:$Script:DockerIsUnavailable {
+            $connection = Connect-TSqlInstance -DataSource $Script:Server.DataSource -UserId $Script:Server.UserId -Password $Script:Server.SecurePassword -RetryCount 3
+            $connection.State | Should -be 'Open'
         }
     }
 

@@ -10,7 +10,7 @@ Describe 'Disconnect-Instance' {
     }
 
     AfterAll {
-        Remove-SqlServer
+        $Script:Server | Remove-SqlServer
     }
 
     BeforeEach {
@@ -46,10 +46,10 @@ Describe 'Disconnect-Instance' {
         }
 
         AfterEach {
+            # for some reason, disconnecting does not remove the session from the database without switching the database.
             Invoke-TSqlCommand 'USE [master];' -Connection $Script:OpenConnection
             Disconnect-TSqlInstance -Connection $Script:OpenConnection
 
-            # Invoke-TSqlCommand "ALTER DATABASE [$Script:DatabaseName] SET OFFLINE WITH ROLLBACK IMMEDIATE;" -Connection $Script:Connection
             Invoke-TSqlCommand "DROP DATABASE [$Script:DatabaseName];" -Connection $Script:Connection
         }
     }

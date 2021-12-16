@@ -1,20 +1,16 @@
-#Requires -Modules @{ ModuleName='Pester'; ModuleVersion='5.0.0' }
-
-BeforeDiscovery {
-    Import-Module $PSScriptRoot/../src/PsSqlClient/bin/Debug/netcoreapp2.1/publish/PsSqlClient.psd1 -Force -ErrorAction Stop
-}
+#Requires -Modules @{ ModuleName='Pester'; ModuleVersion='5.0.0' }, PsSqlTestServer
 
 Describe 'Disconnect-Instance' {
 
     BeforeAll {
-        . $PsScriptRoot/Helper/New-SqlServer.ps1
-        . $PsScriptRoot/Helper/Remove-SqlServer.ps1
+        Import-Module $PSScriptRoot/../src/PsSqlClient/bin/Debug/netcoreapp2.1/publish/PsSqlClient.psd1 -Force -ErrorAction Stop
+        Import-Module PsSqlTestServer -ErrorAction Stop
 
         $Script:Server = New-SqlServer -ErrorAction Stop
     }
 
     AfterAll {
-        Remove-SqlServer
+        $Script:Server | Remove-SqlServer
     }
 
     BeforeEach {
@@ -50,10 +46,10 @@ Describe 'Disconnect-Instance' {
         }
 
         AfterEach {
+            # for some reason, disconnecting does not remove the session from the database without switching the database.
             Invoke-TSqlCommand 'USE [master];' -Connection $Script:OpenConnection
             Disconnect-TSqlInstance -Connection $Script:OpenConnection
 
-            # Invoke-TSqlCommand "ALTER DATABASE [$Script:DatabaseName] SET OFFLINE WITH ROLLBACK IMMEDIATE;" -Connection $Script:Connection
             Invoke-TSqlCommand "DROP DATABASE [$Script:DatabaseName];" -Connection $Script:Connection
         }
     }

@@ -4,19 +4,18 @@ Describe 'Invoke-Procedure' {
 
     BeforeAll {
         Import-Module $PSScriptRoot/../src/PsSqlClient/bin/Debug/netcoreapp2.1/publish/PsSqlClient.psd1 -Force -ErrorAction Stop
+        Import-Module PsSqlTestServer -ErrorAction Stop
 
-        . $PsScriptRoot/Helper/New-SqlServer.ps1
-        $script:server = New-SqlServer -ErrorAction Stop
-        $script:connection = Connect-TSqlInstance -ConnectionString $script:server.ConnectionString -RetryCount 3 -ErrorAction 'SilentlyContinue'
+        $Script:Server = New-SqlServer -ErrorAction Stop
+        $Script:Connection = Connect-TSqlInstance -ConnectionString $Script:Server.ConnectionString -RetryCount 3 -ErrorAction 'SilentlyContinue'
     }
 
     AfterAll {
-        if ( $script:connection ) {
+        if ( $Script:Connection ) {
             Disconnect-TSqlInstance -ErrorAction 'Continue'
         }
 
-        . $PsScriptRoot/Helper/Remove-SqlServer.ps1
-        Remove-SqlServer
+        $Script:Server | Remove-SqlServer
     }
 
     It 'works with parameters' {

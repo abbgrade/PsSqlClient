@@ -4,20 +4,19 @@ Describe 'Export-Table' {
 
     BeforeAll {
         Import-Module $PSScriptRoot/../src/PsSqlClient/bin/Debug/netcoreapp2.1/publish/PsSqlClient.psd1 -Force -ErrorAction Stop
+        Import-Module PsSqlTestServer -ErrorAction Stop
 
-        . $PsScriptRoot/Helper/New-SqlServer.ps1
-        $script:server = New-SqlServer -ErrorAction Stop
-        $script:connection = Connect-TSqlInstance -ConnectionString $script:server.ConnectionString -RetryCount 3 -ErrorAction 'SilentlyContinue'
+        $Script:Server = New-SqlServer -ErrorAction Stop
+        $Script:Connection = Connect-TSqlInstance -ConnectionString $Script:Server.ConnectionString -RetryCount 3 -ErrorAction SilentlyContinue
         Invoke-TSqlCommand 'CREATE TABLE #test (Id INT IDENTITY, Name NVARCHAR(MAX) NOT NULL)'
     }
 
     AfterAll {
-        if ( $script:connection ) {
-            Disconnect-TSqlInstance -ErrorAction 'Continue'
+        if ( $Script:Connection ) {
+            Disconnect-TSqlInstance -ErrorAction Continue
         }
 
-        . $PsScriptRoot/Helper/Remove-SqlServer.ps1
-        Remove-SqlServer
+        $Script:Server | Remove-SqlServer
     }
 
     BeforeEach {
@@ -29,7 +28,7 @@ Describe 'Export-Table' {
             [PSCustomObject] @{ Id=1; Name='Iron Maiden'},
             [PSCustomObject] @{ Id=2; Name='Killers'},
             [PSCustomObject] @{ Id=3; Name='The Number of the Beast'}
-        ) | Export-TSqlTable -Table '#test' -Connection $script:connection
+        ) | Export-TSqlTable -Table '#test' -Connection $Script:Connection
 
         Get-TSqlValue 'SELECT COUNT(*) FROM #test' | Should -Be 3
     }
@@ -38,7 +37,7 @@ Describe 'Export-Table' {
         {
             @(
                 [PSCustomObject] @{ Id=4; Name=$null}
-            ) | Export-TSqlTable -Table '#test' -Connection $script:connection
+            ) | Export-TSqlTable -Table '#test' -Connection $Script:Connection
         } | Should -Throw 'Column ''Name'' does not allow DBNull.Value.'
     }
 

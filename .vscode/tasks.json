@@ -40,11 +40,11 @@
     },
     "tasks": [
         {
-            "label": "build",
+            "label": "Build",
             "group": "build",
             "type": "shell",
             "command": "Invoke-Build",
-            "args": ["build"],
+            "args": ["Build"],
             "problemMatcher": "$msCompile",
             "presentation": {
                 "echo": false,
@@ -52,10 +52,10 @@
             }
         },
         {
-            "label": "clean",
+            "label": "Clean",
             "type": "shell",
             "command": "Invoke-Build",
-            "args": ["clean"],
+            "args": ["Clean"],
             "problemMatcher": "$msCompile",
             "presentation": {
                 "echo": false,
@@ -63,7 +63,7 @@
             }
         },
         {
-            "label": "test",
+            "label": "Test",
             "group": "test",
             "type": "shell",
             "command": "Invoke-Pester",
@@ -75,10 +75,10 @@
                 "echo": false,
                 "showReuseMessage": false
             },
-            "dependsOn": "build"
+            "dependsOn": "Build"
         },
         {
-            "label": "test docker",
+            "label": "Test Docker",
             "group": "test",
             "type": "shell",
             "command": "Invoke-Pester -Configuration @{ Filter = @{ Tag = 'Docker' }} -Verbose",
@@ -90,10 +90,10 @@
                 "echo": false,
                 "showReuseMessage": false
             },
-            "dependsOn": "build"
+            "dependsOn": "Build"
         },
         {
-            "label": "test localdb",
+            "label": "Test LocalDb",
             "group": "test",
             "type": "shell",
             "command": "Invoke-Pester -Configuration @{ Filter = @{ Tag = 'LocalDb' } } -Verbose",
@@ -105,10 +105,10 @@
                 "echo": false,
                 "showReuseMessage": false
             },
-            "dependsOn": "build"
+            "dependsOn": "Build"
         },
         {
-            "label": "test exclude localdb, azuresql",
+            "label": "Test exclude LocalDb, AzureSql",
             "group": "test",
             "type": "shell",
             "command": "Invoke-Pester -Configuration @{ Filter = @{ ExcludeTag = 'LocalDb', 'AzureSql' }}",
@@ -120,10 +120,10 @@
                 "echo": false,
                 "showReuseMessage": false
             },
-            "dependsOn": "build"
+            "dependsOn": "Build"
         },
         {
-            "label": "test exclude docker, azuresql",
+            "label": "Test exclude Docker, AzureSql",
             "group": "test",
             "type": "shell",
             "command": "Invoke-Pester -Configuration @{ Filter = @{ ExcludeTag = 'Docker', 'AzureSql' }}",
@@ -135,10 +135,10 @@
                 "echo": false,
                 "showReuseMessage": false
             },
-            "dependsOn": "build"
+            "dependsOn": "Build"
         },
         {
-            "label": "test azuresql",
+            "label": "Test AzureSql",
             "group": "test",
             "type": "shell",
             "command": "Invoke-Pester -Configuration @{ Filter = @{ Tag  = 'AzureSql' }}",
@@ -150,23 +150,13 @@
                 "echo": false,
                 "showReuseMessage": false
             },
-            "dependsOn": "build"
+            "dependsOn": "Build"
         },
         {
-            "label": "install",
+            "label": "Install",
             "type": "shell",
             "command": "Invoke-Build",
-            "args": ["install", "-Configuration", "Release"],
-            "problemMatcher": "$msCompile",
-            "presentation": {
-                "echo": false,
-                "showReuseMessage": false
-            }
-        },
-        {
-            "label": "?",
-            "type": "shell",
-            "command": "Invoke-Build -Task ?",
+            "args": ["Install", "-Configuration", "Release"],
             "problemMatcher": "$msCompile",
             "presentation": {
                 "echo": false,

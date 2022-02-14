@@ -16,7 +16,8 @@ namespace PsSqlClient
             ParameterSetName = nameof(CommandType.Text),
             Position = 0,
             Mandatory = true,
-            ValueFromPipelineByPropertyName = true)]
+            ValueFromPipelineByPropertyName = true
+        )]
         [ValidateNotNullOrEmpty()]
         [Alias("Command", "Query")]
         public string Text { get; set; }
@@ -25,7 +26,8 @@ namespace PsSqlClient
             ParameterSetName = "TextFile",
             Position = 0,
             Mandatory = true,
-            ValueFromPipelineByPropertyName = true)]
+            ValueFromPipelineByPropertyName = true
+        )]
         [ValidateNotNullOrEmpty()]
         public FileInfo InputFile { get; set; }
 
@@ -33,32 +35,36 @@ namespace PsSqlClient
             ParameterSetName = nameof(CommandType.StoredProcedure),
             Position = 0,
             Mandatory = true,
-            ValueFromPipelineByPropertyName = true)]
+            ValueFromPipelineByPropertyName = true
+        )]
         [ValidateNotNullOrEmpty()]
         public string Procedure { get; set; }
 
         [Parameter(
             ParameterSetName = nameof(CommandType.StoredProcedure),
-            ValueFromPipelineByPropertyName = true)]
+            ValueFromPipelineByPropertyName = true
+        )]
         [ValidateNotNullOrEmpty()]
         public string Schema { get; set; }
 
         [Parameter(
             ParameterSetName = nameof(CommandType.StoredProcedure),
-            ValueFromPipelineByPropertyName = true)]
+            ValueFromPipelineByPropertyName = true
+        )]
         [ValidateNotNullOrEmpty()]
         public string Database { get; set; }
 
         [Parameter(
             Position = 1,
             Mandatory = false,
-            ValueFromPipelineByPropertyName = true)]
-        [ValidateNotNullOrEmpty()]
+            ValueFromPipelineByPropertyName = true
+        )]
         public Hashtable Parameter { get; set; }
 
         [Parameter(
             Mandatory = false,
-            ValueFromPipelineByPropertyName = true)]
+            ValueFromPipelineByPropertyName = true
+        )]
         [ValidateNotNullOrEmpty()]
         public int? Timeout { get; set; }
 

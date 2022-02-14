@@ -90,6 +90,7 @@ Invoke-TSqlProcedure 'sp_tables' @{ 'table_qualifier' = 'master' } |
 ### 0.5.0
 
 - Added output to all commands
+- Fixed parameter validation for stored procedures
 
 ## Development
 

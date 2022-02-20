@@ -3,17 +3,17 @@
 Describe 'PsSqlClient' {
 
     BeforeAll {
-        Import-Module -Name $PSScriptRoot/../src/PsSqlClient/bin/Debug/netcoreapp2.1/publish/PsSqlClient.psd1 -Force
+        Import-Module -Name $PSScriptRoot/../publish/PsSqlClient/PsSqlClient.psd1 -Force
         Import-Module PsSqlTestServer -ErrorAction Stop
     }
 
     It 'Loads the module' {
 
-        $module = Get-Module -Name 'PsSqlClient'
+        $module = Get-Module -Name PsSqlClient
 
         $module | Should -Not -BeNullOrEmpty
 
-        Get-Command -Module 'PsSqlClient' | Should -Not -BeNullOrEmpty
+        Get-Command -Module PsSqlClient | Should -Not -BeNullOrEmpty
 
     }
 

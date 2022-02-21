@@ -55,13 +55,14 @@ task Install -Jobs Build, {
 	$info = Import-PowerShellDataFile $Global:Manifest
 	$version = ([System.Version] $info.ModuleVersion)
 	$defaultModulePath = $env:PsModulePath -split ';' | Select-Object -First 1
+	Write-Verbose "install $ModuleName $version to $defaultModulePath"
 	$installPath = Join-Path $defaultModulePath $ModuleName $version.ToString()
 	New-Item -Type Directory $installPath -Force | Out-Null
 	Get-ChildItem $Global:Manifest.Directory | Copy-Item -Destination $installPath -Recurse -Force
 }
 
 # Synopsis: Publish the module to PSGallery.
-task Publish -Jobs Build, {
+task Publish -Jobs Clean, Build, {
 	if ( -Not $Global:PreRelease ) {
 		assert ( $Configuration -eq 'Release' )
 		Update-ModuleManifest -Path $Global:Manifest -Prerelease ''

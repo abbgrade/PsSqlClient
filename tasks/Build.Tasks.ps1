@@ -26,19 +26,24 @@ task Import -Jobs Build.Dll, {
     Import-Module $Global:Manifest
 }
 
+# Synopsis: Import platyPs.
+task Import.platyPs -Jobs {
+	Import-Module platyPs
+}
+
 # Synopsis: Initialize the documentation.
-task Doc.Init -If { $DocumentationDirectory.Exists -eq $false -Or $ForceDocInit -eq $true } -Jobs Import, {
+task Doc.Init -If { $DocumentationDirectory.Exists -eq $false -Or $ForceDocInit -eq $true } -Jobs Import, Import.platyPs, {
 	New-Item $DocumentationDirectory -ItemType Directory -ErrorAction SilentlyContinue
     New-MarkdownHelp -Module $ModuleName -OutputFolder $DocumentationDirectory -Force:$ForceDocInit -ErrorAction Stop
 }
 
 # Synopsis: Update the markdown documentation.
-task Doc.Update -Jobs Import, Doc.Init, {
+task Doc.Update -Jobs Import, Import.platyPs, Doc.Init, {
     Update-MarkdownHelp -Path $DocumentationDirectory
 }
 
 # Synopsis: Build the XML help based on the markdown documentation.
-task Build.Help -Jobs Doc.Update, {
+task Build.Help -Jobs Import.platyPs, Doc.Update, {
     New-ExternalHelp -Path $DocumentationDirectory -OutputPath $ModulePublishDirectory\en-US\ -Force
 }
 

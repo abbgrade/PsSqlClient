@@ -1,6 +1,5 @@
-﻿
-using System;
-using System.Data.SqlClient;
+﻿using System;
+using Microsoft.Data.SqlClient;
 using System.Management.Automation;
 using System.Security;
 using System.Threading;

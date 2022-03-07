@@ -3,7 +3,10 @@
 Describe 'Connect-Instance' {
 
     BeforeAll {
-        Import-Module $PSScriptRoot/../publish/PsSqlClient/PsSqlClient.psd1 -Force -ErrorAction Stop
+        Add-Type -Path $PSScriptRoot\..\publish\PsSqlClient\runtimes\win\lib\netcoreapp3.1\Microsoft.Data.SqlClient.dll
+        Add-Type -Path $PSScriptRoot\..\publish\PsSqlClient\Microsoft.Identity.Client.dll
+
+        Import-Module $PSScriptRoot\..\publish\PsSqlClient\PsSqlClient.psd1 -Force -ErrorAction Stop
     }
 
     BeforeDiscovery {
@@ -67,9 +70,8 @@ Describe 'Connect-Instance' {
         BeforeDiscovery {
             $Script:AzureIsDisconnected = $true
 
-            $azAccount = Get-Module -ListAvailable -Name Az.Account
-            if ( $azAccount ) {
-                Import-Module $azAccount
+            $azAccounts = Import-Module Az.Accounts -PassThru
+            if ( $azAccounts ) {
                 Import-Module Az.Sql
                 Import-Module Az.Resources
 

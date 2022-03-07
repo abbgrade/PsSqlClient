@@ -3,7 +3,10 @@ using Microsoft.Data.SqlClient;
 using System.Management.Automation;
 using System.Security;
 using System.Threading;
+using System.Reflection;
+#if AZURE_INTEGRATED
 using Microsoft.Azure.Services.AppAuthentication;
+#endif
 
 namespace PsSqlClient
 {
@@ -90,6 +93,13 @@ namespace PsSqlClient
 
         #endregion
 
+        protected override void BeginProcessing()
+        {
+            base.BeginProcessing();
+
+            SniLoader.Load();
+        }
+
         protected override void ProcessRecord()
         {
             base.ProcessRecord();
@@ -101,7 +111,7 @@ namespace PsSqlClient
                 case "ConnectionString":
                     WriteVerbose("Connect by connection string");
                     builder.ConnectionString = ConnectionString;
-                    connection = new SqlConnection(connectionString:builder.ConnectionString);
+                    connection = new SqlConnection(connectionString: builder.ConnectionString);
                     break;
 
                 case "Properties_IntegratedSecurity":
@@ -109,15 +119,19 @@ namespace PsSqlClient
                     builder.DataSource = DataSource;
                     if (InitialCatalog != null)
                         builder.InitialCatalog = InitialCatalog;
+#if AZURE_INTEGRATED
                     if (DataSource.EndsWith("database.windows.net")) {
                         connection = new SqlConnection(connectionString: builder.ConnectionString);
                         if ( AccessToken == null )
                             AccessToken = new AzureServiceTokenProvider().GetAccessTokenAsync("https://database.windows.net").Result;
                         connection.AccessToken = AccessToken;
                     } else {
-                        builder.IntegratedSecurity = true;
-                        connection = new SqlConnection(connectionString: builder.ConnectionString);
+#endif
+                    builder.IntegratedSecurity = true;
+                    connection = new SqlConnection(connectionString: builder.ConnectionString);
+#if AZURE_INTEGRATED
                     }
+#endif
                     break;
 
                 case "Properties_SQLServerAuthentication":
@@ -128,7 +142,7 @@ namespace PsSqlClient
                         builder.InitialCatalog = InitialCatalog;
                     connection = new SqlConnection(
                         connectionString: builder.ConnectionString,
-                        credential: new SqlCredential(userId:UserId, password: Password)
+                        credential: new SqlCredential(userId: UserId, password: Password)
                     );
                     break;
 
@@ -137,24 +151,30 @@ namespace PsSqlClient
             }
 
             int retryIndex = 0;
-            do {
+            do
+            {
                 retryIndex += 1;
-                try {
+                try
+                {
                     connection.Open();
                     WriteVerbose($"Connection to [{connection.DataSource}].[{connection.Database}] is {connection.State}");
                     break;
                 }
-                catch (SqlException ex) {
+                catch (SqlException ex)
+                {
                     WriteError(new ErrorRecord(
                         exception: ex,
-                        errorId:ex.Number.ToString(),
-                        errorCategory:ErrorCategory.OpenError,
-                        targetObject:null
+                        errorId: ex.Number.ToString(),
+                        errorCategory: ErrorCategory.OpenError,
+                        targetObject: null
                     ));
-                    if (retryIndex < RetryCount) {
+                    if (retryIndex < RetryCount)
+                    {
                         WriteVerbose($"Wait {RetryInterval}s for connection attemp {retryIndex}.");
-                        Thread.Sleep(new TimeSpan(hours:0, minutes:0, seconds:RetryInterval));
-                    } else {
+                        Thread.Sleep(new TimeSpan(hours: 0, minutes: 0, seconds: RetryInterval));
+                    }
+                    else
+                    {
                         throw ex;
                     }
                 }

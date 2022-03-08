@@ -67,9 +67,8 @@ Describe 'Connect-Instance' {
         BeforeDiscovery {
             $Script:AzureIsDisconnected = $true
 
-            $azAccount = Get-Module -ListAvailable -Name Az.Account
-            if ( $azAccount ) {
-                Import-Module $azAccount
+            $azAccounts = Import-Module Az.Accounts -PassThru
+            if ( $azAccounts ) {
                 Import-Module Az.Sql
                 Import-Module Az.Resources
 
@@ -86,9 +85,9 @@ Describe 'Connect-Instance' {
         Context 'Azure' -Skip:$Script:AzureIsDisconnected {
 
             BeforeAll {
-                $Script:ResourceGroup = Get-AzResourceGroup -Name 'PsSqlClientTests'
+                $Script:ResourceGroup = Get-AzResourceGroup -Name 'PsSqlClientTests' -ErrorAction SilentlyContinue
                 if ( -not $Script:ResourceGroup ) {
-                    $Script:ResourceGroup = New-AzResourceGroup -Name 'PsSqlClientTests' -Location 'Central US' -ErrorAction Stop
+                    $Script:ResourceGroup = New-AzResourceGroup -Name 'PsSqlClientTests' -Location 'West Europe' -ErrorAction Stop
                 }
                 $Script:Server = New-AzSqlServer -ErrorAction Stop `
                     -ServerName ( New-Guid ) `

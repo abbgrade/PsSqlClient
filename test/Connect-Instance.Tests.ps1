@@ -3,9 +3,6 @@
 Describe 'Connect-Instance' {
 
     BeforeAll {
-        Add-Type -Path $PSScriptRoot\..\publish\PsSqlClient\runtimes\win\lib\netcoreapp3.1\Microsoft.Data.SqlClient.dll
-        Add-Type -Path $PSScriptRoot\..\publish\PsSqlClient\Microsoft.Identity.Client.dll
-
         Import-Module $PSScriptRoot\..\publish\PsSqlClient\PsSqlClient.psd1 -Force -ErrorAction Stop
     }
 

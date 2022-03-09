@@ -4,6 +4,8 @@ using System.Management.Automation;
 using System.Security;
 using System.Threading;
 using System.Reflection;
+using System.Runtime.InteropServices;
+using System.IO;
 #if AZURE_INTEGRATED
 using Microsoft.Azure.Services.AppAuthentication;
 #endif
@@ -97,7 +99,30 @@ namespace PsSqlClient
         {
             base.BeginProcessing();
 
-            SniLoader.Load();
+            if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                return;
+
+            var runtimeIdentifier = RuntimeInformation.ProcessArchitecture switch
+            {
+                Architecture.X86 => "win-x86",
+                Architecture.X64 => "win-x64",
+                Architecture.Arm => "win-arm",
+                Architecture.Arm64 => "win-arm64",
+                _ => null
+            };
+
+            if (runtimeIdentifier == null)
+                return;
+
+            var dllPath = Path.Combine(
+                Path.GetDirectoryName(typeof(ConnectInstanceCommand).Assembly.Location),
+                "runtimes",
+                runtimeIdentifier,
+                "native",
+                "Microsoft.Data.SqlClient.SNI.dll"
+            );
+            WriteVerbose($"Load {dllPath}");
+            NativeLibrary.Load(dllPath);
         }
 
         protected override void ProcessRecord()

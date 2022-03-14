@@ -6,4 +6,4 @@ task InstallTestDependencies -Jobs {
     Install-Module PsSqlTestServer -Scope CurrentUser
 }
 
-task InstallPublishDependencies -Jobs {}
+task InstallReleaseDependencies -Jobs {}

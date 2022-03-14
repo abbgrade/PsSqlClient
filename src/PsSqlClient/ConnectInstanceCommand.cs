@@ -3,12 +3,8 @@ using Microsoft.Data.SqlClient;
 using System.Management.Automation;
 using System.Security;
 using System.Threading;
-using System.Reflection;
 using System.Runtime.InteropServices;
 using System.IO;
-#if AZURE_INTEGRATED
-using Microsoft.Azure.Services.AppAuthentication;
-#endif
 
 namespace PsSqlClient
 {
@@ -144,19 +140,13 @@ namespace PsSqlClient
                     builder.DataSource = DataSource;
                     if (InitialCatalog != null)
                         builder.InitialCatalog = InitialCatalog;
-#if AZURE_INTEGRATED
+
                     if (DataSource.EndsWith("database.windows.net")) {
-                        connection = new SqlConnection(connectionString: builder.ConnectionString);
-                        if ( AccessToken == null )
-                            AccessToken = new AzureServiceTokenProvider().GetAccessTokenAsync("https://database.windows.net").Result;
-                        connection.AccessToken = AccessToken;
+                        builder.Authentication = SqlAuthenticationMethod.ActiveDirectoryIntegrated;
                     } else {
-#endif
-                    builder.IntegratedSecurity = true;
-                    connection = new SqlConnection(connectionString: builder.ConnectionString);
-#if AZURE_INTEGRATED
+                        builder.IntegratedSecurity = true;
                     }
-#endif
+                    connection = new SqlConnection(connectionString: builder.ConnectionString);
                     break;
 
                 case "Properties_SQLServerAuthentication":

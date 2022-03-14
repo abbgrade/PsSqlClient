@@ -3,7 +3,7 @@
 Describe 'Connect-Instance' {
 
     BeforeAll {
-        Import-Module $PSScriptRoot/../publish/PsSqlClient/PsSqlClient.psd1 -Force -ErrorAction Stop
+        Import-Module $PSScriptRoot\..\publish\PsSqlClient\PsSqlClient.psd1 -Force -ErrorAction Stop
     }
 
     BeforeDiscovery {

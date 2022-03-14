@@ -1,9 +1,4 @@
-﻿
-using System;
-using System.Data;
-using System.Data.SqlClient;
-using System.Management.Automation;
-using System.Security;
+﻿using System.Management.Automation;
 
 namespace PsSqlClient
 {

@@ -79,18 +79,19 @@ Invoke-TSqlProcedure 'sp_tables' @{ 'table_qualifier' = 'master' } |
 
 ### 0.2.0
 
-- Changed from Debug to Release build
-- Downgrade from .NETStandard 2.0 to .NETCore 2.1
+- Changed from Debug to Release build.
+- Downgrade from .NETStandard 2.0 to .NETCore 2.1.
 
 ### 0.4.0
 
-- Added parameter validation
-- Added connection checks
+- Added parameter validation.
+- Added connection checks.
 
-### 0.5.0
+### 1.0.0
 
-- Added output to all commands
-- Fixed parameter validation for stored procedures
+- Added output to all commands.
+- Fixed parameter validation for stored procedures.
+- Switched from System.Data.SqlClient to Microsoft.Data.SqlClient.
 
 ## Development
 
@@ -114,3 +115,15 @@ The tests scripts are based on Pester. If it is not installed, install it with t
 
 For local testing use the VSCode test tasks or execute the test scripts directly or with `Invoke-Pester`.
 The InvokeBuild test tasks are for CI and do not generate console output.
+
+### Release
+
+1. Create a release branch using git-flow.
+2. Update the version number in the module manifest.
+3. Extend the changelog in this readme.
+4. If you want to create a pre-release.
+   1. Push the release branch to github, to publish the pre-release to PsGallery.
+5. Finish release using git-flow.
+6. Check if tags are not pushed to github.
+7. Check if the release branch is deleted on github.
+8. Create the release on github.

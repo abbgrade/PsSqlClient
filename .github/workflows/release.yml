@@ -5,7 +5,7 @@ on:
 
 jobs:
   release:
-    uses: abbgrade/PsBuildTasks/.github/workflows/release-windows.yml@0e4c22414fdb3ec06288a3e2668a9b2e7d4a41dc
+    uses: abbgrade/PsBuildTasks/.github/workflows/release-windows.yml@v1.0
     with:
       module-name: PsSqlClient
     secrets:

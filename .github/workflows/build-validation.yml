@@ -1,9 +1,9 @@
 on:
   push:
-    branches: [ develop, bugfix/*, feature/* ]
+    branches: [ develop, bugfix/*, feature/*, release/* ]
   pull_request:
     branches: [ develop ]
 
 jobs:
   build-validation:
-    uses: abbgrade/PsBuildTasks/.github/workflows/build-validation-matrix.yml@006ec7d4a590957b2fa59ea5223a987d4559a7b5
+    uses: abbgrade/PsBuildTasks/.github/workflows/build-validation-matrix.yml@v1.0

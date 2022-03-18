@@ -13,7 +13,7 @@ Install-Module -Name PsSqlClient -Scope CurrentUser
 Alternatively it can be build and installed from source.
 
 1. Install the development dependencies
-2. Download or clone it from GitHub and r
+2. Download or clone it from GitHub
 3. Run the installation task:
 
 ```powershell
@@ -77,21 +77,7 @@ Invoke-TSqlProcedure 'sp_tables' @{ 'table_qualifier' = 'master' } |
 
 ## Changelog
 
-### 0.2.0
-
-- Changed from Debug to Release build.
-- Downgrade from .NETStandard 2.0 to .NETCore 2.1.
-
-### 0.4.0
-
-- Added parameter validation.
-- Added connection checks.
-
-### 1.0.0
-
-- Added output to all commands.
-- Fixed parameter validation for stored procedures.
-- Switched from System.Data.SqlClient to Microsoft.Data.SqlClient.
+See the [changelog](./CHANGELOG.md) file.
 
 ## Development
 
@@ -102,6 +88,9 @@ Invoke-TSqlProcedure 'sp_tables' @{ 'table_qualifier' = 'master' } |
 - Build automation is based on [InvokeBuild](https://github.com/nightroman/Invoke-Build)
 - Test automation is based on [Pester](https://pester.dev)
 - Commands are named based on [Approved Verbs for PowerShell Commands](https://docs.microsoft.com/de-de/powershell/scripting/developer/cmdlet/approved-verbs-for-windows-powershell-commands)
+- This project uses [git-flow](https://github.com/nvie/gitflow).
+- This project uses [keep a changelog](https://keepachangelog.com/en/1.0.0/).
+- This project uses [PsBuildTasks](https://github.com/abbgrade/PsBuildTasks).
 
 ### Build
 

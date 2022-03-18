@@ -3,97 +3,61 @@
 Describe 'Connect-Instance' {
 
     BeforeAll {
-        Import-Module $PSScriptRoot/../src/PsSqlClient/bin/Debug/netcoreapp2.1/publish/PsSqlClient.psd1 -Force -ErrorAction Stop
+        Import-Module $PSScriptRoot\..\publish\PsSqlClient\PsSqlClient.psd1 -Force -ErrorAction Stop
     }
 
-    Context 'Docker' -Tag Docker {
+    BeforeDiscovery {
+        Import-Module PsSqlTestServer -MinimumVersion 0.2.0 -ErrorAction Stop
+        $Script:DockerIsUnavailable = -Not ( Test-DockerSqlServer )
 
-        BeforeDiscovery {
-            $script:missingDocker = $true
-            $local:psDocker = Get-Module -ListAvailable -Name PSDocker
-            if ( $local:psDocker ) {
-                Import-Module $local:psDocker
-                $local:dockerVersion = Get-DockerVersion -ErrorAction 'SilentlyContinue'
-                if ( $local:dockerVersion.Server ) {
-                    $script:missingDocker = $false
-                }
+        if ( $Script:DockerIsUnavailable ) {
+            Write-Warning "Skip Docker-based tests."
+        }
+    }
+
+    Context 'Docker' -Tag Docker -Skip:$Script:DockerIsUnavailable {
+
+        BeforeAll {
+            $Script:Server = New-DockerSqlServer -AcceptEula -ErrorAction Stop
+        }
+
+        AfterAll {
+            if ( $Script:Server ) {
+                $Script:Server | Remove-DockerSqlServer
             }
         }
 
-        Context 'DockerServer' -Skip:$script:missingDocker {
+        It 'Returns a connection by connection string' -Skip:$Script:DockerIsUnavailable {
+            $connection = Connect-TSqlInstance -ConnectionString $Script:Server.ConnectionString -RetryCount 3 -ErrorAction Stop
+            $connection.State | Should -be 'Open'
+        }
 
-            BeforeAll {
-                . $PsScriptRoot/Helper/New-DockerSqlServer.ps1
-
-                [string] $script:password = 'Passw0rd!'
-                [securestring] $script:securePassword = ConvertTo-SecureString $script:password -AsPlainText -Force
-
-                $script:server = New-DockerSqlServer -ServerAdminPassword $script:password -DockerContainerName 'PsSqlClient-Sandbox' -AcceptEula -ErrorAction Stop
-            }
-
-            AfterAll {
-                if ( -not $script:missingDocker ) {
-                    . $PsScriptRoot/Helper/Remove-DockerSqlServer.ps1
-                    Remove-DockerSqlServer -DockerContainerName 'PsSqlClient-Sandbox'
-                }
-            }
-
-            It 'Returns a connection by connection string' -Skip:$script:missingDocker {
-                $connection = Connect-TSqlInstance -ConnectionString $script:server.ConnectionString -RetryCount 3 -ErrorAction Stop
-                $connection.State | Should -be 'Open'
-            }
-
-            It 'Returns a connection by properties' -Skip:$script:missingDocker {
-                $connection = Connect-TSqlInstance -DataSource $script:server.Hostname -UserId $script:server.UserId -Password $script:securePassword -RetryCount 3
-                $connection.State | Should -be 'Open'
-            }
+        It 'Returns a connection by properties' -Skip:$Script:DockerIsUnavailable {
+            $connection = Connect-TSqlInstance -DataSource $Script:Server.DataSource -UserId $Script:Server.UserId -Password $Script:Server.SecurePassword -RetryCount 3
+            $connection.State | Should -be 'Open'
         }
     }
 
     Context 'LocalDb' -Tag LocalDb {
 
         BeforeAll {
-            $script:missingLocalDb = $true
-            foreach( $version in Get-ChildItem -Path 'Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Microsoft SQL Server Local DB\Installed Versions' | Sort-Object Name -Descending ) {
-                if ( $script:missingLocalDb ) {
-                    switch ( $version.PSChildName ) {
-                        '11.0' {
-                            $script:DataSource = '(localdb)\v11.0'
-                            $script:missingLocalDb = $false
-                            break;
-                        }
-                        '13.0' {
-                            $script:DataSource = '(LocalDb)\MSSQLLocalDB'
-                            $script:missingLocalDb = $false
-                            break;
-                        }
-                        '15.0' {
-                            $script:DataSource = '(LocalDb)\MSSQLLocalDB'
-                            $script:missingLocalDb = $false
-                            break;
-                        }
-                        Default {
-                            Write-Warning "LocalDb version $_ is not implemented."
-                        }
-                    }
-                }
-            }
+            $Script:LocalDb = Get-LocalDb
         }
 
         AfterEach {
-            if ( $connection ) {
-                $connection | Disconnect-TSqlInstance
+            if ( $Script:Connection ) {
+                Disconnect-TSqlInstance -Connection $Script:Connection
             }
         }
 
-        It 'Returns a connection' -Skip:$script:missingLocalDb {
-            $connection = Connect-TSqlInstance -ConnectionString "Data Source=$( $script:DataSource );Integrated Security=True"
-            $connection.State | Should -be 'Open'
+        It 'Returns a connection' {
+            $Script:Connection = Connect-TSqlInstance -ConnectionString "Data Source=$( $Script:LocalDb.DataSource );Integrated Security=True"
+            $Script:Connection.State | Should -be 'Open'
         }
 
-        It 'Returns a connection by properties' -Skip:$script:missingLocalDb {
-            $connection = Connect-TSqlInstance -DataSource $script:DataSource
-            $connection.State | Should -be 'Open'
+        It 'Returns a connection by properties' {
+            $Script:Connection = Connect-TSqlInstance -DataSource $Script:LocalDb.DataSource
+            $Script:Connection.State | Should -be 'Open'
         }
 
     }
@@ -101,66 +65,69 @@ Describe 'Connect-Instance' {
     Context 'AzureSql' -Tag AzureSql {
 
         BeforeDiscovery {
-            $script:azureDisconnected = $true
+            $Script:AzureIsDisconnected = $true
 
-            $local:azAccount = Get-Module -ListAvailable -Name Az.Account
-            if ( $local:azAccount ) {
-                Import-Module $local:azAccount
+            $azAccounts = Import-Module Az.Accounts -PassThru
+            if ( $azAccounts ) {
                 Import-Module Az.Sql
                 Import-Module Az.Resources
 
                 if ( Get-AzContext ) {
-                    $script:azureDisconnected = $false
+                    $Script:AzureIsDisconnected = $false
                 }
+            }
+
+            if ( $Script:AzureIsDisconnected ) {
+                Write-Warning "Skip Azure-based tests."
             }
         }
 
-        Context 'Azure' -Skip:$script:azureDisconnected {
+        Context 'Azure' -Skip:$Script:AzureIsDisconnected {
 
             BeforeAll {
-                $script:resourceGroup = Get-AzResourceGroup -Name 'PsSqlClientTests'
-                if ( -not $script:resourceGroup ) {
-                    $script:resourceGroup = New-AzResourceGroup -Name 'PsSqlClientTests' -Location 'Central US' -ErrorAction Stop
+                $Script:ResourceGroup = Get-AzResourceGroup -Name 'PsSqlClientTests' -ErrorAction SilentlyContinue
+                if ( -not $Script:ResourceGroup ) {
+                    $Script:ResourceGroup = New-AzResourceGroup -Name 'PsSqlClientTests' -Location 'West Europe' -ErrorAction Stop
                 }
-                $script:server = New-AzSqlServer -ErrorAction Stop `
+                $Script:Server = New-AzSqlServer -ErrorAction Stop `
                     -ServerName ( New-Guid ) `
-                    -ResourceGroupName $script:resourceGroup.ResourceGroupName `
-                    -Location $script:resourceGroup.Location `
+                    -ResourceGroupName $Script:ResourceGroup.ResourceGroupName `
+                    -Location $Script:ResourceGroup.Location `
                     -EnableActiveDirectoryOnlyAuthentication -ExternalAdminName ( ( Get-AzContext ).Account )
 
                 $myIp = ( Invoke-WebRequest ifconfig.me/ip ).Content.Trim()
 
                 New-AzSqlServerFirewallRule `
-                    -ResourceGroupName $script:resourceGroup.ResourceGroupName `
-                    -ServerName $script:server.ServerName `
+                    -ResourceGroupName $Script:ResourceGroup.ResourceGroupName `
+                    -ServerName $Script:Server.ServerName `
                     -FirewallRuleName 'myIP' `
                     -StartIpAddress $myIp -EndIpAddress $myIp
 
-                $script:database = New-AzSqlDatabase -ErrorAction Stop `
+                $Script:Database = New-AzSqlDatabase -ErrorAction Stop `
                     -DatabaseName ( New-Guid ) `
-                    -ServerName $script:server.ServerName `
-                    -ResourceGroupName $script:resourceGroup.ResourceGroupName `
+                    -ServerName $Script:Server.ServerName `
+                    -ResourceGroupName $Script:ResourceGroup.ResourceGroupName `
                     -Edition GeneralPurpose -Vcore 1 -ComputeGeneration Gen5 -ComputeModel Serverless
             }
 
             AfterAll {
-                if ( $script:database ) {
-                    $script:database | Remove-AzSqlDatabase
+                if ( $Script:Database ) {
+                    $Script:Database | Remove-AzSqlDatabase
                 }
 
-                if ( $script:server ) {
-                    $script:server | Remove-AzSqlServer
+                if ( $Script:Server ) {
+                    $Script:Server | Remove-AzSqlServer
                 }
             }
 
             It 'Returns a connection by properties' {
-                $connection = Connect-TSqlInstance -DataSource $script:server.FullyQualifiedDomainName
+                $connection = Connect-TSqlInstance -DataSource $Script:Server.FullyQualifiedDomainName
                 $connection.State | Should -be 'Open'
             }
 
             It 'Returns a connection by token' {
                 $token = Get-AzAccessToken -ResourceUrl 'https://database.windows.net'
-                $connection = Connect-TSqlInstance -DataSource $script:server.FullyQualifiedDomainName -AccessToken $token
+                $connection = Connect-TSqlInstance -DataSource $Script:Server.FullyQualifiedDomainName -AccessToken $token
                 $connection.State | Should -be 'Open'
             }
         }

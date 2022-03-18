@@ -13,7 +13,7 @@ Install-Module -Name PsSqlClient -Scope CurrentUser
 Alternatively it can be build and installed from source.
 
 1. Install the development dependencies
-2. Download or clone it from GitHub and r
+2. Download or clone it from GitHub
 3. Run the installation task:
 
 ```powershell
@@ -77,15 +77,7 @@ Invoke-TSqlProcedure 'sp_tables' @{ 'table_qualifier' = 'master' } |
 
 ## Changelog
 
-### 0.2.0
-
-- Changed from Debug to Release build
-- Downgrade from .NETStandard 2.0 to .NETCore 2.1
-
-### 0.4.0
-
-- Added parameter validation
-- Added connection checks
+See the [changelog](./CHANGELOG.md) file.
 
 ## Development
 
@@ -96,6 +88,9 @@ Invoke-TSqlProcedure 'sp_tables' @{ 'table_qualifier' = 'master' } |
 - Build automation is based on [InvokeBuild](https://github.com/nightroman/Invoke-Build)
 - Test automation is based on [Pester](https://pester.dev)
 - Commands are named based on [Approved Verbs for PowerShell Commands](https://docs.microsoft.com/de-de/powershell/scripting/developer/cmdlet/approved-verbs-for-windows-powershell-commands)
+- This project uses [git-flow](https://github.com/nvie/gitflow).
+- This project uses [keep a changelog](https://keepachangelog.com/en/1.0.0/).
+- This project uses [PsBuildTasks](https://github.com/abbgrade/PsBuildTasks).
 
 ### Build
 
@@ -105,7 +100,19 @@ You can build the module using the VS Code build task or with the command `Invok
 
 ### Testing
 
-The tests scripts are based on Pester. If it is not installed, install it with the command `Install-Module -Name Pester -Force -SkipPublisherCheck`. Some tests require a SQL Server. The test creates a SQL Server in a Docker container. If needed, [install Docker](https://www.docker.com/get-started). The container are created using PSDocker, which can be installed using `Install-Module PSDocker -Scope CurrentUser`.
+The tests scripts are based on Pester. If it is not installed, install it with the command `Install-Module Pester -Force -SkipPublisherCheck`. Some tests require a SQL Server. Therefore the module PsSqlTestServer is used, that can be installed by `Install-Module PsSqlTestServer -Scope CurrentUser`. The test creates a SQL Server in a Docker container. If needed, [install Docker](https://www.docker.com/get-started). The container are created using PSDocker, which can be installed using `Install-Module PSDocker -Scope CurrentUser`.
 
 For local testing use the VSCode test tasks or execute the test scripts directly or with `Invoke-Pester`.
 The InvokeBuild test tasks are for CI and do not generate console output.
+
+### Release
+
+1. Create a release branch using git-flow.
+2. Update the version number in the module manifest.
+3. Extend the changelog in this readme.
+4. If you want to create a pre-release.
+   1. Push the release branch to github, to publish the pre-release to PsGallery.
+5. Finish release using git-flow.
+6. Check if tags are not pushed to github.
+7. Check if the release branch is deleted on github.
+8. Create the release on github.

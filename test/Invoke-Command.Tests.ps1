@@ -1,22 +1,21 @@
-#Requires -Modules @{ ModuleName='Pester'; ModuleVersion='5.0.0' }, @{ ModuleName='PSDocker'; ModuleVersion='1.5.0' }
+#Requires -Modules @{ ModuleName='Pester'; ModuleVersion='5.0.0' }
 
 Describe 'Invoke-Command' {
 
     BeforeAll {
-        Import-Module $PSScriptRoot/../src/PsSqlClient/bin/Debug/netcoreapp2.1/publish/PsSqlClient.psd1 -Force -ErrorAction Stop
+        Import-Module $PSScriptRoot/../publish/PsSqlClient/PsSqlClient.psd1 -Force -ErrorAction Stop
+        Import-Module PsSqlTestServer -ErrorAction Stop
 
-        . $PsScriptRoot/Helper/New-SqlServer.ps1
-        $script:server = New-SqlServer -ErrorAction Stop
-        $script:connection = Connect-TSqlInstance -ConnectionString $script:server.ConnectionString -RetryCount 3 -ErrorAction 'SilentlyContinue'
+        $Script:Server = New-SqlServer -ErrorAction Stop
+        $Script:Connection = Connect-TSqlInstance -ConnectionString $Script:Server.ConnectionString -RetryCount 3 -ErrorAction Continue
     }
 
     AfterAll {
-        if ( $script:connection ) {
-            Disconnect-TSqlInstance -ErrorAction 'Continue'
+        if ( $Script:Connection ) {
+            Disconnect-TSqlInstance -ErrorAction Continue
         }
 
-        . $PsScriptRoot/Helper/Remove-SqlServer.ps1
-        Remove-SqlServer
+        $Script:Server | Remove-SqlServer
     }
 
     It 'selects data' {
@@ -43,9 +42,9 @@ Describe 'Invoke-Command' {
     }
 
     It 'works with ddl' {
-        Invoke-TSqlCommand 'CREATE TABLE #test (Id INT NULL)' -InformationAction 'Continue'
-        Invoke-TSqlCommand 'INSERT INTO #test (Id) VALUES (@Id)' -Parameter @{ Id = 5 } -InformationAction 'Continue'
-        $result = Invoke-TSqlCommand 'SELECT * FROM #test' -InformationAction 'Continue'
+        Invoke-TSqlCommand 'CREATE TABLE #test (Id INT NULL)' -InformationAction Continue
+        Invoke-TSqlCommand 'INSERT INTO #test (Id) VALUES (@Id)' -Parameter @{ Id = 5 } -InformationAction Continue
+        $result = Invoke-TSqlCommand 'SELECT * FROM #test' -InformationAction Continue
         $result[0].Id | Should -Be 5
     }
 

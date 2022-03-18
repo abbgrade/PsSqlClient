@@ -1,10 +1,10 @@
-﻿
-using System;
-using System.Data.SqlClient;
+﻿using System;
+using Microsoft.Data.SqlClient;
 using System.Management.Automation;
 using System.Security;
 using System.Threading;
-using Microsoft.Azure.Services.AppAuthentication;
+using System.Runtime.InteropServices;
+using System.IO;
 
 namespace PsSqlClient
 {
@@ -13,6 +13,8 @@ namespace PsSqlClient
     public class ConnectInstanceCommand : PSCmdlet
     {
         internal static SqlConnection SessionConnection { get; set; }
+
+        #region Parameters
 
         [Parameter(
             ParameterSetName = "ConnectionString",
@@ -87,8 +89,42 @@ namespace PsSqlClient
         [Parameter(ValueFromPipelineByPropertyName = true)]
         public int RetryInterval { get; set; } = 10;
 
+        #endregion
+
+        protected override void BeginProcessing()
+        {
+            base.BeginProcessing();
+
+            if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                return;
+
+            var runtimeIdentifier = RuntimeInformation.ProcessArchitecture switch
+            {
+                Architecture.X86 => "win-x86",
+                Architecture.X64 => "win-x64",
+                Architecture.Arm => "win-arm",
+                Architecture.Arm64 => "win-arm64",
+                _ => null
+            };
+
+            if (runtimeIdentifier == null)
+                return;
+
+            var dllPath = Path.Combine(
+                Path.GetDirectoryName(typeof(ConnectInstanceCommand).Assembly.Location),
+                "runtimes",
+                runtimeIdentifier,
+                "native",
+                "Microsoft.Data.SqlClient.SNI.dll"
+            );
+            WriteVerbose($"Load {dllPath}");
+            NativeLibrary.Load(dllPath);
+        }
+
         protected override void ProcessRecord()
         {
+            base.ProcessRecord();
+
             SqlConnection connection;
             SqlConnectionStringBuilder builder = new SqlConnectionStringBuilder();
             switch (ParameterSetName)
@@ -96,7 +132,7 @@ namespace PsSqlClient
                 case "ConnectionString":
                     WriteVerbose("Connect by connection string");
                     builder.ConnectionString = ConnectionString;
-                    connection = new SqlConnection(connectionString:builder.ConnectionString);
+                    connection = new SqlConnection(connectionString: builder.ConnectionString);
                     break;
 
                 case "Properties_IntegratedSecurity":
@@ -104,15 +140,13 @@ namespace PsSqlClient
                     builder.DataSource = DataSource;
                     if (InitialCatalog != null)
                         builder.InitialCatalog = InitialCatalog;
+
                     if (DataSource.EndsWith("database.windows.net")) {
-                        connection = new SqlConnection(connectionString: builder.ConnectionString);
-                        if ( AccessToken == null )
-                            AccessToken = new AzureServiceTokenProvider().GetAccessTokenAsync("https://database.windows.net").Result;
-                        connection.AccessToken = AccessToken;
+                        builder.Authentication = SqlAuthenticationMethod.ActiveDirectoryIntegrated;
                     } else {
                         builder.IntegratedSecurity = true;
-                        connection = new SqlConnection(connectionString: builder.ConnectionString);
                     }
+                    connection = new SqlConnection(connectionString: builder.ConnectionString);
                     break;
 
                 case "Properties_SQLServerAuthentication":
@@ -123,7 +157,7 @@ namespace PsSqlClient
                         builder.InitialCatalog = InitialCatalog;
                     connection = new SqlConnection(
                         connectionString: builder.ConnectionString,
-                        credential: new SqlCredential(userId:UserId, password: Password)
+                        credential: new SqlCredential(userId: UserId, password: Password)
                     );
                     break;
 
@@ -132,24 +166,30 @@ namespace PsSqlClient
             }
 
             int retryIndex = 0;
-            do {
+            do
+            {
                 retryIndex += 1;
-                try {
+                try
+                {
                     connection.Open();
-                    WriteVerbose($"Connection to {connection.DataSource} is {connection.State}");
+                    WriteVerbose($"Connection to [{connection.DataSource}].[{connection.Database}] is {connection.State}");
                     break;
                 }
-                catch (SqlException ex) {
+                catch (SqlException ex)
+                {
                     WriteError(new ErrorRecord(
                         exception: ex,
-                        errorId:ex.Number.ToString(),
-                        errorCategory:ErrorCategory.OpenError,
-                        targetObject:null
+                        errorId: ex.Number.ToString(),
+                        errorCategory: ErrorCategory.OpenError,
+                        targetObject: null
                     ));
-                    if (retryIndex < RetryCount) {
+                    if (retryIndex < RetryCount)
+                    {
                         WriteVerbose($"Wait {RetryInterval}s for connection attemp {retryIndex}.");
-                        Thread.Sleep(new TimeSpan(hours:0, minutes:0, seconds:RetryInterval));
-                    } else {
+                        Thread.Sleep(new TimeSpan(hours: 0, minutes: 0, seconds: RetryInterval));
+                    }
+                    else
+                    {
                         throw ex;
                     }
                 }
@@ -158,6 +198,5 @@ namespace PsSqlClient
             SessionConnection = connection;
             WriteObject(connection);
         }
-
     }
 }

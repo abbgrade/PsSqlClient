@@ -72,6 +72,16 @@ namespace PsSqlClient
             ParameterSetName = "Properties_IntegratedSecurity",
             ValueFromPipelineByPropertyName = true
         )]
+        [Parameter(
+            ParameterSetName = "Properties_SQLServerAuthentication",
+            ValueFromPipelineByPropertyName = true
+        )]
+        public int? ConnectTimeout { get; set; }
+
+        [Parameter(
+            ParameterSetName = "Properties_IntegratedSecurity",
+            ValueFromPipelineByPropertyName = true
+        )]
         [ValidateNotNullOrEmpty()]
         public string AccessToken { get; set; }
 
@@ -146,26 +156,9 @@ namespace PsSqlClient
                     break;
 
                 case "Properties_IntegratedSecurity":
-                    WriteVerbose("Connect by Integrated Security");
-                    builder.DataSource = DataSource;
-
-                    if (Port != null)
-                        builder.DataSource += $",{Port.Value}";
-
-                    if (InitialCatalog != null)
-                        builder.InitialCatalog = InitialCatalog;
-
-                    if (DataSource.EndsWith("database.windows.net")) {
-                        builder.Authentication = SqlAuthenticationMethod.ActiveDirectoryIntegrated;
-                    } else {
-                        builder.IntegratedSecurity = true;
-                    }
-                    connection = new SqlConnection(connectionString: builder.ConnectionString);
-                    break;
-
                 case "Properties_SQLServerAuthentication":
-                    WriteVerbose("Connect by SQL Server Authentication");
-                    Password.MakeReadOnly();
+                    WriteVerbose("Connect by properties");
+
                     builder.DataSource = DataSource;
 
                     if (Port != null)
@@ -174,10 +167,40 @@ namespace PsSqlClient
                     if (InitialCatalog != null)
                         builder.InitialCatalog = InitialCatalog;
 
-                    connection = new SqlConnection(
-                        connectionString: builder.ConnectionString,
-                        credential: new SqlCredential(userId: UserId, password: Password)
-                    );
+                    if (ConnectTimeout != null)
+                        builder.ConnectTimeout = ConnectTimeout.Value;
+
+                    switch (ParameterSetName)
+                    {
+
+                        case "Properties_IntegratedSecurity":
+                            WriteVerbose("Authenticate by Integrated Security");
+
+                            if (DataSource.EndsWith("database.windows.net"))
+                            {
+                                builder.Authentication = SqlAuthenticationMethod.ActiveDirectoryIntegrated;
+                            }
+                            else
+                            {
+                                builder.IntegratedSecurity = true;
+                            }
+                            connection = new SqlConnection(connectionString: builder.ConnectionString);
+                            break;
+
+                        case "Properties_SQLServerAuthentication":
+                            WriteVerbose("Authenticate by SQL Server Credential");
+                            Password.MakeReadOnly();
+
+                            connection = new SqlConnection(
+                                connectionString: builder.ConnectionString,
+                                credential: new SqlCredential(userId: UserId, password: Password)
+                            );
+                            break;
+
+                        default:
+                            throw new NotImplementedException($"ParameterSetName {ParameterSetName} is not implemented");
+                    }
+
                     break;
 
                 default:

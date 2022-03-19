@@ -56,7 +56,7 @@ Describe 'Connect-Instance' {
         }
 
         It 'Returns a connection by properties' {
-            $Script:Connection = Connect-TSqlInstance -DataSource $Script:LocalDb.DataSource
+            $Script:Connection = Connect-TSqlInstance -DataSource $Script:LocalDb.DataSource -ConnectTimeout 30
             $Script:Connection.State | Should -be 'Open'
         }
 

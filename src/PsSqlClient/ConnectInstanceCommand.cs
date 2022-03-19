@@ -44,6 +44,16 @@ namespace PsSqlClient
 
         [Parameter(
             ParameterSetName = "Properties_IntegratedSecurity",
+            ValueFromPipelineByPropertyName = true
+        )]
+        [Parameter(
+            ParameterSetName = "Properties_SQLServerAuthentication",
+            ValueFromPipelineByPropertyName = true
+        )]
+        public int? Port { get; set; }
+
+        [Parameter(
+            ParameterSetName = "Properties_IntegratedSecurity",
             Position = 1,
             Mandatory = false,
             ValueFromPipelineByPropertyName = true
@@ -138,6 +148,10 @@ namespace PsSqlClient
                 case "Properties_IntegratedSecurity":
                     WriteVerbose("Connect by Integrated Security");
                     builder.DataSource = DataSource;
+
+                    if (Port != null)
+                        builder.DataSource += $",{Port.Value}";
+
                     if (InitialCatalog != null)
                         builder.InitialCatalog = InitialCatalog;
 
@@ -153,8 +167,13 @@ namespace PsSqlClient
                     WriteVerbose("Connect by SQL Server Authentication");
                     Password.MakeReadOnly();
                     builder.DataSource = DataSource;
+
+                    if (Port != null)
+                        builder.DataSource += $",{Port.Value}";
+
                     if (InitialCatalog != null)
                         builder.InitialCatalog = InitialCatalog;
+
                     connection = new SqlConnection(
                         connectionString: builder.ConnectionString,
                         credential: new SqlCredential(userId: UserId, password: Password)

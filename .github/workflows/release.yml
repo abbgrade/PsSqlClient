@@ -5,8 +5,8 @@ on:
 
 jobs:
   release:
-    uses: abbgrade/PsBuildTasks/.github/workflows/release-windows.yml@v1.0
+    uses: abbgrade/PsBuildTasks/.github/workflows/release-windows.yml@v1.1
     with:
-      module-name: MyModuleName
+      module-name: PsSqlClient
     secrets:
       ps-gallery-key: ${{ secrets.PS_GALLERY_KEY }}

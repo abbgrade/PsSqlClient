@@ -20,7 +20,7 @@ Describe 'Disconnect-Instance' {
         Context 'Connection' {
 
             BeforeEach {
-                $Script:Connection = Connect-TSqlInstance -ConnectionString $Script:TestInstance.ConnectionString
+                $Script:Connection = $Script:TestInstance | Connect-TSqlInstance
             }
 
             It 'Disconnects the instance' {

@@ -10,44 +10,6 @@ Describe 'Connect-Instance' {
         Import-Module PsSqlTestServer -MinimumVersion 0.2.0 -ErrorAction Stop
     }
 
-    Context 'Docker' -Tag Docker {
-
-        BeforeDiscovery {
-            $Script:DockerIsUnavailable = -Not ( Test-SqlTestDocker )
-
-            if ( $Script:DockerIsUnavailable ) {
-                Write-Warning "Skip Docker-based tests."
-            }
-        }
-
-        Context 'DockerTestDatabase' -Skip:$Script:DockerIsUnavailable {
-
-            BeforeAll {
-                $Script:DockerTestInstance = New-SqlTestDockerInstance -AcceptEula -ErrorAction Stop
-            }
-
-            AfterAll {
-                if ( $Script:DockerTestInstance  ) {
-                    $Script:DockerTestInstance  | Remove-SqlTestDockerInstance
-                }
-            }
-
-            It 'Returns a connection by connection string' -Skip:$Script:DockerIsUnavailable {
-                $connection = Connect-TSqlInstance -ConnectionString $Script:DockerTestInstance.ConnectionString
-                $connection.State | Should -Be 'Open'
-            }
-
-            It 'Returns a connection by properties' -Skip:$Script:DockerIsUnavailable {
-                $connection = Connect-TSqlInstance `
-                    -DataSource $Script:DockerTestInstance.DataSource `
-                    -UserId $Script:DockerTestInstance.UserId `
-                    -Password $Script:DockerTestInstance.SecurePassword
-
-                $connection.State | Should -Be 'Open'
-            }
-        }
-    }
-
     Context 'LocalDb' -Tag LocalDb {
 
         BeforeDiscovery {
@@ -70,14 +32,66 @@ Describe 'Connect-Instance' {
                 }
             }
 
-            It 'Returns a connection' {
-                $Script:Connection = Connect-TSqlInstance -ConnectionString "Data Source=$( $Script:LocalDbInstance.DataSource );Integrated Security=True"
+            It 'Returns a connection by pipeline' {
+                $Script:Connection = $Script:LocalDbInstance | Connect-TSqlInstance
                 $Script:Connection.State | Should -Be 'Open'
             }
 
             It 'Returns a connection by properties' {
-                $Script:Connection = Connect-TSqlInstance -DataSource $Script:LocalDbInstance.DataSource -ConnectTimeout 30
+                $Script:Connection = Connect-TSqlInstance `
+                    -DataSource $Script:LocalDbInstance.DataSource `
+                    -ConnectTimeout $Script:LocalDbInstance.ConnectTimeout
                 $Script:Connection.State | Should -Be 'Open'
+            }
+
+            It 'Returns a connection by connection string' {
+                $Script:Connection = Connect-TSqlInstance `
+                    -ConnectionString $Script:LocalDbInstance.ConnectionString
+                $Script:Connection.State | Should -Be 'Open'
+            }
+        }
+    }
+
+    Context 'Docker' -Tag Docker {
+
+        BeforeDiscovery {
+            $Script:DockerIsUnavailable = -Not ( Test-SqlTestDocker )
+
+            if ( $Script:DockerIsUnavailable ) {
+                Write-Warning "Skip Docker-based tests."
+            }
+        }
+
+        Context 'DockerTestDatabase' -Skip:$Script:DockerIsUnavailable {
+
+            BeforeAll {
+                $Script:DockerTestInstance = New-SqlTestDockerInstance -AcceptEula -ErrorAction Stop
+            }
+
+            AfterAll {
+                if ( $Script:DockerTestInstance  ) {
+                    $Script:DockerTestInstance  | Remove-SqlTestDockerInstance
+                }
+            }
+
+            It 'Returns a connection by pipeline' -Skip:$Script:DockerIsUnavailable {
+                $connection = $Script:DockerTestInstance | Connect-TSqlInstance
+                $connection.State | Should -Be 'Open'
+            }
+
+            It 'Returns a connection by properties' -Skip:$Script:DockerIsUnavailable {
+                $connection = Connect-TSqlInstance `
+                    -DataSource $Script:DockerTestInstance.DataSource `
+                    -ConnectTimeout $Script:DockerTestInstance.ConnectTimeout `
+                    -UserId $Script:DockerTestInstance.UserId `
+                    -Password $Script:DockerTestInstance.SecurePassword
+
+                $connection.State | Should -Be 'Open'
+            }
+
+            It 'Returns a connection by connection string' -Skip:$Script:DockerIsUnavailable {
+                $connection = Connect-TSqlInstance -ConnectionString $Script:DockerTestInstance.ConnectionString
+                $connection.State | Should -Be 'Open'
             }
         }
     }
@@ -102,6 +116,11 @@ Describe 'Connect-Instance' {
                 $Script:AzureSqlDatabase | Remove-SqlTestAzureDatabase
             }
 
+            It 'Returns a connection by pipeline' {
+                $connection = $Script:AzureSqlDatabase | Connect-TSqlInstance
+                $connection.State | Should -Be 'Open'
+            }
+
             It 'Returns a connection by properties' {
                 $connection = Connect-TSqlInstance `
                     -DataSource $Script:AzureSqlDatabase.DataSource `
@@ -110,7 +129,7 @@ Describe 'Connect-Instance' {
                 $connection.State | Should -Be 'Open'
             }
 
-            It 'Returns a connection by token' {
+            It 'Returns a connection by connection string' {
                 $connection = Connect-TSqlInstance -ConnectionString $Script:AzureSqlDatabase.ConnectionString
                 $connection.State | Should -Be 'Open'
             }

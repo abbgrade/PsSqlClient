@@ -20,7 +20,7 @@ Describe 'Invoke-Procedure' {
         Context 'Connection' {
 
             BeforeAll {
-                $Script:Connection = Connect-TSqlInstance -ConnectionString $Script:TestInstance.ConnectionString
+                $Script:Connection = $Script:TestInstance | Connect-TSqlInstance
             }
 
             AfterAll {

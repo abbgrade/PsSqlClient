@@ -5,22 +5,34 @@ Describe 'Invoke-Procedure' {
     BeforeAll {
         Import-Module $PSScriptRoot/../publish/PsSqlClient/PsSqlClient.psd1 -Force -ErrorAction Stop
         Import-Module PsSqlTestServer -ErrorAction Stop
-
-        $Script:Server = New-SqlServer -ErrorAction Stop
-        $Script:Connection = Connect-TSqlInstance -ConnectionString $Script:Server.ConnectionString -RetryCount 3 -ErrorAction 'SilentlyContinue'
     }
 
-    AfterAll {
-        if ( $Script:Connection ) {
-            Disconnect-TSqlInstance -ErrorAction 'Continue'
+    Context 'TestInstance' {
+
+        BeforeAll {
+            $Script:TestInstance = New-SqlTestInstance -ErrorAction Stop
         }
 
-        $Script:Server | Remove-SqlServer
-    }
+        AfterAll {
+            $Script:TestInstance | Remove-SqlTestInstance
+        }
 
-    It 'works with parameters' {
-        $result = Invoke-TSqlProcedure 'sp_tables' @{ table_qualifier = 'master'}
-        $result | Should -Not -BeNullOrEmpty
-    }
+        Context 'Connection' {
 
+            BeforeAll {
+                $Script:Connection = $Script:TestInstance | Connect-TSqlInstance
+            }
+
+            AfterAll {
+                if ( $Script:Connection ) {
+                    Disconnect-TSqlInstance -ErrorAction Continue
+                }
+            }
+
+            It 'works with parameters' {
+                $result = Invoke-TSqlProcedure 'sp_tables' @{ table_qualifier = 'master' }
+                $result | Should -Not -BeNullOrEmpty
+            }
+        }
+    }
 }

@@ -8,16 +8,21 @@ using System.IO;
 
 namespace PsSqlClient
 {
-    [Cmdlet(VerbsCommunications.Connect, "Instance", DefaultParameterSetName = "ConnectionString")]
+    [Cmdlet(VerbsCommunications.Connect, "Instance", DefaultParameterSetName = PARAMETERSET_CONNECTION_STRING)]
     [OutputType(typeof(SqlConnection))]
     public class ConnectInstanceCommand : PSCmdlet
     {
+        #region ParameterSets
+        private const string PARAMETERSET_CONNECTION_STRING     = "ConnectionString";
+        private const string PARAMETERSET_PROPERTIES_INTEGRATED = "Properties_IntegratedSecurity";
+        private const string PARAMETERSET_PROPERTIES_CREDENTIAL = "Properties_Credential";
+        #endregion
+
         internal static SqlConnection SessionConnection { get; set; }
 
         #region Parameters
-
         [Parameter(
-            ParameterSetName = "ConnectionString",
+            ParameterSetName = PARAMETERSET_CONNECTION_STRING,
             Position = 0,
             Mandatory = true,
             ValueFromPipeline = true,
@@ -27,13 +32,13 @@ namespace PsSqlClient
         public string ConnectionString { get; set; }
 
         [Parameter(
-            ParameterSetName = "Properties_IntegratedSecurity",
+            ParameterSetName = PARAMETERSET_PROPERTIES_INTEGRATED,
             Position = 0,
             Mandatory = true,
             ValueFromPipelineByPropertyName = true
         )]
         [Parameter(
-            ParameterSetName = "Properties_SQLServerAuthentication",
+            ParameterSetName = PARAMETERSET_PROPERTIES_CREDENTIAL,
             Position = 0,
             Mandatory = true,
             ValueFromPipelineByPropertyName = true
@@ -43,23 +48,23 @@ namespace PsSqlClient
         public string DataSource { get; set; }
 
         [Parameter(
-            ParameterSetName = "Properties_IntegratedSecurity",
+            ParameterSetName = PARAMETERSET_PROPERTIES_INTEGRATED,
             ValueFromPipelineByPropertyName = true
         )]
         [Parameter(
-            ParameterSetName = "Properties_SQLServerAuthentication",
+            ParameterSetName = PARAMETERSET_PROPERTIES_CREDENTIAL,
             ValueFromPipelineByPropertyName = true
         )]
         public int? Port { get; set; }
 
         [Parameter(
-            ParameterSetName = "Properties_IntegratedSecurity",
+            ParameterSetName = PARAMETERSET_PROPERTIES_INTEGRATED,
             Position = 1,
             Mandatory = false,
             ValueFromPipelineByPropertyName = true
         )]
         [Parameter(
-            ParameterSetName = "Properties_SQLServerAuthentication",
+            ParameterSetName = PARAMETERSET_PROPERTIES_CREDENTIAL,
             Position = 1,
             Mandatory = false,
             ValueFromPipelineByPropertyName = true
@@ -69,24 +74,24 @@ namespace PsSqlClient
         public string InitialCatalog { get; set; }
 
         [Parameter(
-            ParameterSetName = "Properties_IntegratedSecurity",
+            ParameterSetName = PARAMETERSET_PROPERTIES_INTEGRATED,
             ValueFromPipelineByPropertyName = true
         )]
         [Parameter(
-            ParameterSetName = "Properties_SQLServerAuthentication",
+            ParameterSetName = PARAMETERSET_PROPERTIES_CREDENTIAL,
             ValueFromPipelineByPropertyName = true
         )]
         public int? ConnectTimeout { get; set; }
 
         [Parameter(
-            ParameterSetName = "Properties_IntegratedSecurity",
+            ParameterSetName = PARAMETERSET_PROPERTIES_INTEGRATED,
             ValueFromPipelineByPropertyName = true
         )]
         [ValidateNotNullOrEmpty()]
         public string AccessToken { get; set; }
 
         [Parameter(
-            ParameterSetName = "Properties_SQLServerAuthentication",
+            ParameterSetName = PARAMETERSET_PROPERTIES_CREDENTIAL,
             Position = 1,
             Mandatory = true,
             ValueFromPipeline = true,
@@ -95,7 +100,7 @@ namespace PsSqlClient
         public string UserId { get; set; }
 
         [Parameter(
-            ParameterSetName = "Properties_SQLServerAuthentication",
+            ParameterSetName = PARAMETERSET_PROPERTIES_CREDENTIAL,
             Position = 1,
             Mandatory = true,
             ValueFromPipeline = true,
@@ -149,14 +154,14 @@ namespace PsSqlClient
             SqlConnectionStringBuilder builder = new SqlConnectionStringBuilder();
             switch (ParameterSetName)
             {
-                case "ConnectionString":
+                case PARAMETERSET_CONNECTION_STRING:
                     WriteVerbose("Connect by connection string");
                     builder.ConnectionString = ConnectionString;
                     connection = new SqlConnection(connectionString: builder.ConnectionString);
                     break;
 
-                case "Properties_IntegratedSecurity":
-                case "Properties_SQLServerAuthentication":
+                case PARAMETERSET_PROPERTIES_INTEGRATED:
+                case PARAMETERSET_PROPERTIES_CREDENTIAL:
                     WriteVerbose("Connect by properties");
 
                     builder.DataSource = DataSource;
@@ -173,23 +178,35 @@ namespace PsSqlClient
                     switch (ParameterSetName)
                     {
 
-                        case "Properties_IntegratedSecurity":
-                            WriteVerbose("Authenticate by Integrated Security");
+                        case PARAMETERSET_PROPERTIES_INTEGRATED:
 
                             if (DataSource.EndsWith("database.windows.net"))
                             {
+                                WriteVerbose("Authenticate by Azure Active Directory / Integrated Security");
                                 builder.Authentication = SqlAuthenticationMethod.ActiveDirectoryIntegrated;
                             }
                             else
                             {
+                                WriteVerbose("Authenticate by Windows Active Directory / Integrated Security");
                                 builder.IntegratedSecurity = true;
                             }
+
                             connection = new SqlConnection(connectionString: builder.ConnectionString);
                             break;
 
-                        case "Properties_SQLServerAuthentication":
-                            WriteVerbose("Authenticate by SQL Server Credential");
+                        case PARAMETERSET_PROPERTIES_CREDENTIAL:
+
                             Password.MakeReadOnly();
+
+                            if (DataSource.EndsWith("database.windows.net"))
+                            {
+                                WriteVerbose("Authenticate by Azure Active Directory Credential");
+                                builder.Authentication = SqlAuthenticationMethod.ActiveDirectoryPassword;
+                            }
+                            else
+                            {
+                                WriteVerbose("Authenticate by Sql Credential");
+                            }
 
                             connection = new SqlConnection(
                                 connectionString: builder.ConnectionString,

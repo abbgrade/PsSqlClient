@@ -6,6 +6,7 @@ requires ModuleName
 [System.IO.DirectoryInfo] $DocumentationDirectory = "$PSScriptRoot/../docs"
 [System.IO.DirectoryInfo] $ModulePublishDirectory = "$PublishDirectory/$ModuleName"
 [System.IO.DirectoryInfo] $ModuleSourceDirectory = "$SourceDirectory/$ModuleName"
+[System.IO.FileInfo] $ModuleSourceManifest = "$ModuleSourceDirectory/$ModuleName.psd1"
 [System.IO.DirectoryInfo] $BinaryDirectory = "$ModuleSourceDirectory/bin"
 [System.IO.DirectoryInfo] $ObjectDirectory = "$ModuleSourceDirectory/obj"
 
@@ -73,4 +74,9 @@ task Publish -Jobs Clean, Build, {
 		Update-ModuleManifest -Path $Global:Manifest -Prerelease ''
 	}
 	Publish-Module -Path $Global:Manifest.Directory -NuGetApiKey $NuGetApiKey -Force:$ForcePublish
+}
+
+task UpdateChangelog {
+	$info = Import-PowerShellDataFile $ModuleSourceManifest
+	Update-Changelog -ReleaseVersion $info.ModuleVersion -LinkMode None
 }

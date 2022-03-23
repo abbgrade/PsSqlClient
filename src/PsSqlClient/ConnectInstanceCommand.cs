@@ -16,6 +16,7 @@ namespace PsSqlClient
         private const string PARAMETERSET_CONNECTION_STRING     = "ConnectionString";
         private const string PARAMETERSET_PROPERTIES_INTEGRATED = "Properties_IntegratedSecurity";
         private const string PARAMETERSET_PROPERTIES_CREDENTIAL = "Properties_Credential";
+        private const string PARAMETERSET_PROPERTIES_TOKEN      = "Properties_AccessToken";
         #endregion
 
         internal static SqlConnection SessionConnection { get; set; }
@@ -43,6 +44,12 @@ namespace PsSqlClient
             Mandatory = true,
             ValueFromPipelineByPropertyName = true
         )]
+        [Parameter(
+            ParameterSetName = PARAMETERSET_PROPERTIES_TOKEN,
+            Position = 0,
+            Mandatory = true,
+            ValueFromPipelineByPropertyName = true
+        )]
         [ValidateNotNullOrEmpty()]
         [Alias("Server", "ServerName", "ServerInstance")]
         public string DataSource { get; set; }
@@ -53,6 +60,10 @@ namespace PsSqlClient
         )]
         [Parameter(
             ParameterSetName = PARAMETERSET_PROPERTIES_CREDENTIAL,
+            ValueFromPipelineByPropertyName = true
+        )]
+        [Parameter(
+            ParameterSetName = PARAMETERSET_PROPERTIES_TOKEN,
             ValueFromPipelineByPropertyName = true
         )]
         public int? Port { get; set; }
@@ -69,6 +80,12 @@ namespace PsSqlClient
             Mandatory = false,
             ValueFromPipelineByPropertyName = true
         )]
+        [Parameter(
+            ParameterSetName = PARAMETERSET_PROPERTIES_TOKEN,
+            Position = 1,
+            Mandatory = false,
+            ValueFromPipelineByPropertyName = true
+        )]
         [ValidateNotNullOrEmpty()]
         [Alias("Database", "DatabaseName")]
         public string InitialCatalog { get; set; }
@@ -81,10 +98,15 @@ namespace PsSqlClient
             ParameterSetName = PARAMETERSET_PROPERTIES_CREDENTIAL,
             ValueFromPipelineByPropertyName = true
         )]
+        [Parameter(
+            ParameterSetName = PARAMETERSET_PROPERTIES_TOKEN,
+            ValueFromPipelineByPropertyName = true
+        )]
         public int? ConnectTimeout { get; set; }
 
         [Parameter(
-            ParameterSetName = PARAMETERSET_PROPERTIES_INTEGRATED,
+            Mandatory = true,
+            ParameterSetName = PARAMETERSET_PROPERTIES_TOKEN,
             ValueFromPipelineByPropertyName = true
         )]
         [ValidateNotNullOrEmpty()]
@@ -164,6 +186,7 @@ namespace PsSqlClient
 
                     case PARAMETERSET_PROPERTIES_INTEGRATED:
                     case PARAMETERSET_PROPERTIES_CREDENTIAL:
+                    case PARAMETERSET_PROPERTIES_TOKEN:
                         WriteVerbose("Connect by properties");
 
                         builder.DataSource = DataSource;
@@ -214,6 +237,12 @@ namespace PsSqlClient
                                     connectionString: builder.ConnectionString,
                                     credential: new SqlCredential(userId: UserId, password: Password)
                                 );
+                                break;
+
+                            case PARAMETERSET_PROPERTIES_TOKEN:
+                                WriteVerbose("Authenticate by Access Token");
+                                connection = new SqlConnection(connectionString: builder.ConnectionString);
+                                connection.AccessToken = AccessToken;
                                 break;
 
                             default:

@@ -150,112 +150,120 @@ namespace PsSqlClient
         {
             base.ProcessRecord();
 
-            SqlConnection connection;
-            SqlConnectionStringBuilder builder = new SqlConnectionStringBuilder();
-            switch (ParameterSetName)
+            try
             {
-                case PARAMETERSET_CONNECTION_STRING:
-                    WriteVerbose("Connect by connection string");
-                    builder.ConnectionString = ConnectionString;
-                    connection = new SqlConnection(connectionString: builder.ConnectionString);
-                    break;
+                SqlConnection connection;
+                SqlConnectionStringBuilder builder = new SqlConnectionStringBuilder();
+                switch (ParameterSetName)
+                {
+                    case PARAMETERSET_CONNECTION_STRING:
+                        WriteVerbose("Connect by connection string");
+                        builder.ConnectionString = ConnectionString;
+                        connection = new SqlConnection(connectionString: builder.ConnectionString);
+                        break;
 
-                case PARAMETERSET_PROPERTIES_INTEGRATED:
-                case PARAMETERSET_PROPERTIES_CREDENTIAL:
-                    WriteVerbose("Connect by properties");
+                    case PARAMETERSET_PROPERTIES_INTEGRATED:
+                    case PARAMETERSET_PROPERTIES_CREDENTIAL:
+                        WriteVerbose("Connect by properties");
 
-                    builder.DataSource = DataSource;
+                        builder.DataSource = DataSource;
 
-                    if (Port != null)
-                        builder.DataSource += $",{Port.Value}";
+                        if (Port != null)
+                            builder.DataSource += $",{Port.Value}";
 
-                    if (InitialCatalog != null)
-                        builder.InitialCatalog = InitialCatalog;
+                        if (InitialCatalog != null)
+                            builder.InitialCatalog = InitialCatalog;
 
-                    if (ConnectTimeout != null)
-                        builder.ConnectTimeout = ConnectTimeout.Value;
+                        if (ConnectTimeout != null)
+                            builder.ConnectTimeout = ConnectTimeout.Value;
 
-                    switch (ParameterSetName)
+                        switch (ParameterSetName)
+                        {
+
+                            case PARAMETERSET_PROPERTIES_INTEGRATED:
+
+                                if (DataSource.EndsWith("database.windows.net"))
+                                {
+                                    WriteVerbose("Authenticate by Azure Active Directory / Integrated Security");
+                                    builder.Authentication = SqlAuthenticationMethod.ActiveDirectoryIntegrated;
+                                }
+                                else
+                                {
+                                    WriteVerbose("Authenticate by Windows Active Directory / Integrated Security");
+                                    builder.IntegratedSecurity = true;
+                                }
+
+                                connection = new SqlConnection(connectionString: builder.ConnectionString);
+                                break;
+
+                            case PARAMETERSET_PROPERTIES_CREDENTIAL:
+
+                                Password.MakeReadOnly();
+
+                                if (DataSource.EndsWith("database.windows.net"))
+                                {
+                                    WriteVerbose("Authenticate by Azure Active Directory Credential");
+                                    builder.Authentication = SqlAuthenticationMethod.ActiveDirectoryPassword;
+                                }
+                                else
+                                {
+                                    WriteVerbose("Authenticate by Sql Credential");
+                                }
+
+                                connection = new SqlConnection(
+                                    connectionString: builder.ConnectionString,
+                                    credential: new SqlCredential(userId: UserId, password: Password)
+                                );
+                                break;
+
+                            default:
+                                throw new NotImplementedException($"ParameterSetName {ParameterSetName} is not implemented");
+                        }
+
+                        break;
+
+                    default:
+                        throw new NotImplementedException($"ParameterSetName {ParameterSetName} is not implemented");
+                }
+
+                int retryIndex = 0;
+                do
+                {
+                    retryIndex += 1;
+                    try
                     {
-
-                        case PARAMETERSET_PROPERTIES_INTEGRATED:
-
-                            if (DataSource.EndsWith("database.windows.net"))
-                            {
-                                WriteVerbose("Authenticate by Azure Active Directory / Integrated Security");
-                                builder.Authentication = SqlAuthenticationMethod.ActiveDirectoryIntegrated;
-                            }
-                            else
-                            {
-                                WriteVerbose("Authenticate by Windows Active Directory / Integrated Security");
-                                builder.IntegratedSecurity = true;
-                            }
-
-                            connection = new SqlConnection(connectionString: builder.ConnectionString);
-                            break;
-
-                        case PARAMETERSET_PROPERTIES_CREDENTIAL:
-
-                            Password.MakeReadOnly();
-
-                            if (DataSource.EndsWith("database.windows.net"))
-                            {
-                                WriteVerbose("Authenticate by Azure Active Directory Credential");
-                                builder.Authentication = SqlAuthenticationMethod.ActiveDirectoryPassword;
-                            }
-                            else
-                            {
-                                WriteVerbose("Authenticate by Sql Credential");
-                            }
-
-                            connection = new SqlConnection(
-                                connectionString: builder.ConnectionString,
-                                credential: new SqlCredential(userId: UserId, password: Password)
-                            );
-                            break;
-
-                        default:
-                            throw new NotImplementedException($"ParameterSetName {ParameterSetName} is not implemented");
+                        connection.Open();
+                        WriteVerbose($"Connection to [{connection.DataSource}].[{connection.Database}] is {connection.State}");
+                        break;
                     }
+                    catch (SqlException ex)
+                    {
+                        WriteError(new ErrorRecord(
+                            exception: ex,
+                            errorId: ex.Number.ToString(),
+                            errorCategory: ErrorCategory.OpenError,
+                            targetObject: null
+                        ));
+                        if (retryIndex < RetryCount)
+                        {
+                            WriteVerbose($"Wait {RetryInterval}s for connection attemp {retryIndex}/{RetryCount}.");
+                            Thread.Sleep(new TimeSpan(hours: 0, minutes: 0, seconds: RetryInterval));
+                        }
+                        else
+                        {
+                            throw;
+                        }
+                    }
+                } while (retryIndex < RetryCount);
 
-                    break;
+                SessionConnection = connection;
+                WriteObject(connection);
 
-                default:
-                    throw new NotImplementedException($"ParameterSetName {ParameterSetName} is not implemented");
+            } catch (Exception ex)
+            {
+                WriteVerbose($"Exception thrown {ex}.");
+                throw;
             }
-
-            int retryIndex = 0;
-            do
-            {
-                retryIndex += 1;
-                try
-                {
-                    connection.Open();
-                    WriteVerbose($"Connection to [{connection.DataSource}].[{connection.Database}] is {connection.State}");
-                    break;
-                }
-                catch (SqlException ex)
-                {
-                    WriteError(new ErrorRecord(
-                        exception: ex,
-                        errorId: ex.Number.ToString(),
-                        errorCategory: ErrorCategory.OpenError,
-                        targetObject: null
-                    ));
-                    if (retryIndex < RetryCount)
-                    {
-                        WriteVerbose($"Wait {RetryInterval}s for connection attemp {retryIndex}.");
-                        Thread.Sleep(new TimeSpan(hours: 0, minutes: 0, seconds: RetryInterval));
-                    }
-                    else
-                    {
-                        throw ex;
-                    }
-                }
-            } while (retryIndex < RetryCount);
-
-            SessionConnection = connection;
-            WriteObject(connection);
         }
     }
 }

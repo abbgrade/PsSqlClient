@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.0] - 2022-03-23
+
 ### Added
 
 - Verbose detail output on exception.
@@ -14,6 +16,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Access Token authentication.
+
+### Changed
+
+- Updated Microsoft.Data.SqlClient from 3.0.1 to 4.1.0.
 
 ## [1.1.0] - 2022-03-19
 

@@ -2,12 +2,9 @@
 
 Describe 'Connect-Instance' {
 
-    BeforeAll {
-        Import-Module $PSScriptRoot\..\publish\PsSqlClient\PsSqlClient.psd1 -Force -ErrorAction Stop
-    }
-
     BeforeDiscovery {
-        Import-Module PsSqlTestServer -MinimumVersion 0.2.0 -ErrorAction Stop
+        Import-Module $PSScriptRoot/../publish/PsSqlClient/PsSqlClient.psd1 -Force -ErrorAction Stop
+        Import-Module PsSqlTestServer -ErrorAction Stop
     }
 
     Context 'LocalDb' -Tag LocalDb {

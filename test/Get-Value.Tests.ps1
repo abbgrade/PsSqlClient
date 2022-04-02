@@ -2,7 +2,7 @@
 
 Describe 'Get-Value' {
 
-    BeforeAll {
+    BeforeDiscovery {
         Import-Module $PSScriptRoot/../publish/PsSqlClient/PsSqlClient.psd1 -Force -ErrorAction Stop
         Import-Module PsSqlTestServer -ErrorAction Stop
     }

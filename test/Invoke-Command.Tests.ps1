@@ -25,7 +25,7 @@ Describe 'Invoke-Command' {
 
             AfterAll {
                 if ( $Script:Connection ) {
-                    Disconnect-TSqlInstance -ErrorAction Continue
+                    $Script:Connection | Disconnect-TSqlInstance -ErrorAction Continue
                 }
             }
 

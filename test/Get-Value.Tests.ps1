@@ -25,7 +25,7 @@ Describe 'Get-Value' {
 
             AfterAll {
                 if ( $Script:Connection ) {
-                    Disconnect-TSqlInstance -ErrorAction Continue
+                    $Script:Connection | Disconnect-TSqlInstance -ErrorAction Continue
                 }
             }
 

@@ -25,7 +25,7 @@ Describe 'Connect-Instance' {
 
             AfterEach {
                 if ( $Script:Connection ) {
-                    Disconnect-TSqlInstance -Connection $Script:Connection
+                    $Script:Connection | Disconnect-TSqlInstance
                 }
             }
 

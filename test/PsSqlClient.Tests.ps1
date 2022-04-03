@@ -13,8 +13,8 @@ Describe 'PsSqlClient' {
     Context 'Loaded Modules' {
 
         BeforeAll {
-            Import-Module $Script:ManifestPath
-            Import-Module PsSqlTestServer
+            $Script:PsSqlClientModule = Import-Module $Script:ManifestPath -PassThru
+            $Script:PsSqlTestServerModule = Import-Module PsSqlTestServer -PassThru
         }
 
         It 'Has matching dependencies' {
@@ -39,7 +39,7 @@ Describe 'PsSqlClient' {
                 }
             }
 
-            $dllFiles = Get-Module PsSqlTestServer, PsSqlClient | Where { $PSItem.Name -NotIn @( 'Microsoft.PowerShell.Management', 'Microsoft.PowerShell.Security', 'Microsoft.PowerShell.Utility', 'Microsoft.WSMan.Management' ) } | Get-Library
+            $dllFiles = Get-Module $Script:PsSqlClientModule, $Script:PsSqlTestServerModule | Get-Library
             $dllFiles | Group-Object Name | Where-Object {
                 if ( ( $PSItem.Group | Select-Object -ExpandProperty Version -Unique ).Count -gt 1 ) {
                     $versions = $PSItem.Group | Group-Object Version | Sort-Object

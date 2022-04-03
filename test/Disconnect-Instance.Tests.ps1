@@ -28,6 +28,11 @@ Describe 'Disconnect-Instance' {
                 $Script:Connection.State | Should -Be 'Closed'
             }
 
+            It 'Disconnects the instance from pipeline' {
+                $Script:Connection | Disconnect-TSqlInstance
+                $Script:Connection.State | Should -Be 'Closed'
+            }
+
             It 'Disconnects the instance in the session' {
                 Disconnect-TSqlInstance
                 $Script:Connection.State | Should -Be 'Closed'

@@ -2,7 +2,7 @@
 
 Describe 'Export-Table' {
 
-    BeforeAll {
+    BeforeDiscovery {
         Import-Module $PSScriptRoot/../publish/PsSqlClient/PsSqlClient.psd1 -Force -ErrorAction Stop
         Import-Module PsSqlTestServer -ErrorAction Stop
     }
@@ -25,7 +25,7 @@ Describe 'Export-Table' {
 
             AfterAll {
                 if ( $Script:Connection ) {
-                    Disconnect-TSqlInstance -ErrorAction Continue
+                    $Script:Connection | Disconnect-TSqlInstance -ErrorAction Continue
                 }
             }
 

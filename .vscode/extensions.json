@@ -1,0 +1,8 @@
+{
+    "recommendations": [
+        "ms-vscode.powershell",
+        "ms-dotnettools.csharp",
+        "vector-of-bool.gitflow",
+        "EditorConfig.EditorConfig"
+    ]
+}

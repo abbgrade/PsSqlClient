@@ -2,7 +2,7 @@
 
 Describe 'Invoke-Procedure' {
 
-    BeforeAll {
+    BeforeDiscovery {
         Import-Module $PSScriptRoot/../publish/PsSqlClient/PsSqlClient.psd1 -Force -ErrorAction Stop
         Import-Module PsSqlTestServer -ErrorAction Stop
     }
@@ -25,7 +25,7 @@ Describe 'Invoke-Procedure' {
 
             AfterAll {
                 if ( $Script:Connection ) {
-                    Disconnect-TSqlInstance -ErrorAction Continue
+                    $Script:Connection | Disconnect-TSqlInstance -ErrorAction Continue
                 }
             }
 

@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- ColumnMapping parameter on Export-Table command.
+
 ## [1.2.0] - 2022-03-23
 
 ### Added
@@ -54,3 +58,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Changed from Debug to Release build.
 - Downgrade from .NETStandard 2.0 to .NETCore 2.1.
+
+<!-- markdownlint-configure-file {"MD024": { "siblings_only": true } } -->

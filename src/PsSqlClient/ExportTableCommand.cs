@@ -1,4 +1,5 @@
 using System.Data;
+using System.Collections;
 using Microsoft.Data.SqlClient;
 using System.Management.Automation;
 
@@ -44,6 +45,9 @@ namespace PsSqlClient
 
         [Parameter(ValueFromPipelineByPropertyName = true)]
         public SwitchParameter UseInternalTransaction { get; set; }
+
+        [Parameter()]
+        public Hashtable ColumnMapping { get; set; }
 
         private SqlBulkCopy bulkCopy;
         private DataTable tempTable;
@@ -95,6 +99,14 @@ namespace PsSqlClient
             }
 
             bulkCopy.DestinationTableName = Table;
+
+            if (ColumnMapping != null)
+                foreach (var key in ColumnMapping.Keys)
+                    bulkCopy.ColumnMappings.Add(new SqlBulkCopyColumnMapping(
+                        sourceColumn: key.ToString(),
+                        destinationColumn: ColumnMapping[key].ToString()
+                        )
+                    );
 
             tempTable = new DataTable();
         }

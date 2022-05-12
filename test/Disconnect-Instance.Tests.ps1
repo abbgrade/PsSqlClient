@@ -1,8 +1,8 @@
-#Requires -Modules @{ ModuleName='Pester'; ModuleVersion='5.0.0' }, PsSqlTestServer
+#Requires -Modules @{ ModuleName='Pester'; ModuleVersion='5.2.0' }
 
 Describe 'Disconnect-Instance' {
 
-    BeforeAll {
+    BeforeDiscovery {
         Import-Module $PSScriptRoot/../publish/PsSqlClient/PsSqlClient.psd1 -Force -ErrorAction Stop
         Import-Module PsSqlTestServer -ErrorAction Stop
     }
@@ -25,6 +25,11 @@ Describe 'Disconnect-Instance' {
 
             It 'Disconnects the instance' {
                 Disconnect-TSqlInstance -Connection $Script:Connection
+                $Script:Connection.State | Should -Be 'Closed'
+            }
+
+            It 'Disconnects the instance from pipeline' {
+                $Script:Connection | Disconnect-TSqlInstance
                 $Script:Connection.State | Should -Be 'Closed'
             }
 

@@ -1,8 +1,8 @@
-#Requires -Modules @{ ModuleName='Pester'; ModuleVersion='5.0.0' }
+#Requires -Modules @{ ModuleName='Pester'; ModuleVersion='5.2.0' }
 
 Describe 'Invoke-Procedure' {
 
-    BeforeAll {
+    BeforeDiscovery {
         Import-Module $PSScriptRoot/../publish/PsSqlClient/PsSqlClient.psd1 -Force -ErrorAction Stop
         Import-Module PsSqlTestServer -ErrorAction Stop
     }
@@ -25,7 +25,7 @@ Describe 'Invoke-Procedure' {
 
             AfterAll {
                 if ( $Script:Connection ) {
-                    Disconnect-TSqlInstance -ErrorAction Continue
+                    $Script:Connection | Disconnect-TSqlInstance -ErrorAction Continue
                 }
             }
 

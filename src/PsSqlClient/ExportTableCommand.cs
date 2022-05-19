@@ -125,12 +125,16 @@ namespace PsSqlClient
 
             if ( tempTable.Columns.Count == 0 ) {
                 foreach (var property in InputObject.Properties) {
-                    tempTable.Columns.Add(property.Name);
+                    tempTable.Columns.Add(columnName: property.Name, type: System.Type.GetType(property.TypeNameOfValue));
                 }
             }
             var row = tempTable.NewRow();
             foreach (var property in InputObject.Properties) {
-                row[property.Name] = property.Value;
+                if (property.Value is PSObject) {
+                    row[property.Name] = ((PSObject) property.Value).BaseObject;
+                } else {
+                    row[property.Name] = property.Value;
+                }
             }
             tempTable.Rows.Add(row);
         }

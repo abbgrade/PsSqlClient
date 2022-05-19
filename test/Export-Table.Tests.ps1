@@ -1,13 +1,13 @@
 #Requires -Modules @{ ModuleName='Pester'; ModuleVersion='5.2.0' }
 
-Describe 'Export-Table' {
+Describe Export-Table {
 
     BeforeDiscovery {
         Import-Module $PSScriptRoot/../publish/PsSqlClient/PsSqlClient.psd1 -Force -ErrorAction Stop
         Import-Module PsSqlTestServer -ErrorAction Stop
     }
 
-    Context 'TestInstance' {
+    Context TestInstance {
 
         BeforeAll {
             $Script:TestInstance = New-SqlTestInstance -ErrorAction Stop
@@ -17,7 +17,7 @@ Describe 'Export-Table' {
             $Script:TestInstance | Remove-SqlTestInstance
         }
 
-        Context 'Connection' {
+        Context Connection {
 
             BeforeAll {
                 $Script:Connection = $Script:TestInstance | Connect-TSqlInstance
@@ -29,7 +29,7 @@ Describe 'Export-Table' {
                 }
             }
 
-            Context 'Table' {
+            Context Table {
                 BeforeAll {
                     Invoke-TSqlCommand 'CREATE TABLE #test (Id INT IDENTITY, Name NVARCHAR(MAX) NOT NULL)'
                 }
@@ -38,7 +38,7 @@ Describe 'Export-Table' {
                     Invoke-TSqlCommand 'TRUNCATE TABLE #test'
                 }
 
-                It 'inserts 3 rows' {
+                It Inserts {
                     @(
                         [PSCustomObject] @{ Id = 1; Name = 'Iron Maiden' },
                         [PSCustomObject] @{ Id = 2; Name = 'Killers' },
@@ -48,7 +48,7 @@ Describe 'Export-Table' {
                     Get-TSqlValue 'SELECT COUNT(*) FROM #test' | Should -Be 3
                 }
 
-                It 'throws on null value' {
+                It ThrowsOnNull {
                     {
                         @(
                             [PSCustomObject] @{ Id = 4; Name = $null }
@@ -56,7 +56,7 @@ Describe 'Export-Table' {
                     } | Should -Throw 'Column ''Name'' does not allow DBNull.Value.'
                 }
 
-                It 'throws not on null value' {
+                It InsertsWithKeepNulls {
                     {
                         @(
                             [PSCustomObject] @{ Id = 4; Name = $null }
@@ -64,13 +64,32 @@ Describe 'Export-Table' {
                     } | Should -Throw 'Column ''Name'' does not allow DBNull.Value.'
                 }
 
-                It 'works with keep identity' {
+                It InsertsWithKeepIdentity {
                     @(
                         [PSCustomObject] @{ Id = 666; Name = 'The Number of the Beast' }
                     ) | Export-TSqlTable -Table '#test' -KeepIdentity
 
                     $rows = Invoke-TSqlCommand 'SELECT * FROM #test'
                     $rows | Where-Object Id -eq 666 | Select-Object -ExpandProperty Name | Should -Be 'The Number of the Beast'
+                }
+            }
+
+            Context TableWithGuid {
+                BeforeAll {
+                    Invoke-TSqlCommand 'CREATE TABLE #test2 (Id UNIQUEIDENTIFIER NOT NULL, Name NVARCHAR(MAX) NOT NULL)'
+                }
+
+                BeforeEach {
+                    Invoke-TSqlCommand 'TRUNCATE TABLE #test2'
+                }
+
+                It Inserts {
+                    @(
+                        [PSCustomObject] @{ Id = New-Guid; Name = 'Lorem' },
+                        [PSCustomObject] @{ Id = New-Guid; Name = 'Ipsum' }
+                    ) | Export-TSqlTable -Table '#test2' -Connection $Script:Connection -Verbose
+
+                    Get-TSqlValue 'SELECT COUNT(*) FROM #test2' | Should -Be 2
                 }
             }
         }

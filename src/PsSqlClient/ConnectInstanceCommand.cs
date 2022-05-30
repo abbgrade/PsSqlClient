@@ -8,7 +8,7 @@ using System.IO;
 
 namespace PsSqlClient
 {
-    [Cmdlet(VerbsCommunications.Connect, "Instance", DefaultParameterSetName = PARAMETERSET_CONNECTION_STRING)]
+    [Cmdlet(VerbsCommunications.Connect, "Instance", DefaultParameterSetName = PARAMETERSET_PROPERTIES_INTEGRATED)]
     [OutputType(typeof(SqlConnection))]
     public class ConnectInstanceCommand : PSCmdlet
     {

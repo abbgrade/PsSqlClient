@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Export-Table with GUID columns.
+- Default paramter set was not integrated security.
 
 ## [1.3.0] - 2022-05-12
 

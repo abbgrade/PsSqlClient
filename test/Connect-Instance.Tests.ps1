@@ -110,7 +110,9 @@ Describe 'Connect-Instance' {
             }
 
             AfterAll {
-                $Script:AzureSqlDatabase | Remove-SqlTestAzureDatabase
+                if ( $Script:AzureSqlDatabase ) {
+                    $Script:AzureSqlDatabase | Remove-SqlTestAzureDatabase
+                }
             }
 
             It 'Returns a connection by pipeline' {

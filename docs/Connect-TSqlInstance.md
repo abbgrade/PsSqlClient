@@ -12,16 +12,16 @@ schema: 2.0.0
 
 ## SYNTAX
 
-### ConnectionString (Default)
-```
-Connect-TSqlInstance [-ConnectionString] <String> [-RetryCount <Int32>] [-RetryInterval <Int32>]
- [<CommonParameters>]
-```
-
-### Properties_IntegratedSecurity
+### Properties_IntegratedSecurity (Default)
 ```
 Connect-TSqlInstance [-DataSource] <String> [-Port <Int32>] [[-InitialCatalog] <String>]
  [-ConnectTimeout <Int32>] [-RetryCount <Int32>] [-RetryInterval <Int32>] [<CommonParameters>]
+```
+
+### ConnectionString
+```
+Connect-TSqlInstance [-ConnectionString] <String> [-RetryCount <Int32>] [-RetryInterval <Int32>]
+ [<CommonParameters>]
 ```
 
 ### Properties_Credential

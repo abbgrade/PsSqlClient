@@ -1,3 +1,5 @@
+# Copy from original https://github.com/abbgrade/PsBuildTasks/blob/main/DotNet/Build.Tasks.ps1
+
 requires Configuration
 requires ModuleName
 

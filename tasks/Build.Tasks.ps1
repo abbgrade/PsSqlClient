@@ -59,9 +59,9 @@ task Clean {
 task Install -Jobs Build, {
 	$info = Import-PowerShellDataFile $Global:Manifest
 	$version = ([System.Version] $info.ModuleVersion)
-	$defaultModulePath = $env:PsModulePath -split ';' | Select-Object -First 1
+	$defaultModulePath = $env:PSModulePath -split ';' | Select-Object -First 1
     if ( -not $defaultModulePath ) {
-        Write-Error "Failed to determine default module path from `$env:PsModulePath='$( $env:PsModulePath )'"
+        Write-Error "Failed to determine default module path from `$env:PSModulePath='$( $env:PSModulePath )'"
     }
 	Write-Verbose "install $ModuleName $version to '$defaultModulePath'"
 	$installPath = Join-Path $defaultModulePath $ModuleName $version.ToString()

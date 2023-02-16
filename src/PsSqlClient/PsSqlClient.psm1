@@ -6,15 +6,22 @@ $LoadedAssemblies = [System.AppDomain]::CurrentDomain.GetAssemblies()
     "$PSScriptRoot\Azure.Core.dll",
     "$PSScriptRoot\Azure.Identity.dll",
     "$PSScriptRoot\Microsoft.SqlServer.Server.dll"
-) | ForEach-Object {
-    $RequiredAssemblyPath = $_
-    $LoadedAssembly = $LoadedAssemblies | Where-Object Location -Like "*$( $RequiredAssemblyPath.Name )"
+    ) | ForEach-Object {
+        [System.IO.FileInfo] $RequiredAssemblyPath = $_
+        If ( -not $RequiredAssemblyPath.Exists ) {
+            Write-Error "Build issue: '$RequiredAssemblyPath' does not exist."
+        }
+        $LoadedAssembly = $LoadedAssemblies | Where-Object Location -Like "*$( $RequiredAssemblyPath.Name )"
 
-    if ( $SqlClientAssembly ) {
-        Write-Warning "Assembly '$( $LoadedAssembly.GetName() )' already loaded from '$( $LoadedAssembly.Location )'. Skip adding defined dll."
+        if ( $LoadedAssembly ) {
+            Write-Warning "Assembly '$( $LoadedAssembly.GetName() )' already loaded from '$( $LoadedAssembly.Location )'. Skip adding defined dll."
+        }
+        else {
+            try {
+                Add-Type -Path $RequiredAssemblyPath
+            }
+            catch [System.IO.FileLoadException] {
+                Write-Error "$( $_.Exception ) while adding assembly '$( $RequiredAssemblyPath.Name )'"
+            }
+        }
     }
-    else {
-        Write-Verbose "Add assembly '$( $RequiredAssemblyPath.Name )'"
-        Add-Type -Path $RequiredAssemblyPath
-    }
-}

@@ -25,7 +25,10 @@ param(
 	[switch] $ForceDocInit,
 
 	# Version suffix to prereleases
-	[int] $BuildNumber
+	[int] $BuildNumber,
+
+    # Use specific branch from PsBuildTasks.
+    [string] $PsBuildTaskBranch
 )
 
 $ModuleName = 'PsSqlClient'

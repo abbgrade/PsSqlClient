@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.4.0] - 2022-11-23
+
+### Changed
+
+- Updated Microsoft.Data.SqlClient to 5.1.0.
+
+### Added
+
+- Added output when loading dlls.
+
+### Fixed
+
+- Retry ignored with ErrorAction Stop.
+
 ## [1.3.1] - 2022-05-19
 
 ### Fixed

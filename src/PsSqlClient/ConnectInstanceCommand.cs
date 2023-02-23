@@ -2,7 +2,6 @@
 using Microsoft.Data.SqlClient;
 using System.Management.Automation;
 using System.Security;
-using System.Threading;
 using System.Runtime.InteropServices;
 using System.IO;
 
@@ -176,6 +175,10 @@ namespace PsSqlClient
             {
                 SqlConnection connection;
                 SqlConnectionStringBuilder builder = new SqlConnectionStringBuilder();
+
+                builder.ConnectRetryCount = RetryCount;
+                builder.ConnectRetryInterval = RetryInterval;
+
                 switch (ParameterSetName)
                 {
                     case PARAMETERSET_CONNECTION_STRING:
@@ -255,35 +258,20 @@ namespace PsSqlClient
                         throw new NotImplementedException($"ParameterSetName {ParameterSetName} is not implemented");
                 }
 
-                int retryIndex = 0;
-                do
+                try
                 {
-                    retryIndex += 1;
-                    try
-                    {
-                        connection.Open();
-                        WriteVerbose($"Connection to [{connection.DataSource}].[{connection.Database}] is {connection.State}");
-                        break;
-                    }
-                    catch (SqlException ex)
-                    {
-                        WriteError(new ErrorRecord(
-                            exception: ex,
-                            errorId: ex.Number.ToString(),
-                            errorCategory: ErrorCategory.OpenError,
-                            targetObject: null
-                        ));
-                        if (retryIndex < RetryCount)
-                        {
-                            WriteVerbose($"Wait {RetryInterval}s for connection attemp {retryIndex}/{RetryCount}.");
-                            Thread.Sleep(new TimeSpan(hours: 0, minutes: 0, seconds: RetryInterval));
-                        }
-                        else
-                        {
-                            throw;
-                        }
-                    }
-                } while (retryIndex < RetryCount);
+                    connection.Open();
+                    WriteVerbose($"Connection to [{connection.DataSource}].[{connection.Database}] is {connection.State}");
+                }
+                catch (SqlException ex)
+                {
+                    WriteError(new ErrorRecord(
+                        exception: ex,
+                        errorId: ex.Number.ToString(),
+                        errorCategory: ErrorCategory.OpenError,
+                        targetObject: null
+                    ));
+                }
 
                 SessionConnection = connection;
                 WriteObject(connection);

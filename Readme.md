@@ -2,6 +2,8 @@
 
 The PowerShell SQL Client module replaces the SQL Server utilities [SQLCMD](https://docs.microsoft.com/de-de/sql/tools/sqlcmd-utility) and [BCP](https://docs.microsoft.com/en-us/sql/tools/BCP-utility) with native PowerShell commands.
 
+For details, visit the [GitHub Pages](https://abbgrade.github.io/PsSqlClient/).
+
 ## Installation
 
 This module can be installed from [PsGallery](https://www.powershellgallery.com/packages/PsSqlClient).
@@ -21,6 +23,8 @@ Invoke-Build Install
 ```
 
 ## Usage
+
+See [the command reference](./docs/) for descriptions and examples.
 
 ### Copy from CSV to SQL database
 

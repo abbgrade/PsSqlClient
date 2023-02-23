@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Updated Microsoft.Data.SqlClient to 5.1.0.
+- Updated Microsoft.Data.SqlClient to 5.0.1.
 
 ### Added
 

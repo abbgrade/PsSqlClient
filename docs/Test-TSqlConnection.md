@@ -5,7 +5,7 @@ online version:
 schema: 2.0.0
 ---
 
-# Disconnect-TSqlInstance
+# Test-TSqlConnection
 
 ## SYNOPSIS
 {{ Fill in the Synopsis }}
@@ -13,7 +13,7 @@ schema: 2.0.0
 ## SYNTAX
 
 ```
-Disconnect-TSqlInstance [[-Connection] <SqlConnection>] [<CommonParameters>]
+Test-TSqlConnection [[-Connection] <SqlConnection>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -22,7 +22,7 @@ Disconnect-TSqlInstance [[-Connection] <SqlConnection>] [<CommonParameters>]
 ## EXAMPLES
 
 ### Example 1
-```
+```powershell
 PS C:\> {{ Add example code here }}
 ```
 
@@ -51,9 +51,11 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 ## INPUTS
 
 ### Microsoft.Data.SqlClient.SqlConnection
+
 ## OUTPUTS
 
-### System.Object
+### System.Boolean
+
 ## NOTES
 
 ## RELATED LINKS

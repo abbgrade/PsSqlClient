@@ -36,7 +36,7 @@ Invoke-TSqlProcedure [-InputFile] <FileInfo> [[-Parameter] <Hashtable>] [-Timeou
 ## EXAMPLES
 
 ### Example 1
-```powershell
+```
 PS C:\> {{ Add example code here }}
 ```
 
@@ -170,17 +170,12 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 ## INPUTS
 
 ### System.String
-
 ### System.IO.FileInfo
-
 ### System.Collections.Hashtable
-
 ### System.Nullable`1[[System.Int32, System.Private.CoreLib, Version=5.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]
-
 ## OUTPUTS
 
 ### System.Management.Automation.PSObject
-
 ## NOTES
 
 ## RELATED LINKS

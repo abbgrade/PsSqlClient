@@ -5,7 +5,7 @@ online version:
 schema: 2.0.0
 ---
 
-# Disconnect-TSqlInstance
+# Test-TSqlConnection
 
 ## SYNOPSIS
 {{ Fill in the Synopsis }}
@@ -13,7 +13,7 @@ schema: 2.0.0
 ## SYNTAX
 
 ```
-Disconnect-TSqlInstance [[-Connection] <SqlConnection>] [<CommonParameters>]
+Test-TSqlConnection [[-Connection] <SqlConnection>] [-Reconnect] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -22,7 +22,7 @@ Disconnect-TSqlInstance [[-Connection] <SqlConnection>] [<CommonParameters>]
 ## EXAMPLES
 
 ### Example 1
-```
+```powershell
 PS C:\> {{ Add example code here }}
 ```
 
@@ -45,15 +45,32 @@ Accept pipeline input: True (ByValue)
 Accept wildcard characters: False
 ```
 
+### -Reconnect
+Tries a reconnect on negative connection test.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
 ### CommonParameters
 This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see [about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
 
 ## INPUTS
 
 ### Microsoft.Data.SqlClient.SqlConnection
+
 ## OUTPUTS
 
-### System.Object
+### System.Boolean
+
 ## NOTES
 
 ## RELATED LINKS

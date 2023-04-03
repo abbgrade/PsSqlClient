@@ -47,5 +47,9 @@ Describe 'PsSqlClient' {
                 }
             }
         }
+
+        It 'supports re-import' {
+            Import-Module $Script:ManifestPath
+        }
     }
 }

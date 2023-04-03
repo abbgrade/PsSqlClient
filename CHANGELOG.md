@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.5.0] - 2023-03-29
+
+### Added
+
+- Added `Test-Connection` command.
+
+### Changed
+
+- Updated to net6.0
+
 ## [1.4.0] - 2022-11-23
 
 ### Changed

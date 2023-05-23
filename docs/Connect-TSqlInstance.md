@@ -31,11 +31,25 @@ Connect-TSqlInstance [-ConnectionString] <String> [-Authentication <SqlAuthentic
  [-IntegratedSecurity] -AccessToken <String> [<CommonParameters>]
 ```
 
+### ConnectionString_acquireToken
+```
+Connect-TSqlInstance [-ConnectionString] <String> [-Authentication <SqlAuthenticationMethod>]
+ [-IntegratedSecurity] [-AcquireToken] [<CommonParameters>]
+```
+
 ### Properties_Basic_withToken
 ```
 Connect-TSqlInstance [-DataSource] <String> [-Port <Int32>] [-InitialCatalog] <String>
  [-ConnectTimeout <Int32>] [-ConnectRetryCount <Int32>] [-ConnectRetryInterval <Int32>]
  [-Authentication <SqlAuthenticationMethod>] [-IntegratedSecurity] -AccessToken <String> [<CommonParameters>]
+```
+
+### Properties_Basic_acquireToken
+```
+Connect-TSqlInstance [-DataSource] <String> [-Port <Int32>] [-InitialCatalog] <String>
+ [-ConnectTimeout <Int32>] [-ConnectRetryCount <Int32>] [-ConnectRetryInterval <Int32>]
+ [-Authentication <SqlAuthenticationMethod>] [-IntegratedSecurity] [-AcquireToken] [-Resource <String>]
+ [<CommonParameters>]
 ```
 
 ### Properties_Credential
@@ -88,7 +102,7 @@ Accept wildcard characters: False
 
 ```yaml
 Type: Int32
-Parameter Sets: Properties_Basic, Properties_Basic_withToken, Properties_Credential, Properties_CredentialObject
+Parameter Sets: Properties_Basic, Properties_Basic_withToken, Properties_Basic_acquireToken, Properties_Credential, Properties_CredentialObject
 Aliases:
 
 Required: False
@@ -115,7 +129,7 @@ Accept wildcard characters: False
 
 ```yaml
 Type: String
-Parameter Sets: ConnectionString_withToken
+Parameter Sets: ConnectionString_withToken, ConnectionString_acquireToken
 Aliases:
 
 Required: True
@@ -130,7 +144,7 @@ Accept wildcard characters: False
 
 ```yaml
 Type: String
-Parameter Sets: Properties_Basic, Properties_Basic_withToken, Properties_Credential, Properties_CredentialObject
+Parameter Sets: Properties_Basic, Properties_Basic_withToken, Properties_Basic_acquireToken, Properties_Credential, Properties_CredentialObject
 Aliases: Server, ServerName, ServerInstance
 
 Required: True
@@ -157,7 +171,7 @@ Accept wildcard characters: False
 
 ```yaml
 Type: String
-Parameter Sets: Properties_Basic_withToken
+Parameter Sets: Properties_Basic_withToken, Properties_Basic_acquireToken
 Aliases: Database, DatabaseName
 
 Required: True
@@ -187,7 +201,7 @@ Accept wildcard characters: False
 
 ```yaml
 Type: Int32
-Parameter Sets: Properties_Basic, Properties_Basic_withToken, Properties_Credential, Properties_CredentialObject
+Parameter Sets: Properties_Basic, Properties_Basic_withToken, Properties_Basic_acquireToken, Properties_Credential, Properties_CredentialObject
 Aliases:
 
 Required: False
@@ -232,7 +246,7 @@ Accept wildcard characters: False
 
 ```yaml
 Type: Int32
-Parameter Sets: Properties_Basic, Properties_Basic_withToken, Properties_Credential, Properties_CredentialObject
+Parameter Sets: Properties_Basic, Properties_Basic_withToken, Properties_Basic_acquireToken, Properties_Credential, Properties_CredentialObject
 Aliases: RetryCount
 
 Required: False
@@ -247,7 +261,7 @@ Accept wildcard characters: False
 
 ```yaml
 Type: Int32
-Parameter Sets: Properties_Basic, Properties_Basic_withToken, Properties_Credential, Properties_CredentialObject
+Parameter Sets: Properties_Basic, Properties_Basic_withToken, Properties_Basic_acquireToken, Properties_Credential, Properties_CredentialObject
 Aliases: RetryInterval
 
 Required: False
@@ -278,6 +292,36 @@ Accept wildcard characters: False
 ```yaml
 Type: SwitchParameter
 Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -AcquireToken
+{{ Fill AcquireToken Description }}
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: ConnectionString_acquireToken, Properties_Basic_acquireToken
+Aliases:
+
+Required: True
+Position: Named
+Default value: None
+Accept pipeline input: True (ByPropertyName)
+Accept wildcard characters: False
+```
+
+### -Resource
+{{ Fill Resource Description }}
+
+```yaml
+Type: String
+Parameter Sets: Properties_Basic_acquireToken
 Aliases:
 
 Required: False

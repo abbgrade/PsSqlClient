@@ -85,7 +85,7 @@ Describe Connect-Instance {
 
             It 'Connects by pipeline' -Skip:$DockerIsUnavailable {
                 $connection = $DockerTestInstance | Connect-TSqlInstance
-                $connection.State | Should -Be 'Open'
+                $connection.State | Should -Be Open
             }
 
             It 'Connects by properties' -Skip:$DockerIsUnavailable {
@@ -95,12 +95,12 @@ Describe Connect-Instance {
                     -UserId $DockerTestInstance.UserId `
                     -Password $DockerTestInstance.SecurePassword
 
-                $connection.State | Should -Be 'Open'
+                $connection.State | Should -Be Open
             }
 
             It 'Connects by connection string' -Skip:$DockerIsUnavailable {
                 $connection = Connect-TSqlInstance -ConnectionString $DockerTestInstance.ConnectionString
-                $connection.State | Should -Be 'Open'
+                $connection.State | Should -Be Open
             }
         }
     }
@@ -129,7 +129,7 @@ Describe Connect-Instance {
 
             It 'Connects by pipeline' {
                 $connection = $AzureSqlDatabase | Connect-TSqlInstance
-                $connection.State | Should -Be 'Open'
+                $connection.State | Should -Be Open
             }
 
             It 'Connects by properties (not specified)' {
@@ -137,7 +137,7 @@ Describe Connect-Instance {
                     -DataSource $AzureSqlDatabase.DataSource `
                     -InitialCatalog $AzureSqlDatabase.InitialCatalog `
                     -ConnectTimeout $AzureSqlDatabase.ConnectTimeout
-                $connection.State | Should -Be 'Open'
+                $connection.State | Should -Be Open
             }
 
             It 'Connects by properties (integrated)' {
@@ -146,7 +146,7 @@ Describe Connect-Instance {
                     -InitialCatalog $AzureSqlDatabase.InitialCatalog `
                     -Authentication ActiveDirectoryIntegrated `
                     -ConnectTimeout $AzureSqlDatabase.ConnectTimeout
-                $connection.State | Should -Be 'Open'
+                $connection.State | Should -Be Open
             }
 
             It 'Connects by properties (non-interactive)' {
@@ -155,7 +155,7 @@ Describe Connect-Instance {
                     -InitialCatalog $AzureSqlDatabase.InitialCatalog `
                     -Authentication ActiveDirectoryDefault `
                     -ConnectTimeout $AzureSqlDatabase.ConnectTimeout
-                $connection.State | Should -Be 'Open'
+                $connection.State | Should -Be Open
             }
 
             It 'Connects by properties (interactive)' {
@@ -164,12 +164,29 @@ Describe Connect-Instance {
                     -InitialCatalog $AzureSqlDatabase.InitialCatalog `
                     -Authentication ActiveDirectoryInteractive `
                     -ConnectTimeout $AzureSqlDatabase.ConnectTimeout
-                $connection.State | Should -Be 'Open'
+                $connection.State | Should -Be Open
             }
 
             It 'Connects by connection string' {
-                $connection = Connect-TSqlInstance -ConnectionString $AzureSqlDatabase.ConnectionString
-                $connection.State | Should -Be 'Open'
+                $connection = Connect-TSqlInstance `
+                    -ConnectionString $AzureSqlDatabase.ConnectionString
+                $connection.State | Should -Be Open
+            }
+
+            It 'Connects by connection string and acquire token' {
+                $connection = Connect-TSqlInstance `
+                    -ConnectionString $AzureSqlDatabase.ConnectionString `
+                    -AcquireToken
+                $connection.State | Should -Be Open
+            }
+
+            It 'Connects by properties and acquire token)' {
+                $connection = Connect-TSqlInstance `
+                    -DataSource $AzureSqlDatabase.DataSource `
+                    -InitialCatalog $AzureSqlDatabase.InitialCatalog `
+                    -ConnectTimeout $AzureSqlDatabase.ConnectTimeout `
+                    -AcquireToken
+                $connection.State | Should -Be Open
             }
 
             Context AccessToken {
@@ -181,7 +198,7 @@ Describe Connect-Instance {
 
                 It 'Connects by pipeline' {
                     $connection = $AzureSqlDatabaseWithToken | Connect-TSqlInstance
-                    $connection.State | Should -Be 'Open'
+                    $connection.State | Should -Be Open
                 }
 
                 It 'Connects by properties (not specified)' {
@@ -190,14 +207,14 @@ Describe Connect-Instance {
                         -InitialCatalog $AzureSqlDatabaseWithToken.InitialCatalog `
                         -AccessToken $AzureSqlDatabaseWithToken.AccessToken `
                         -ConnectTimeout $AzureSqlDatabaseWithToken.ConnectTimeout
-                    $connection.State | Should -Be 'Open'
+                    $connection.State | Should -Be Open
                 }
 
                 It 'Connects by connection string' {
                     $connection = Connect-TSqlInstance `
                         -ConnectionString $AzureSqlDatabaseWithToken.ConnectionString `
                         -AccessToken $AzureSqlDatabaseWithToken.AccessToken
-                    $connection.State | Should -Be 'Open'
+                    $connection.State | Should -Be Open
                 }
             }
         }

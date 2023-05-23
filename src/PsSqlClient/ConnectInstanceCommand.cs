@@ -1,5 +1,6 @@
 ﻿using System;
 using Microsoft.Data.SqlClient;
+using Microsoft.Azure.Services.AppAuthentication;
 using System.Management.Automation;
 using System.Security;
 using System.Runtime.InteropServices;
@@ -15,8 +16,10 @@ namespace PsSqlClient
         #region ParameterSets
         private const string PARAMETERSET_CONNECTION_STRING = "ConnectionString";
         private const string PARAMETERSET_CONNECTION_STRING_TOKEN = "ConnectionString_withToken";
+        private const string PARAMETERSET_CONNECTION_STRING_ACQUIRE_TOKEN = "ConnectionString_acquireToken";
         private const string PARAMETERSET_PROPERTIES_BASIC = "Properties_Basic";
         private const string PARAMETERSET_PROPERTIES_BASIC_TOKEN = "Properties_Basic_withToken";
+        private const string PARAMETERSET_PROPERTIES_BASIC_ACQUIRE_TOKEN = "Properties_Basic_acquireToken";
         private const string PARAMETERSET_PROPERTIES_CREDENTIAL_PROPERTIES = "Properties_Credential";
         private const string PARAMETERSET_PROPERTIES_CREDENTIAL_OBJECT = "Properties_CredentialObject";
         #endregion
@@ -47,6 +50,12 @@ namespace PsSqlClient
         )]
         [Parameter(
             ParameterSetName = PARAMETERSET_CONNECTION_STRING_TOKEN,
+            Position = 0,
+            Mandatory = true,
+            ValueFromPipelineByPropertyName = true
+        )]
+        [Parameter(
+            ParameterSetName = PARAMETERSET_CONNECTION_STRING_ACQUIRE_TOKEN,
             Position = 0,
             Mandatory = true,
             ValueFromPipelineByPropertyName = true
@@ -102,6 +111,12 @@ namespace PsSqlClient
             ValueFromPipelineByPropertyName = true
         )]
         [Parameter(
+            ParameterSetName = PARAMETERSET_PROPERTIES_BASIC_ACQUIRE_TOKEN,
+            Position = 0,
+            Mandatory = true,
+            ValueFromPipelineByPropertyName = true
+        )]
+        [Parameter(
             ParameterSetName = PARAMETERSET_PROPERTIES_CREDENTIAL_PROPERTIES,
             Position = 0,
             Mandatory = true,
@@ -130,6 +145,10 @@ namespace PsSqlClient
             ValueFromPipelineByPropertyName = true
         )]
         [Parameter(
+            ParameterSetName = PARAMETERSET_PROPERTIES_BASIC_ACQUIRE_TOKEN,
+            ValueFromPipelineByPropertyName = true
+        )]
+        [Parameter(
             ParameterSetName = PARAMETERSET_PROPERTIES_CREDENTIAL_PROPERTIES,
             ValueFromPipelineByPropertyName = true
         )]
@@ -147,6 +166,12 @@ namespace PsSqlClient
         )]
         [Parameter(
             ParameterSetName = PARAMETERSET_PROPERTIES_BASIC_TOKEN,
+            Position = 1,
+            Mandatory = true,
+            ValueFromPipelineByPropertyName = true
+        )]
+        [Parameter(
+            ParameterSetName = PARAMETERSET_PROPERTIES_BASIC_ACQUIRE_TOKEN,
             Position = 1,
             Mandatory = true,
             ValueFromPipelineByPropertyName = true
@@ -182,6 +207,10 @@ namespace PsSqlClient
             ValueFromPipelineByPropertyName = true
         )]
         [Parameter(
+            ParameterSetName = PARAMETERSET_PROPERTIES_BASIC_ACQUIRE_TOKEN,
+            ValueFromPipelineByPropertyName = true
+        )]
+        [Parameter(
             ParameterSetName = PARAMETERSET_PROPERTIES_CREDENTIAL_PROPERTIES,
             ValueFromPipelineByPropertyName = true
         )]
@@ -202,6 +231,10 @@ namespace PsSqlClient
         )]
         [Parameter(
             ParameterSetName = PARAMETERSET_PROPERTIES_BASIC_TOKEN,
+            ValueFromPipelineByPropertyName = true
+        )]
+        [Parameter(
+            ParameterSetName = PARAMETERSET_PROPERTIES_BASIC_ACQUIRE_TOKEN,
             ValueFromPipelineByPropertyName = true
         )]
         [Parameter(
@@ -226,6 +259,10 @@ namespace PsSqlClient
         )]
         [Parameter(
             ParameterSetName = PARAMETERSET_PROPERTIES_BASIC_TOKEN,
+            ValueFromPipelineByPropertyName = true
+        )]
+        [Parameter(
+            ParameterSetName = PARAMETERSET_PROPERTIES_BASIC_ACQUIRE_TOKEN,
             ValueFromPipelineByPropertyName = true
         )]
         [Parameter(
@@ -272,6 +309,24 @@ namespace PsSqlClient
         )]
         [ValidateNotNullOrEmpty()]
         public string AccessToken { get; set; }
+
+        [Parameter(
+            Mandatory = true,
+            ParameterSetName = PARAMETERSET_CONNECTION_STRING_ACQUIRE_TOKEN,
+            ValueFromPipelineByPropertyName = true
+        )]
+        [Parameter(
+            Mandatory = true,
+            ParameterSetName = PARAMETERSET_PROPERTIES_BASIC_ACQUIRE_TOKEN,
+            ValueFromPipelineByPropertyName = true
+        )]
+        public SwitchParameter AcquireToken { get; set; }
+
+
+        [Parameter(
+            ParameterSetName = PARAMETERSET_PROPERTIES_BASIC_ACQUIRE_TOKEN
+        )]
+        public string Resource { get; set; } = "https://database.windows.net";
         #endregion
         #region Credential Parameter
 
@@ -318,6 +373,7 @@ namespace PsSqlClient
                 Credential = new PSCredential(userName: UserId, password: value);
             }
         }
+
         #endregion
         #endregion
         #endregion
@@ -360,7 +416,13 @@ namespace PsSqlClient
 
             // determine authentication class
             AuthenticationClass authenticationClass;
-            if (!string.IsNullOrWhiteSpace(AccessToken))
+            if ( AcquireToken.IsPresent )
+            {
+                WriteVerbose("Token was acquired. Use token-based authentication.");
+                authenticationClass = AuthenticationClass.TokenAuthentication;
+
+                AccessToken = new AzureServiceTokenProvider().GetAccessTokenAsync(resource: Resource).Result;
+            } else if (!string.IsNullOrWhiteSpace(AccessToken))
             {
                 WriteVerbose("Token was provided. Use token-based authentication.");
                 authenticationClass = AuthenticationClass.TokenAuthentication;

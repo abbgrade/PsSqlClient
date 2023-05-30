@@ -303,33 +303,6 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -TrustServerCertificate
-{{ Fill TrustServerCertificate Description }}
-
-```yaml
-Type: SwitchParameter
-Parameter Sets: Properties_Basic, Properties_Credential, Properties_CredentialObject
-Aliases:
-
-Required: False
-Position: Named
-Default value: None
-Accept pipeline input: True (ByPropertyName)
-Accept wildcard characters: False
-```
-
-```yaml
-Type: SwitchParameter
-Parameter Sets: Properties_Basic_withToken
-Aliases:
-
-Required: True
-Position: Named
-Default value: None
-Accept pipeline input: True (ByPropertyName)
-Accept wildcard characters: False
-```
-
 ### -AcquireToken
 {{ Fill AcquireToken Description }}
 
@@ -357,6 +330,21 @@ Required: False
 Position: Named
 Default value: None
 Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -TrustServerCertificate
+{{ Fill TrustServerCertificate Description }}
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: Properties_Basic, Properties_Basic_withToken, Properties_Credential, Properties_CredentialObject
+Aliases:
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: True (ByPropertyName)
 Accept wildcard characters: False
 ```
 

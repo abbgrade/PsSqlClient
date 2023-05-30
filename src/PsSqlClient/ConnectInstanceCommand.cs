@@ -204,7 +204,7 @@ namespace PsSqlClient
         )]
         [Parameter(
             ParameterSetName = PARAMETERSET_PROPERTIES_BASIC_TOKEN,
-            Mandatory = true,
+            Mandatory = false,
             ValueFromPipelineByPropertyName = true
         )]
         [Parameter(

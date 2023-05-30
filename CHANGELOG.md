@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Support for default Azure authentication.
+- Acquire token switch.
+
+### Changed
+
+- Parametersets of `Connect-Instance`.
+
 ## [1.5.0] - 2023-03-29
 
 ### Added

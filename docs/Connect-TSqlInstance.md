@@ -12,30 +12,62 @@ schema: 2.0.0
 
 ## SYNTAX
 
-### Properties_IntegratedSecurity (Default)
+### Properties_Basic (Default)
 ```
 Connect-TSqlInstance [-DataSource] <String> [-Port <Int32>] [[-InitialCatalog] <String>]
- [-ConnectTimeout <Int32>] [-RetryCount <Int32>] [-RetryInterval <Int32>] [<CommonParameters>]
+ [-TrustServerCertificate] [-ConnectTimeout <Int32>] [-ConnectRetryCount <Int32>]
+ [-ConnectRetryInterval <Int32>] [-Authentication <SqlAuthenticationMethod>] [-IntegratedSecurity]
+ [<CommonParameters>]
 ```
 
 ### ConnectionString
 ```
-Connect-TSqlInstance [-ConnectionString] <String> [-RetryCount <Int32>] [-RetryInterval <Int32>]
+Connect-TSqlInstance [-ConnectionString] <String> [-Authentication <SqlAuthenticationMethod>]
+ [-IntegratedSecurity] [<CommonParameters>]
+```
+
+### ConnectionString_withToken
+```
+Connect-TSqlInstance [-ConnectionString] <String> [-Authentication <SqlAuthenticationMethod>]
+ [-IntegratedSecurity] -AccessToken <String> [<CommonParameters>]
+```
+
+### ConnectionString_acquireToken
+```
+Connect-TSqlInstance [-ConnectionString] <String> [-Authentication <SqlAuthenticationMethod>]
+ [-IntegratedSecurity] [-AcquireToken] [<CommonParameters>]
+```
+
+### Properties_Basic_withToken
+```
+Connect-TSqlInstance [-DataSource] <String> [-Port <Int32>] [-InitialCatalog] <String>
+ [-TrustServerCertificate] [-ConnectTimeout <Int32>] [-ConnectRetryCount <Int32>]
+ [-ConnectRetryInterval <Int32>] [-Authentication <SqlAuthenticationMethod>] [-IntegratedSecurity]
+ -AccessToken <String> [<CommonParameters>]
+```
+
+### Properties_Basic_acquireToken
+```
+Connect-TSqlInstance [-DataSource] <String> [-Port <Int32>] [-InitialCatalog] <String>
+ [-ConnectTimeout <Int32>] [-ConnectRetryCount <Int32>] [-ConnectRetryInterval <Int32>]
+ [-Authentication <SqlAuthenticationMethod>] [-IntegratedSecurity] [-AcquireToken] [-Resource <String>]
  [<CommonParameters>]
 ```
 
 ### Properties_Credential
 ```
 Connect-TSqlInstance [-DataSource] <String> [-Port <Int32>] [[-InitialCatalog] <String>]
- [-ConnectTimeout <Int32>] [-UserId] <String> [-Password] <SecureString> [-RetryCount <Int32>]
- [-RetryInterval <Int32>] [<CommonParameters>]
+ [-TrustServerCertificate] [-ConnectTimeout <Int32>] [-ConnectRetryCount <Int32>]
+ [-ConnectRetryInterval <Int32>] [-Authentication <SqlAuthenticationMethod>] [-IntegratedSecurity]
+ [-UserId] <String> [-Password] <SecureString> [<CommonParameters>]
 ```
 
-### Properties_AccessToken
+### Properties_CredentialObject
 ```
 Connect-TSqlInstance [-DataSource] <String> [-Port <Int32>] [[-InitialCatalog] <String>]
- [-ConnectTimeout <Int32>] -AccessToken <String> [-RetryCount <Int32>] [-RetryInterval <Int32>]
- [<CommonParameters>]
+ [-TrustServerCertificate] [-ConnectTimeout <Int32>] [-ConnectRetryCount <Int32>]
+ [-ConnectRetryInterval <Int32>] [-Authentication <SqlAuthenticationMethod>] [-IntegratedSecurity]
+ [-Credential <PSCredential>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -57,7 +89,7 @@ PS C:\> {{ Add example code here }}
 
 ```yaml
 Type: String
-Parameter Sets: Properties_AccessToken
+Parameter Sets: ConnectionString_withToken, Properties_Basic_withToken
 Aliases:
 
 Required: True
@@ -72,7 +104,7 @@ Accept wildcard characters: False
 
 ```yaml
 Type: Int32
-Parameter Sets: Properties_IntegratedSecurity, Properties_Credential, Properties_AccessToken
+Parameter Sets: Properties_Basic, Properties_Basic_withToken, Properties_Basic_acquireToken, Properties_Credential, Properties_CredentialObject
 Aliases:
 
 Required: False
@@ -97,12 +129,24 @@ Accept pipeline input: True (ByPropertyName, ByValue)
 Accept wildcard characters: False
 ```
 
+```yaml
+Type: String
+Parameter Sets: ConnectionString_withToken, ConnectionString_acquireToken
+Aliases:
+
+Required: True
+Position: 0
+Default value: None
+Accept pipeline input: True (ByPropertyName, ByValue)
+Accept wildcard characters: False
+```
+
 ### -DataSource
 {{ Fill DataSource Description }}
 
 ```yaml
 Type: String
-Parameter Sets: Properties_IntegratedSecurity, Properties_Credential, Properties_AccessToken
+Parameter Sets: Properties_Basic, Properties_Basic_withToken, Properties_Basic_acquireToken, Properties_Credential, Properties_CredentialObject
 Aliases: Server, ServerName, ServerInstance
 
 Required: True
@@ -117,10 +161,22 @@ Accept wildcard characters: False
 
 ```yaml
 Type: String
-Parameter Sets: Properties_IntegratedSecurity, Properties_Credential, Properties_AccessToken
+Parameter Sets: Properties_Basic, Properties_Credential, Properties_CredentialObject
 Aliases: Database, DatabaseName
 
 Required: False
+Position: 1
+Default value: None
+Accept pipeline input: True (ByPropertyName)
+Accept wildcard characters: False
+```
+
+```yaml
+Type: String
+Parameter Sets: Properties_Basic_withToken, Properties_Basic_acquireToken
+Aliases: Database, DatabaseName
+
+Required: True
 Position: 1
 Default value: None
 Accept pipeline input: True (ByPropertyName)
@@ -147,37 +203,7 @@ Accept wildcard characters: False
 
 ```yaml
 Type: Int32
-Parameter Sets: Properties_IntegratedSecurity, Properties_Credential, Properties_AccessToken
-Aliases:
-
-Required: False
-Position: Named
-Default value: None
-Accept pipeline input: True (ByPropertyName)
-Accept wildcard characters: False
-```
-
-### -RetryCount
-{{ Fill RetryCount Description }}
-
-```yaml
-Type: Int32
-Parameter Sets: (All)
-Aliases:
-
-Required: False
-Position: Named
-Default value: None
-Accept pipeline input: True (ByPropertyName)
-Accept wildcard characters: False
-```
-
-### -RetryInterval
-{{ Fill RetryInterval Description }}
-
-```yaml
-Type: Int32
-Parameter Sets: (All)
+Parameter Sets: Properties_Basic, Properties_Basic_withToken, Properties_Basic_acquireToken, Properties_Credential, Properties_CredentialObject
 Aliases:
 
 Required: False
@@ -199,6 +225,126 @@ Required: True
 Position: 1
 Default value: None
 Accept pipeline input: True (ByPropertyName, ByValue)
+Accept wildcard characters: False
+```
+
+### -Authentication
+{{ Fill Authentication Description }}
+
+```yaml
+Type: SqlAuthenticationMethod
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -ConnectRetryCount
+{{ Fill ConnectRetryCount Description }}
+
+```yaml
+Type: Int32
+Parameter Sets: Properties_Basic, Properties_Basic_withToken, Properties_Basic_acquireToken, Properties_Credential, Properties_CredentialObject
+Aliases: RetryCount
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: True (ByPropertyName)
+Accept wildcard characters: False
+```
+
+### -ConnectRetryInterval
+{{ Fill ConnectRetryInterval Description }}
+
+```yaml
+Type: Int32
+Parameter Sets: Properties_Basic, Properties_Basic_withToken, Properties_Basic_acquireToken, Properties_Credential, Properties_CredentialObject
+Aliases: RetryInterval
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: True (ByPropertyName)
+Accept wildcard characters: False
+```
+
+### -Credential
+{{ Fill Credential Description }}
+
+```yaml
+Type: PSCredential
+Parameter Sets: Properties_CredentialObject
+Aliases:
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -IntegratedSecurity
+{{ Fill IntegratedSecurity Description }}
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -AcquireToken
+{{ Fill AcquireToken Description }}
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: ConnectionString_acquireToken, Properties_Basic_acquireToken
+Aliases:
+
+Required: True
+Position: Named
+Default value: None
+Accept pipeline input: True (ByPropertyName)
+Accept wildcard characters: False
+```
+
+### -Resource
+{{ Fill Resource Description }}
+
+```yaml
+Type: String
+Parameter Sets: Properties_Basic_acquireToken
+Aliases:
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -TrustServerCertificate
+{{ Fill TrustServerCertificate Description }}
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: Properties_Basic, Properties_Basic_withToken, Properties_Credential, Properties_CredentialObject
+Aliases:
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: True (ByPropertyName)
 Accept wildcard characters: False
 ```
 

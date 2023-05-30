@@ -71,7 +71,7 @@ Describe Connect-Instance {
             }
         }
 
-        Context 'DockerTestDatabase' -Skip:$DockerIsUnavailable {
+        Context DockerTestDatabase -Skip:$DockerIsUnavailable {
 
             BeforeAll {
                 $DockerTestInstance = New-SqlTestDockerInstance -AcceptEula -ErrorAction Stop

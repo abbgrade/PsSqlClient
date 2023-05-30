@@ -55,7 +55,8 @@ namespace PsSqlClient
         public string ConnectionString
         {
             get { return ConnectionStringBuilder.ConnectionString; }
-            set {
+            set
+            {
                 ConnectionStringBuilder.ConnectionString = value;
 
                 // move user id from connection string to credential
@@ -68,7 +69,7 @@ namespace PsSqlClient
 
                     WriteVerbose("move user id from connection string to property.");
                     UserId = ConnectionStringBuilder.UserID;
-                    ConnectionStringBuilder.UserID = null;
+                    ConnectionStringBuilder.Remove("User ID");
                 }
 
                 // move password from connection string to credential
@@ -82,7 +83,7 @@ namespace PsSqlClient
 
                     WriteVerbose("move password from connection string to property.");
                     Password = connectionStringSecurePassword;
-                    ConnectionStringBuilder.Password = null;
+                    ConnectionStringBuilder.Remove("Password");
                 }
             }
         }
@@ -170,6 +171,39 @@ namespace PsSqlClient
             get { return ConnectionStringBuilder.InitialCatalog; }
             set { ConnectionStringBuilder.InitialCatalog = value; }
         }
+
+        [Parameter(
+            ParameterSetName = PARAMETERSET_PROPERTIES_BASIC,
+            Mandatory = false,
+            ValueFromPipelineByPropertyName = true
+        )]
+        [Parameter(
+            ParameterSetName = PARAMETERSET_PROPERTIES_BASIC_TOKEN,
+            Mandatory = true,
+            ValueFromPipelineByPropertyName = true
+        )]
+        [Parameter(
+            ParameterSetName = PARAMETERSET_PROPERTIES_CREDENTIAL_PROPERTIES,
+            Mandatory = false,
+            ValueFromPipelineByPropertyName = true
+        )]
+        [Parameter(
+            ParameterSetName = PARAMETERSET_PROPERTIES_CREDENTIAL_OBJECT,
+            Mandatory = false,
+            ValueFromPipelineByPropertyName = true
+        )]
+        public SwitchParameter TrustServerCertificate
+        { 
+            get
+            {
+                return ConnectionStringBuilder.TrustServerCertificate;
+            }
+            set
+            {
+                ConnectionStringBuilder.TrustServerCertificate = value;
+            }
+        }
+
         #endregion
         #region Robustness Parameter
 
@@ -247,7 +281,8 @@ namespace PsSqlClient
         #region Authentication Parameter
 
         [Parameter()]
-        public SqlAuthenticationMethod Authentication {
+        public SqlAuthenticationMethod Authentication
+        {
             get { return ConnectionStringBuilder.Authentication; }
             set { ConnectionStringBuilder.Authentication = value; }
         }
@@ -278,46 +313,39 @@ namespace PsSqlClient
         [Parameter(
             ParameterSetName = PARAMETERSET_PROPERTIES_CREDENTIAL_OBJECT
         )]
-        public PSCredential Credential { get; set; }
-
-        [Parameter(
-            ParameterSetName = PARAMETERSET_PROPERTIES_CREDENTIAL_PROPERTIES,
-            Position = 1,
-            Mandatory = true,
-            ValueFromPipeline = true,
-            ValueFromPipelineByPropertyName = true)]
-        [ValidateNotNullOrEmpty()]
-        public string UserId
-        {
-            get { 
-                return Credential?.UserName;
-            }
-            set {
-                if (string.IsNullOrWhiteSpace(value))
-                    value = null;
-
-                Credential = new PSCredential(userName: value, password: Password);
-            }
-        }
-
-        [Parameter(
-            ParameterSetName = PARAMETERSET_PROPERTIES_CREDENTIAL_PROPERTIES,
-            Position = 1,
-            Mandatory = true,
-            ValueFromPipeline = true,
-            ValueFromPipelineByPropertyName = true)]
-        [ValidateNotNullOrEmpty()]
-        public SecureString Password
+        public PSCredential Credential
         {
             get
             {
-                return Credential?.Password;
+                if (UserId == null || Password.Length == 0)
+                    return null;
+                return new PSCredential(userName: UserId, password: Password);
             }
             set
             {
-                Credential = new PSCredential(userName: UserId, password: value);
+                UserId = value.UserName;
+                Password = value.Password;
             }
         }
+
+        [Parameter(
+            ParameterSetName = PARAMETERSET_PROPERTIES_CREDENTIAL_PROPERTIES,
+            Position = 1,
+            Mandatory = true,
+            ValueFromPipeline = true,
+            ValueFromPipelineByPropertyName = true)]
+        [ValidateNotNullOrEmpty()]
+        public string UserId { get; set; }
+
+        [Parameter(
+            ParameterSetName = PARAMETERSET_PROPERTIES_CREDENTIAL_PROPERTIES,
+            Position = 1,
+            Mandatory = true,
+            ValueFromPipeline = true,
+            ValueFromPipelineByPropertyName = true)]
+        [ValidateNotNullOrEmpty()]
+        public SecureString Password { get; set; }
+
         #endregion
         #endregion
         #endregion
@@ -364,11 +392,13 @@ namespace PsSqlClient
             {
                 WriteVerbose("Token was provided. Use token-based authentication.");
                 authenticationClass = AuthenticationClass.TokenAuthentication;
-            } else if (Credential != null)
+            }
+            else if (Credential != null)
             {
                 WriteVerbose("Credential was provided. Use credential-based authentication.");
                 authenticationClass = AuthenticationClass.CredentialAuthentication;
-            } else
+            }
+            else
             {
                 WriteVerbose("Any token or credential was provided. Use basic authentication.");
                 authenticationClass = AuthenticationClass.BasicAuthentication;
@@ -397,7 +427,8 @@ namespace PsSqlClient
                                 {
                                     Authentication = SqlAuthenticationMethod.ActiveDirectoryPassword;
                                     WriteVerbose($"Apply default authentication for Azure SQL: {Authentication}.");
-                                } else
+                                }
+                                else
                                 {
                                     Authentication = SqlAuthenticationMethod.SqlPassword;
                                     WriteVerbose($"Apply default authentication for SQL Server: {Authentication}.");
@@ -471,19 +502,28 @@ namespace PsSqlClient
             try
             {
                 // create connection
-                SqlConnection connection = authenticationClass switch
+                SqlConnection connection;
+                switch (authenticationClass)
                 {
-                    AuthenticationClass.BasicAuthentication => new SqlConnection(connectionString: ConnectionString),
-                    AuthenticationClass.CredentialAuthentication => new SqlConnection(
-                                                connectionString: ConnectionString,
-                                                credential: new SqlCredential(userId: UserId, password: Password)
-                                            ),
-                    AuthenticationClass.TokenAuthentication => new SqlConnection(connectionString: ConnectionString)
-                    {
-                        AccessToken = AccessToken
-                    },
-                    _ => throw new NotSupportedException(),
-                };
+                    case AuthenticationClass.BasicAuthentication:
+                        connection = new SqlConnection(connectionString: ConnectionString);
+                        break;
+                    case AuthenticationClass.CredentialAuthentication:
+                        Password.MakeReadOnly();
+                        connection = new SqlConnection(
+                            connectionString: ConnectionString,
+                            credential: new SqlCredential(userId: UserId, password: Password)
+                        );
+                        break;
+                    case AuthenticationClass.TokenAuthentication:
+                        connection = new SqlConnection(connectionString: ConnectionString)
+                        {
+                            AccessToken = AccessToken
+                        };
+                        break;
+                    default:
+                        throw new NotSupportedException();
+                }
 
                 // open connection
                 try

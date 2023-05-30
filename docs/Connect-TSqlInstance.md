@@ -15,8 +15,9 @@ schema: 2.0.0
 ### Properties_Basic (Default)
 ```
 Connect-TSqlInstance [-DataSource] <String> [-Port <Int32>] [[-InitialCatalog] <String>]
- [-ConnectTimeout <Int32>] [-ConnectRetryCount <Int32>] [-ConnectRetryInterval <Int32>]
- [-Authentication <SqlAuthenticationMethod>] [-IntegratedSecurity] [<CommonParameters>]
+ [-TrustServerCertificate] [-ConnectTimeout <Int32>] [-ConnectRetryCount <Int32>]
+ [-ConnectRetryInterval <Int32>] [-Authentication <SqlAuthenticationMethod>] [-IntegratedSecurity]
+ [<CommonParameters>]
 ```
 
 ### ConnectionString
@@ -34,24 +35,25 @@ Connect-TSqlInstance [-ConnectionString] <String> [-Authentication <SqlAuthentic
 ### Properties_Basic_withToken
 ```
 Connect-TSqlInstance [-DataSource] <String> [-Port <Int32>] [-InitialCatalog] <String>
- [-ConnectTimeout <Int32>] [-ConnectRetryCount <Int32>] [-ConnectRetryInterval <Int32>]
- [-Authentication <SqlAuthenticationMethod>] [-IntegratedSecurity] -AccessToken <String> [<CommonParameters>]
+ [-TrustServerCertificate] [-ConnectTimeout <Int32>] [-ConnectRetryCount <Int32>]
+ [-ConnectRetryInterval <Int32>] [-Authentication <SqlAuthenticationMethod>] [-IntegratedSecurity]
+ -AccessToken <String> [<CommonParameters>]
 ```
 
 ### Properties_Credential
 ```
 Connect-TSqlInstance [-DataSource] <String> [-Port <Int32>] [[-InitialCatalog] <String>]
- [-ConnectTimeout <Int32>] [-ConnectRetryCount <Int32>] [-ConnectRetryInterval <Int32>]
- [-Authentication <SqlAuthenticationMethod>] [-IntegratedSecurity] [-UserId] <String>
- [-Password] <SecureString> [<CommonParameters>]
+ [-TrustServerCertificate] [-ConnectTimeout <Int32>] [-ConnectRetryCount <Int32>]
+ [-ConnectRetryInterval <Int32>] [-Authentication <SqlAuthenticationMethod>] [-IntegratedSecurity]
+ [-UserId] <String> [-Password] <SecureString> [<CommonParameters>]
 ```
 
 ### Properties_CredentialObject
 ```
 Connect-TSqlInstance [-DataSource] <String> [-Port <Int32>] [[-InitialCatalog] <String>]
- [-ConnectTimeout <Int32>] [-ConnectRetryCount <Int32>] [-ConnectRetryInterval <Int32>]
- [-Authentication <SqlAuthenticationMethod>] [-IntegratedSecurity] [-Credential <PSCredential>]
- [<CommonParameters>]
+ [-TrustServerCertificate] [-ConnectTimeout <Int32>] [-ConnectRetryCount <Int32>]
+ [-ConnectRetryInterval <Int32>] [-Authentication <SqlAuthenticationMethod>] [-IntegratedSecurity]
+ [-Credential <PSCredential>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -284,6 +286,33 @@ Required: False
 Position: Named
 Default value: None
 Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -TrustServerCertificate
+{{ Fill TrustServerCertificate Description }}
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: Properties_Basic, Properties_Credential, Properties_CredentialObject
+Aliases:
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: True (ByPropertyName)
+Accept wildcard characters: False
+```
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: Properties_Basic_withToken
+Aliases:
+
+Required: True
+Position: Named
+Default value: None
+Accept pipeline input: True (ByPropertyName)
 Accept wildcard characters: False
 ```
 

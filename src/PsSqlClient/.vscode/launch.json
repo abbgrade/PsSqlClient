@@ -1,0 +1,20 @@
+{
+    "configurations": [
+        {
+            "name": "PowerShell cmdlets: pwsh",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "debug build",
+            "program": "pwsh",
+            "args": [
+                "-NoExit",
+                "-NoProfile",
+                "-Command",
+                "Import-Module ${workspaceFolder}/bin/Debug/net6.0/publish/PsSqlClient.psd1",
+            ],
+            "cwd": "${workspaceFolder}",
+            "stopAtEntry": false,
+            "console": "integratedTerminal"
+        }
+    ]
+}

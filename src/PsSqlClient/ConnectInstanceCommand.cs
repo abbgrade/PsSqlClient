@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Microsoft.Data.SqlClient;
 using Microsoft.Azure.Services.AppAuthentication;
 using System.Management.Automation;
@@ -255,9 +255,8 @@ namespace PsSqlClient
         public int ConnectTimeout
         {
             get { return ConnectionStringBuilder.ConnectTimeout; }
-            set { ConnectionStringBuilder.CommandTimeout = value; }
+            set { ConnectionStringBuilder.ConnectTimeout = value; }
         }
-
 
         [Parameter(
             ParameterSetName = PARAMETERSET_PROPERTIES_BASIC,

@@ -6,6 +6,7 @@ using System.Security;
 using System.Runtime.InteropServices;
 using System.IO;
 using System.Net;
+using System.Diagnostics;
 
 namespace PsSqlClient
 {
@@ -255,9 +256,8 @@ namespace PsSqlClient
         public int ConnectTimeout
         {
             get { return ConnectionStringBuilder.ConnectTimeout; }
-            set { ConnectionStringBuilder.CommandTimeout = value; }
+            set { ConnectionStringBuilder.ConnectTimeout = value; }
         }
-
 
         [Parameter(
             ParameterSetName = PARAMETERSET_PROPERTIES_BASIC,
@@ -334,26 +334,22 @@ namespace PsSqlClient
         #region Token Parameter
         [Parameter(
             Mandatory = true,
-            ParameterSetName = PARAMETERSET_CONNECTION_STRING_TOKEN,
-            ValueFromPipelineByPropertyName = true
+            ParameterSetName = PARAMETERSET_CONNECTION_STRING_TOKEN
         )]
         [Parameter(
             Mandatory = true,
-            ParameterSetName = PARAMETERSET_PROPERTIES_BASIC_TOKEN,
-            ValueFromPipelineByPropertyName = true
+            ParameterSetName = PARAMETERSET_PROPERTIES_BASIC_TOKEN
         )]
         [ValidateNotNullOrEmpty()]
         public string AccessToken { get; set; }
 
         [Parameter(
             Mandatory = true,
-            ParameterSetName = PARAMETERSET_CONNECTION_STRING_ACQUIRE_TOKEN,
-            ValueFromPipelineByPropertyName = true
+            ParameterSetName = PARAMETERSET_CONNECTION_STRING_ACQUIRE_TOKEN
         )]
         [Parameter(
             Mandatory = true,
-            ParameterSetName = PARAMETERSET_PROPERTIES_BASIC_ACQUIRE_TOKEN,
-            ValueFromPipelineByPropertyName = true
+            ParameterSetName = PARAMETERSET_PROPERTIES_BASIC_ACQUIRE_TOKEN
         )]
         public SwitchParameter AcquireToken { get; set; }
 
@@ -408,7 +404,13 @@ namespace PsSqlClient
         protected override void BeginProcessing()
         {
             base.BeginProcessing();
+            WriteVerbose($"ParameterSet: {ParameterSetName}");
+            LoadSqlClientDll();
+            InitAuthenticationClass();
+        }
 
+        private void LoadSqlClientDll()
+        {
             if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                 return;
 
@@ -435,45 +437,129 @@ namespace PsSqlClient
             NativeLibrary.Load(dllPath);
         }
 
-        protected override void ProcessRecord()
+
+        private AuthenticationClass _authenticationClass;
+
+        private void InitAuthenticationClass()
         {
-            base.ProcessRecord();
-
-            WriteVerbose($"ParameterSet: {ParameterSetName}");
-
-            // determine authentication class
-            AuthenticationClass authenticationClass;
-            if ( AcquireToken.IsPresent )
+            if (AcquireToken.IsPresent)
             {
                 WriteVerbose("Token was acquired. Use token-based authentication.");
-                authenticationClass = AuthenticationClass.TokenAuthentication;
+                _authenticationClass = AuthenticationClass.TokenAuthentication;
 
                 AccessToken = new AzureServiceTokenProvider().GetAccessTokenAsync(resource: Resource).Result;
-            } else if (!string.IsNullOrWhiteSpace(AccessToken))
+            }
+            else if (!string.IsNullOrWhiteSpace(AccessToken))
             {
                 WriteVerbose("Token was provided. Use token-based authentication.");
-                authenticationClass = AuthenticationClass.TokenAuthentication;
+                _authenticationClass = AuthenticationClass.TokenAuthentication;
             }
             else if (Credential != null)
             {
                 WriteVerbose("Credential was provided. Use credential-based authentication.");
-                authenticationClass = AuthenticationClass.CredentialAuthentication;
+                _authenticationClass = AuthenticationClass.CredentialAuthentication;
             }
             else
             {
                 WriteVerbose("Any token or credential was provided. Use basic authentication.");
-                authenticationClass = AuthenticationClass.BasicAuthentication;
+                _authenticationClass = AuthenticationClass.BasicAuthentication;
             }
 
-            WriteVerbose($"Authentication: {authenticationClass}.{Authentication}");
+            WriteVerbose($"Authentication: {_authenticationClass}.{Authentication}");
+        }
 
+        protected override void ProcessRecord()
+        {
+            base.ProcessRecord();
+            ValidateAuthenticationParameter();
+
+            // apply parameters
+            if (Port != null)
+                DataSource += $",{Port.Value}";
+
+            if (ConnectTimeout < ConnectRetryCount * ConnectRetryInterval)
+            {
+                ConnectTimeout = ConnectRetryCount * ConnectRetryInterval;
+                WriteVerbose($"Change ConnectTimeout to {ConnectTimeout}, based on ConnectRetryCount and ConnectRetryInterval.");
+            }
+
+            // connect
+            try
+            {
+                SqlConnection connection = CreateSqlConnection();
+                OpenConnection(connection);
+                SessionConnection = connection;
+            }
+            catch (Exception ex)
+            {
+                WriteVerbose($"Exception thrown {ex}.");
+                throw;
+            }
+        }
+        private SqlConnection CreateSqlConnection()
+        {
+            WriteVerbose($"ConnectionString: {ConnectionString}");
+            // create connection
+            SqlConnection connection;
+            switch (_authenticationClass)
+            {
+                case AuthenticationClass.BasicAuthentication:
+                    connection = new SqlConnection(connectionString: ConnectionString);
+                    break;
+                case AuthenticationClass.CredentialAuthentication:
+                    Password.MakeReadOnly();
+                    connection = new SqlConnection(
+                        connectionString: ConnectionString,
+                        credential: new SqlCredential(userId: UserId, password: Password)
+                    );
+                    break;
+                case AuthenticationClass.TokenAuthentication:
+                    connection = new SqlConnection(connectionString: ConnectionString)
+                    {
+                        AccessToken = AccessToken
+                    };
+                    break;
+                default:
+                    throw new NotSupportedException();
+            }
+
+            return connection;
+        }
+
+        private void OpenConnection(SqlConnection connection)
+        {
+            // open connection
+            var connectStopwatch = Stopwatch.StartNew();
+            try
+            {
+                connection.Open();
+            }
+            catch (SqlException ex)
+            {
+                WriteError(new ErrorRecord(
+                    exception: ex,
+                    errorId: ex.Number.ToString(),
+                    errorCategory: ErrorCategory.OpenError,
+                    targetObject: $"[{DataSource}].[InitialCatalog]"
+                ));
+            }
+            finally
+            {
+                connectStopwatch.Stop();
+                WriteVerbose($"Connection to [{connection.DataSource}].[{connection.Database}] is {connection.State} after {connectStopwatch.Elapsed}");
+                WriteObject(connection);
+            }
+        }
+
+        private void ValidateAuthenticationParameter()
+        {
             // validate parameters
             try
             {
                 switch (Authentication)
                 {
                     case SqlAuthenticationMethod.NotSpecified:
-                        switch (authenticationClass)
+                        switch (_authenticationClass)
                         {
                             case AuthenticationClass.BasicAuthentication:
                                 if (IsAzureSql)
@@ -499,23 +585,23 @@ namespace PsSqlClient
                         break;
 
                     case SqlAuthenticationMethod.SqlPassword:
-                        if (authenticationClass != AuthenticationClass.CredentialAuthentication)
-                            throw new InvalidOperationException($"{Authentication} is not supported with {authenticationClass}.");
+                        if (_authenticationClass != AuthenticationClass.CredentialAuthentication)
+                            throw new InvalidOperationException($"{Authentication} is not supported with {_authenticationClass}.");
                         break;
 
                     case SqlAuthenticationMethod.ActiveDirectoryPassword:
-                        if (authenticationClass != AuthenticationClass.CredentialAuthentication)
-                            throw new InvalidOperationException($"{Authentication} is not supported with {authenticationClass}.");
+                        if (_authenticationClass != AuthenticationClass.CredentialAuthentication)
+                            throw new InvalidOperationException($"{Authentication} is not supported with {_authenticationClass}.");
                         break;
 
                     case SqlAuthenticationMethod.ActiveDirectoryIntegrated:
-                        if (authenticationClass != AuthenticationClass.BasicAuthentication)
-                            throw new InvalidOperationException($"{Authentication} is not supported with {authenticationClass}.");
+                        if (_authenticationClass != AuthenticationClass.BasicAuthentication)
+                            throw new InvalidOperationException($"{Authentication} is not supported with {_authenticationClass}.");
                         break;
 
                     case SqlAuthenticationMethod.ActiveDirectoryInteractive:
-                        if (authenticationClass != AuthenticationClass.BasicAuthentication)
-                            throw new InvalidOperationException($"{Authentication} is not supported with {authenticationClass}.");
+                        if (_authenticationClass != AuthenticationClass.BasicAuthentication)
+                            throw new InvalidOperationException($"{Authentication} is not supported with {_authenticationClass}.");
 
                         if (!Environment.UserInteractive)
                         {
@@ -536,8 +622,8 @@ namespace PsSqlClient
                         throw new NotSupportedException();
 
                     case SqlAuthenticationMethod.ActiveDirectoryDefault:
-                        if (authenticationClass != AuthenticationClass.BasicAuthentication)
-                            throw new InvalidOperationException($"{Authentication} is not supported with {authenticationClass}.");
+                        if (_authenticationClass != AuthenticationClass.BasicAuthentication)
+                            throw new InvalidOperationException($"{Authentication} is not supported with {_authenticationClass}.");
                         break;
                 }
             }
@@ -553,63 +639,6 @@ namespace PsSqlClient
             catch (NotSupportedException)
             {
                 WriteWarning($"{Authentication} is currently not supported or tested.");
-            }
-
-            // apply parameters
-            if (Port != null)
-                DataSource += $",{Port.Value}";
-
-            // connect
-            try
-            {
-                // create connection
-                SqlConnection connection;
-                switch (authenticationClass)
-                {
-                    case AuthenticationClass.BasicAuthentication:
-                        connection = new SqlConnection(connectionString: ConnectionString);
-                        break;
-                    case AuthenticationClass.CredentialAuthentication:
-                        Password.MakeReadOnly();
-                        connection = new SqlConnection(
-                            connectionString: ConnectionString,
-                            credential: new SqlCredential(userId: UserId, password: Password)
-                        );
-                        break;
-                    case AuthenticationClass.TokenAuthentication:
-                        connection = new SqlConnection(connectionString: ConnectionString)
-                        {
-                            AccessToken = AccessToken
-                        };
-                        break;
-                    default:
-                        throw new NotSupportedException();
-                }
-
-                // open connection
-                try
-                {
-                    connection.Open();
-                    WriteVerbose($"Connection to [{connection.DataSource}].[{connection.Database}] is {connection.State}");
-                }
-                catch (SqlException ex)
-                {
-                    WriteError(new ErrorRecord(
-                        exception: ex,
-                        errorId: ex.Number.ToString(),
-                        errorCategory: ErrorCategory.OpenError,
-                        targetObject: null
-                    ));
-                }
-
-                SessionConnection = connection;
-                WriteObject(connection);
-
-            }
-            catch (Exception ex)
-            {
-                WriteVerbose($"Exception thrown {ex}.");
-                throw;
             }
         }
     }

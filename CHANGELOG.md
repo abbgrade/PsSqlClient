@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- The ConnectTimeout was setting the CommandTimeout in the ConnectionString.
+
+### Changed
+
+- The authentication related parameters do not longer use pipeline properties.
+
 ## [2.0.0] - 2023-05-30
 
 ### Added

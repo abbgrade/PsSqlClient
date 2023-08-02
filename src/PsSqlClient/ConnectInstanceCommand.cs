@@ -444,10 +444,11 @@ namespace PsSqlClient
         {
             if (AcquireToken.IsPresent)
             {
-                WriteVerbose("Token was acquired. Use token-based authentication.");
+                WriteVerbose("Token will be acquired. Use token-based authentication.");
                 _authenticationClass = AuthenticationClass.TokenAuthentication;
 
                 AccessToken = new AzureServiceTokenProvider().GetAccessTokenAsync(resource: Resource).Result;
+                WriteDebug($"AccessToken:${AccessToken}");
             }
             else if (!string.IsNullOrWhiteSpace(AccessToken))
             {
@@ -532,6 +533,7 @@ namespace PsSqlClient
             var connectStopwatch = Stopwatch.StartNew();
             try
             {
+                WriteDebug($"Open connection with connection string: ${ ConnectionString }");
                 connection.Open();
             }
             catch (SqlException ex)

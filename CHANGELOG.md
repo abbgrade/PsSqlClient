@@ -11,6 +11,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - PipelineStoppedException does not longer write en ErrorRecord but throws and exception.
 
+### Changed
+
+- Updated Microsoft.Data.SqlClient to 5.1.1.
+- Updated System.Management.Automation to 7.2.13.
+
 ## [2.1.0] - 2023-08-02
 
 ### Added

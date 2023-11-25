@@ -99,6 +99,67 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
+### -AcquireToken
+{{ Fill AcquireToken Description }}
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: ConnectionString_acquireToken, Properties_Basic_acquireToken
+Aliases:
+
+Required: True
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Authentication
+{{ Fill Authentication Description }}
+
+```yaml
+Type: SqlAuthenticationMethod
+Parameter Sets: (All)
+Aliases:
+Accepted values: NotSpecified, SqlPassword, ActiveDirectoryPassword, ActiveDirectoryIntegrated, ActiveDirectoryInteractive, ActiveDirectoryServicePrincipal, ActiveDirectoryDeviceCodeFlow, ActiveDirectoryManagedIdentity, ActiveDirectoryMSI, ActiveDirectoryDefault
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -ConnectRetryCount
+{{ Fill ConnectRetryCount Description }}
+
+```yaml
+Type: Int32
+Parameter Sets: Properties_Basic, Properties_Basic_withToken, Properties_Basic_acquireToken, Properties_Credential, Properties_CredentialObject
+Aliases: RetryCount
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: True (ByPropertyName)
+Accept wildcard characters: False
+```
+
+### -ConnectRetryInterval
+{{ Fill ConnectRetryInterval Description }}
+
+```yaml
+Type: Int32
+Parameter Sets: Properties_Basic, Properties_Basic_withToken, Properties_Basic_acquireToken, Properties_Credential, Properties_CredentialObject
+Aliases: RetryInterval
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: True (ByPropertyName)
+Accept wildcard characters: False
+```
+
 ### -ConnectTimeout
 {{ Fill ConnectTimeout Description }}
 
@@ -138,6 +199,21 @@ Required: True
 Position: 0
 Default value: None
 Accept pipeline input: True (ByPropertyName, ByValue)
+Accept wildcard characters: False
+```
+
+### -Credential
+{{ Fill Credential Description }}
+
+```yaml
+Type: PSCredential
+Parameter Sets: Properties_CredentialObject
+Aliases:
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
@@ -183,6 +259,21 @@ Accept pipeline input: True (ByPropertyName)
 Accept wildcard characters: False
 ```
 
+### -IntegratedSecurity
+{{ Fill IntegratedSecurity Description }}
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
 ### -Password
 {{ Fill Password Description }}
 
@@ -213,111 +304,6 @@ Accept pipeline input: True (ByPropertyName)
 Accept wildcard characters: False
 ```
 
-### -UserId
-{{ Fill UserId Description }}
-
-```yaml
-Type: String
-Parameter Sets: Properties_Credential
-Aliases:
-
-Required: True
-Position: 1
-Default value: None
-Accept pipeline input: True (ByPropertyName, ByValue)
-Accept wildcard characters: False
-```
-
-### -Authentication
-{{ Fill Authentication Description }}
-
-```yaml
-Type: SqlAuthenticationMethod
-Parameter Sets: (All)
-Aliases:
-
-Required: False
-Position: Named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -ConnectRetryCount
-{{ Fill ConnectRetryCount Description }}
-
-```yaml
-Type: Int32
-Parameter Sets: Properties_Basic, Properties_Basic_withToken, Properties_Basic_acquireToken, Properties_Credential, Properties_CredentialObject
-Aliases: RetryCount
-
-Required: False
-Position: Named
-Default value: None
-Accept pipeline input: True (ByPropertyName)
-Accept wildcard characters: False
-```
-
-### -ConnectRetryInterval
-{{ Fill ConnectRetryInterval Description }}
-
-```yaml
-Type: Int32
-Parameter Sets: Properties_Basic, Properties_Basic_withToken, Properties_Basic_acquireToken, Properties_Credential, Properties_CredentialObject
-Aliases: RetryInterval
-
-Required: False
-Position: Named
-Default value: None
-Accept pipeline input: True (ByPropertyName)
-Accept wildcard characters: False
-```
-
-### -Credential
-{{ Fill Credential Description }}
-
-```yaml
-Type: PSCredential
-Parameter Sets: Properties_CredentialObject
-Aliases:
-
-Required: False
-Position: Named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -IntegratedSecurity
-{{ Fill IntegratedSecurity Description }}
-
-```yaml
-Type: SwitchParameter
-Parameter Sets: (All)
-Aliases:
-
-Required: False
-Position: Named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -AcquireToken
-{{ Fill AcquireToken Description }}
-
-```yaml
-Type: SwitchParameter
-Parameter Sets: ConnectionString_acquireToken, Properties_Basic_acquireToken
-Aliases:
-
-Required: True
-Position: Named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
 ### -Resource
 {{ Fill Resource Description }}
 
@@ -345,6 +331,21 @@ Required: False
 Position: Named
 Default value: None
 Accept pipeline input: True (ByPropertyName)
+Accept wildcard characters: False
+```
+
+### -UserId
+{{ Fill UserId Description }}
+
+```yaml
+Type: String
+Parameter Sets: Properties_Credential
+Aliases:
+
+Required: True
+Position: 1
+Default value: None
+Accept pipeline input: True (ByPropertyName, ByValue)
 Accept wildcard characters: False
 ```
 

@@ -25,7 +25,9 @@ Describe Test-Connection {
 
             AfterAll {
                 if ( $Connection ) {
-                    Disconnect-TSqlInstance -Connection $Connection -ErrorAction Continue
+                    try {
+                        Disconnect-TSqlInstance -Connection $Connection -ErrorAction Continue
+                    } catch {}
                 }
             }
 

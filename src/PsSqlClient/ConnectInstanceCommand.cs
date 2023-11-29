@@ -1,12 +1,13 @@
-﻿using System;
+﻿using Azure.Core;
+using Azure.Identity;
 using Microsoft.Data.SqlClient;
-using Microsoft.Azure.Services.AppAuthentication;
-using System.Management.Automation;
-using System.Security;
-using System.Runtime.InteropServices;
-using System.IO;
-using System.Net;
+using System;
 using System.Diagnostics;
+using System.IO;
+using System.Management.Automation;
+using System.Net;
+using System.Runtime.InteropServices;
+using System.Security;
 
 namespace PsSqlClient
 {
@@ -447,7 +448,9 @@ namespace PsSqlClient
                 WriteVerbose("Token will be acquired. Use token-based authentication.");
                 _authenticationClass = AuthenticationClass.TokenAuthentication;
 
-                AccessToken = new AzureServiceTokenProvider().GetAccessTokenAsync(resource: Resource).Result;
+                AccessToken = new DefaultAzureCredential().GetToken(
+                    new TokenRequestContext(scopes: new string[] { Resource + "/.default" }) { }
+                ).Token;
                 WriteDebug($"AccessToken:${AccessToken}");
             }
             else if (!string.IsNullOrWhiteSpace(AccessToken))

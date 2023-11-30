@@ -84,7 +84,7 @@ Describe Connect-Instance {
             }
 
             It 'Connects by pipeline' -Skip:$DockerIsUnavailable {
-                $connection = $DockerTestInstance | Connect-TSqlInstance
+                $connection = $DockerTestInstance | Connect-TSqlInstance -UserId $DockerTestInstance.UserId -Password $DockerTestInstance.SecurePassword
                 $connection.State | Should -Be Open
             }
 

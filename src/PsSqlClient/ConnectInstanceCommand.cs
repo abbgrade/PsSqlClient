@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Microsoft.Data.SqlClient;
 using Microsoft.Azure.Services.AppAuthentication;
 using System.Management.Automation;
@@ -405,7 +405,7 @@ namespace PsSqlClient
         {
             base.BeginProcessing();
             WriteVerbose($"ParameterSet: {ParameterSetName}");
-            LoadSqlClientDll();
+            //LoadSqlClientDll();
             InitAuthenticationClass();
         }
 

@@ -4,3 +4,4 @@ publish
 coverage.xml
 testResults.xml
 */*/.vs
+.vs

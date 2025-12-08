@@ -7,12 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.2.0] - 2023-11-27
+
 ### Changed
 
 - Updated Microsoft.Data.SqlClient to 5.1.1.
 - Updated System.Management.Automation to 7.2.16 and PowerShell 7.2.16.
 
-### [2.1.1] - 2023-08-16
+## [2.1.1] - 2023-08-16
 
 ### Fixed
 

@@ -491,6 +491,10 @@ namespace PsSqlClient
                 OpenConnection(connection);
                 SessionConnection = connection;
             }
+            catch (PipelineStoppedException)
+            {
+                throw;
+            }
             catch (Exception ex)
             {
                 WriteVerbose($"Exception thrown {ex}.");

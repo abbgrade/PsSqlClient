@@ -15,7 +15,8 @@ schema: 2.0.0
 ```
 Export-TSqlTable [-InputObject] <PSObject> [-Table] <String> [-BatchSize <Int32>] [-Timeout <Int32>]
  [-CheckConstraints] [-FireTriggers] [-KeepIdentity] [-KeepNulls] [-TableLock] [-UseInternalTransaction]
- [-ColumnMapping <Hashtable>] [-Connection <SqlConnection>] [<CommonParameters>]
+ [-ColumnMapping <Hashtable>] [-Connection <SqlConnection>] [-ProgressAction <ActionPreference>]
+ [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -209,6 +210,21 @@ Required: False
 Position: Named
 Default value: False
 Accept pipeline input: True (ByPropertyName)
+Accept wildcard characters: False
+```
+
+### -ProgressAction
+{{ Fill ProgressAction Description }}
+
+```yaml
+Type: ActionPreference
+Parameter Sets: (All)
+Aliases: proga
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
 Accept wildcard characters: False
 ```
 

@@ -15,19 +15,19 @@ schema: 2.0.0
 ### StoredProcedure (Default)
 ```
 Invoke-TSqlProcedure [-Procedure] <String> [-Schema <String>] [-Database <String>] [[-Parameter] <Hashtable>]
- [-Timeout <Int32>] [-Connection <SqlConnection>] [<CommonParameters>]
+ [-Timeout <Int32>] [-Connection <SqlConnection>] [-ProgressAction <ActionPreference>] [<CommonParameters>]
 ```
 
 ### Text
 ```
 Invoke-TSqlProcedure [-Text] <String> [[-Parameter] <Hashtable>] [-Timeout <Int32>]
- [-Connection <SqlConnection>] [<CommonParameters>]
+ [-Connection <SqlConnection>] [-ProgressAction <ActionPreference>] [<CommonParameters>]
 ```
 
 ### TextFile
 ```
 Invoke-TSqlProcedure [-InputFile] <FileInfo> [[-Parameter] <Hashtable>] [-Timeout <Int32>]
- [-Connection <SqlConnection>] [<CommonParameters>]
+ [-Connection <SqlConnection>] [-ProgressAction <ActionPreference>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -161,6 +161,21 @@ Required: False
 Position: Named
 Default value: None
 Accept pipeline input: True (ByPropertyName)
+Accept wildcard characters: False
+```
+
+### -ProgressAction
+{{ Fill ProgressAction Description }}
+
+```yaml
+Type: ActionPreference
+Parameter Sets: (All)
+Aliases: proga
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
 Accept wildcard characters: False
 ```
 

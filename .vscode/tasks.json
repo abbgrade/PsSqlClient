@@ -123,6 +123,21 @@
             "dependsOn": "Build"
         },
         {
+            "label": "Test exclude AzureSql",
+            "group": "test",
+            "type": "shell",
+            "command": "Invoke-Pester -Configuration @{ Filter = @{ ExcludeTag = 'AzureSql' }}",
+            "options": {
+                "cwd": "test"
+            },
+            "problemMatcher": "$msCompile",
+            "presentation": {
+                "echo": false,
+                "showReuseMessage": false
+            },
+            "dependsOn": "Build"
+        },
+        {
             "label": "Test exclude Docker, AzureSql",
             "group": "test",
             "type": "shell",

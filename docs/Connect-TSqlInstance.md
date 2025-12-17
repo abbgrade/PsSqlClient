@@ -17,25 +17,25 @@ schema: 2.0.0
 Connect-TSqlInstance [-DataSource] <String> [-Port <Int32>] [[-InitialCatalog] <String>]
  [-TrustServerCertificate] [-ConnectTimeout <Int32>] [-ConnectRetryCount <Int32>]
  [-ConnectRetryInterval <Int32>] [-Authentication <SqlAuthenticationMethod>] [-IntegratedSecurity]
- [<CommonParameters>]
+ [-ProgressAction <ActionPreference>] [<CommonParameters>]
 ```
 
 ### ConnectionString
 ```
 Connect-TSqlInstance [-ConnectionString] <String> [-Authentication <SqlAuthenticationMethod>]
- [-IntegratedSecurity] [<CommonParameters>]
+ [-IntegratedSecurity] [-ProgressAction <ActionPreference>] [<CommonParameters>]
 ```
 
 ### ConnectionString_withToken
 ```
 Connect-TSqlInstance [-ConnectionString] <String> [-Authentication <SqlAuthenticationMethod>]
- [-IntegratedSecurity] -AccessToken <String> [<CommonParameters>]
+ [-IntegratedSecurity] -AccessToken <String> [-ProgressAction <ActionPreference>] [<CommonParameters>]
 ```
 
 ### ConnectionString_acquireToken
 ```
 Connect-TSqlInstance [-ConnectionString] <String> [-Authentication <SqlAuthenticationMethod>]
- [-IntegratedSecurity] [-AcquireToken] [<CommonParameters>]
+ [-IntegratedSecurity] [-AcquireToken] [-ProgressAction <ActionPreference>] [<CommonParameters>]
 ```
 
 ### Properties_Basic_withToken
@@ -43,7 +43,7 @@ Connect-TSqlInstance [-ConnectionString] <String> [-Authentication <SqlAuthentic
 Connect-TSqlInstance [-DataSource] <String> [-Port <Int32>] [-InitialCatalog] <String>
  [-TrustServerCertificate] [-ConnectTimeout <Int32>] [-ConnectRetryCount <Int32>]
  [-ConnectRetryInterval <Int32>] [-Authentication <SqlAuthenticationMethod>] [-IntegratedSecurity]
- -AccessToken <String> [<CommonParameters>]
+ -AccessToken <String> [-ProgressAction <ActionPreference>] [<CommonParameters>]
 ```
 
 ### Properties_Basic_acquireToken
@@ -51,7 +51,7 @@ Connect-TSqlInstance [-DataSource] <String> [-Port <Int32>] [-InitialCatalog] <S
 Connect-TSqlInstance [-DataSource] <String> [-Port <Int32>] [-InitialCatalog] <String>
  [-ConnectTimeout <Int32>] [-ConnectRetryCount <Int32>] [-ConnectRetryInterval <Int32>]
  [-Authentication <SqlAuthenticationMethod>] [-IntegratedSecurity] [-AcquireToken] [-Resource <String>]
- [<CommonParameters>]
+ [-ProgressAction <ActionPreference>] [<CommonParameters>]
 ```
 
 ### Properties_Credential
@@ -59,7 +59,7 @@ Connect-TSqlInstance [-DataSource] <String> [-Port <Int32>] [-InitialCatalog] <S
 Connect-TSqlInstance [-DataSource] <String> [-Port <Int32>] [[-InitialCatalog] <String>]
  [-TrustServerCertificate] [-ConnectTimeout <Int32>] [-ConnectRetryCount <Int32>]
  [-ConnectRetryInterval <Int32>] [-Authentication <SqlAuthenticationMethod>] [-IntegratedSecurity]
- [-UserId] <String> [-Password] <SecureString> [<CommonParameters>]
+ [-UserId] <String> [-Password] <SecureString> [-ProgressAction <ActionPreference>] [<CommonParameters>]
 ```
 
 ### Properties_CredentialObject
@@ -67,7 +67,7 @@ Connect-TSqlInstance [-DataSource] <String> [-Port <Int32>] [[-InitialCatalog] <
 Connect-TSqlInstance [-DataSource] <String> [-Port <Int32>] [[-InitialCatalog] <String>]
  [-TrustServerCertificate] [-ConnectTimeout <Int32>] [-ConnectRetryCount <Int32>]
  [-ConnectRetryInterval <Int32>] [-Authentication <SqlAuthenticationMethod>] [-IntegratedSecurity]
- [-Credential <PSCredential>] [<CommonParameters>]
+ [-Credential <PSCredential>] [-ProgressAction <ActionPreference>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -346,6 +346,21 @@ Required: True
 Position: 1
 Default value: None
 Accept pipeline input: True (ByPropertyName, ByValue)
+Accept wildcard characters: False
+```
+
+### -ProgressAction
+{{ Fill ProgressAction Description }}
+
+```yaml
+Type: ActionPreference
+Parameter Sets: (All)
+Aliases: proga
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
 Accept wildcard characters: False
 ```
 

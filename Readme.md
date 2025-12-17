@@ -1,6 +1,6 @@
 # Readme
 
-The PowerShell SQL Client module replaces the SQL Server utilities [SQLCMD](https://docs.microsoft.com/de-de/sql/tools/sqlcmd-utility) and [BCP](https://docs.microsoft.com/en-us/sql/tools/BCP-utility) with native PowerShell commands. It is part of [PsSqlTools](https://github.com/abbgrade/PsSqlTools).
+The PowerShell SQL Client module replaces the SQL Server utilities [SQLCMD](https://docs.microsoft.com/de-de/sql/tools/sqlcmd-utility) and [BCP](https://docs.microsoft.com/en-us/sql/tools/BCP-utility) with native PowerShell commands. It is part of [PsSqlUtils](https://github.com/abbgrade/PsSqlUtils).
 
 For details, visit the [GitHub Pages](https://abbgrade.github.io/PsSqlClient/).
 

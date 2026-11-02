@@ -35,6 +35,7 @@ namespace PsSqlClient
         }
 
         internal static SqlConnection SessionConnection { get; set; }
+        private readonly CancellationTokenSource _cancellationTokenSource = new();
         private SqlConnectionStringBuilder ConnectionStringBuilder { get; set; } = new();
 
         private bool IsAzureSql
@@ -411,6 +412,12 @@ namespace PsSqlClient
             InitAuthenticationClass();
         }
 
+        protected override void StopProcessing()
+        {
+            base.StopProcessing();
+            _cancellationTokenSource.Cancel(throwOnFirstException: true);
+        }
+
         private void LoadSqlClientDll()
         {
             if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
@@ -452,7 +459,7 @@ namespace PsSqlClient
                 var tokenScope = $"{Resource.TrimEnd('/')}/.default";
                 AccessToken = new DefaultAzureCredential().GetToken(
                     new TokenRequestContext(new[] { tokenScope }),
-                    CancellationToken.None
+                    _cancellationTokenSource.Token
                 ).Token;
                 WriteDebug($"AccessToken:${AccessToken}");
             }

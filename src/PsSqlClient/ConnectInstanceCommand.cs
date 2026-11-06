@@ -1,12 +1,14 @@
 ﻿using System;
+using Azure.Core;
+using Azure.Identity;
 using Microsoft.Data.SqlClient;
-using Microsoft.Azure.Services.AppAuthentication;
 using System.Management.Automation;
 using System.Security;
 using System.Runtime.InteropServices;
 using System.IO;
 using System.Net;
 using System.Diagnostics;
+using System.Threading;
 
 namespace PsSqlClient
 {
@@ -33,6 +35,7 @@ namespace PsSqlClient
         }
 
         internal static SqlConnection SessionConnection { get; set; }
+        private readonly CancellationTokenSource _cancellationTokenSource = new();
         private SqlConnectionStringBuilder ConnectionStringBuilder { get; set; } = new();
 
         private bool IsAzureSql
@@ -409,6 +412,12 @@ namespace PsSqlClient
             InitAuthenticationClass();
         }
 
+        protected override void StopProcessing()
+        {
+            base.StopProcessing();
+            _cancellationTokenSource.Cancel(throwOnFirstException: true);
+        }
+
         private void LoadSqlClientDll()
         {
             if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
@@ -447,7 +456,11 @@ namespace PsSqlClient
                 WriteVerbose("Token will be acquired. Use token-based authentication.");
                 _authenticationClass = AuthenticationClass.TokenAuthentication;
 
-                AccessToken = new AzureServiceTokenProvider().GetAccessTokenAsync(resource: Resource).Result;
+                var tokenScope = $"{Resource.TrimEnd('/')}/.default";
+                AccessToken = new DefaultAzureCredential().GetToken(
+                    new TokenRequestContext(new[] { tokenScope }),
+                    _cancellationTokenSource.Token
+                ).Token;
                 WriteDebug($"AccessToken:${AccessToken}");
             }
             else if (!string.IsNullOrWhiteSpace(AccessToken))

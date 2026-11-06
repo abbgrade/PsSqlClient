@@ -121,7 +121,7 @@ Accept wildcard characters: False
 Type: SqlAuthenticationMethod
 Parameter Sets: (All)
 Aliases:
-Accepted values: NotSpecified, SqlPassword, ActiveDirectoryPassword, ActiveDirectoryIntegrated, ActiveDirectoryInteractive, ActiveDirectoryServicePrincipal, ActiveDirectoryDeviceCodeFlow, ActiveDirectoryManagedIdentity, ActiveDirectoryMSI, ActiveDirectoryDefault
+Accepted values: NotSpecified, SqlPassword, ActiveDirectoryPassword, ActiveDirectoryIntegrated, ActiveDirectoryInteractive, ActiveDirectoryServicePrincipal, ActiveDirectoryDeviceCodeFlow, ActiveDirectoryManagedIdentity, ActiveDirectoryMSI, ActiveDirectoryDefault, ActiveDirectoryWorkloadIdentity
 
 Required: False
 Position: Named
